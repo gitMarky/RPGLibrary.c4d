@@ -7,7 +7,10 @@
 global func CreateParticle (szName, int iX, int iY, int iXDir, int iYDir, int a, b, pObj, bool fBehind)
 {
 	var pLayer = GetObjectLayer();
-	if(!pObj && pLayer && pLayer->~IsInteriorOfBuilding())
+	// irgendwie mochte er mein && nicht... pLayer war 0 und er hat trotzdem alle Aufrufe getätigt
+	if (!pObj)
+	if (pLayer)
+	if (pLayer->~IsInteriorOfBuilding())
 	{
 		var pDouble = LocalN("dummyObjectOutside", pLayer);
 		if( pDouble != this)
@@ -26,10 +29,10 @@ global func CreateParticle (szName, int iX, int iY, int iXDir, int iYDir, int a,
 global func CreateObject (id id, int iXOffset, int iYOffset, int iOwner)
 {
 	var pObj = _inherited(id, iXOffset, iYOffset, iOwner);
-	if(!pObj) return;
+	if (!pObj) return;
 
 	var pLayer = GetObjectLayer(pObj);
-	if(pLayer) pLayer->~AddToInterior(pObj);
+	if( pLayer) pLayer->~AddToInterior(pObj);
 	return pObj;
 }
 
@@ -73,10 +76,13 @@ global func Sound (string szSound, bool fGlobal, object pObj, int iVolume, int i
 {
 	if(!pObj) pObj = this;
 
-	var pLayer = pObj->~GetObjectLayer();
-	if(pLayer && pLayer->~IsInteriorOfBuilding())
+	if (pObj)
 	{
-		return _inherited(szSound, fGlobal, LocalN("dummyObjectOutside", pLayer), iVolume, iPlayer, iLoopCount, ...);
+		var pLayer = pObj->~GetObjectLayer();
+		if(pLayer) if (pLayer->~IsInteriorOfBuilding())
+		{
+			return _inherited(szSound, fGlobal, LocalN("dummyObjectOutside", pLayer), iVolume, iPlayer, iLoopCount, ...);
+		}
 	}
 	return _inherited(szSound, fGlobal, pObj, iVolume, iPlayer, iLoopCount, ...);
 }
