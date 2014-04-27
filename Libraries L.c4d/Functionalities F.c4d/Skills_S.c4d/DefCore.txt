@@ -1,0 +1,5 @@
+[DefCore]
+id=LF_S
+Version=4,9,8
+Name=Skill System
+Category=1

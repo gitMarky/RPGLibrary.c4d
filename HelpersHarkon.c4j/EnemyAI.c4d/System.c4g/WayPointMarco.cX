@@ -1,0 +1,1124 @@
+/*---- Wegfindung ----*/
+
+#strict 2
+#appendto CLNK
+#appendto BIRD
+
+
+static LOG_debug;
+
+global func SetTransferZone() {}
+
+// Logs an error message
+global func ErrorLog(string msg) {
+  var out = Format(msg,Par(1),Par(2),Par(3),Par(4),Par(5),Par(6),Par(7),Par(8),Par(9));
+  var out = Format("ERROR: %s",out);
+  Log(out);
+  if(this)
+    Log(" in: %s @(%d,%d)",GetName(),GetX(),GetY());
+}
+
+// Logs if debug mode is on
+global func DebugLog(string msg, name) {
+  if(Debug(name))
+    Log(msg,Par(2),Par(3),Par(4),Par(5),Par(6),Par(7),Par(8),Par(9));
+}
+
+// Displays the message if the debug mode is on
+// always per-object
+global func DebugMessage(string msg,  name) {
+  if(Debug(name))
+    Message(msg,this,Par(2),Par(3),Par(4),Par(5),Par(6),Par(7),Par(8),Par(9));
+}
+
+// Checks wether the debug mode is on
+global func Debug(name) {
+
+  // this namespace on
+  if(g_DebugMode == name) return true;
+
+  // generally on
+  if(g_DebugMode == "all") return true;
+
+  return false;
+}
+
+static g_DebugMode;
+
+global func DebugMode(bool switch, name) {
+
+  if(!name) name = "all";
+
+  // on
+  if(switch) {
+    g_DebugMode = name;
+  }
+  // off
+  else {
+    g_DebugMode = 0;
+  }
+}
+
+
+/* KI-Zeugs */
+
+// Array mit Effektnummern
+// Effektvariablen:
+// 0: Kommandoname (string)
+// 1: Zielobjekt (objekt)
+// 2: Ziel-X (int)
+// 3: Ziel-Y (int)
+// 4: Verzögerung (int)
+// 5: Callbackobjekt (object)
+// 6: Aggrolevel
+local aMacroCommandList;
+// Wegpunktearray
+local aPath;
+local fThrow;
+local pMacroEnter;
+local aNextPoint;
+
+// iAggro = -1 bedeutet keine Änderung am Aggrolevel
+// Einen Makrobefehl setzen
+public func SetMacroCommand(object pCallback, string szCommand, object pTarget, int iX, int iY, int iDelay, int iAggro)
+{
+  // kein ordentlicher Befehl -> nichts tun
+  if(!szCommand) return;
+  if(szCommand == "Attack") szCommand = "Follow";
+  if(szCommand == "Throw")
+	{
+		szCommand = "MoveTo";
+		fThrow = 1;
+	}
+	else fThrow = 0;
+  if(szCommand == "Enter")
+	{
+		szCommand = "MoveTo";
+		pMacroEnter = pTarget;
+	}
+	else pMacroEnter = 0;
+  if(szCommand != "MoveTo" && szCommand != "Follow" && szCommand != "Wait" && szCommand != "None")
+  {
+    ErrorLog("Unknown macro command: %s", szCommand);
+    return;
+  }
+  // Parameter evtl. vorbearbeiten oder besondere Checks
+  if(szCommand == "MoveTo")
+    if(pTarget)
+    {
+      iX = pTarget->GetX();
+      iY = pTarget->GetY();
+    }
+  if(szCommand == "Follow")
+    if(!pTarget)
+    {
+      ErrorLog("Too few arguments for FOLLOW (no target object)");
+      return;
+    }
+  // Aktuelle Beschäftigung beenden
+  var currCom = GetMacroCommand(0,0);
+  if(currCom)
+  {
+    ClearScheduleCall(this, Format("MacroCom%s", currCom));
+    SetCommand(this, "None");
+    SetComDir(COMD_Stop);
+  }
+  // Liste löschen
+  //Log("%s #%d: ClearMacroCom by SetMacroCom", GetName(), ObjectNumber());
+  ClearMacroCommands();
+  // Befehl eintragen
+  var iEffect = AddEffect("MacroCommand", this, 300, 0, this);
+  aMacroCommandList[0] = iEffect;
+  EffectVar(0, this, iEffect) = szCommand;
+  EffectVar(1, this, iEffect) = pTarget;
+  EffectVar(2, this, iEffect) = iX;
+  EffectVar(3, this, iEffect) = iY;
+  EffectVar(4, this, iEffect) = iDelay;
+  EffectVar(5, this, iEffect) = pCallback;
+  EffectVar(6, this, iEffect) = iAggro;
+  // Ausführung beantragen
+  ClearScheduleCall(this, "MacroCommandMoveTo");
+  ClearScheduleCall(this, "MacroCommandFollow");
+  ClearScheduleCall(this, "MacroCommandWait");
+  //Log("%s #%d: SetMacroCom: '%s' %d/%d Target: %s #%d", GetName(), ObjectNumber(), szCommand, iX, iY, GetName(pTarget), ObjectNumber(pTarget));
+  if(szCommand != "None")
+    ScheduleCall(this, Format("MacroCom%s", szCommand), 1);
+  else
+  {
+    ClearMacroCommands();
+  }
+  return 1;
+}
+
+// Befehl an den Anfang setzen
+public func AddMacroCommand(object pCallback, string szCommand, object pTarget, int iX, int iY, int iDelay, int iAggro)
+{//Log("%s #%d: AddMacroCom", GetName(), ObjectNumber());
+  // Befehlsliste zwischenspeichern
+  var aComs = aMacroCommandList;
+  // Und leeren
+  var currCom = GetMacroCommand(0,0);
+  if(currCom)
+  {
+    ClearScheduleCall(this, Format("MacroCom%s", currCom));
+    SetCommand(this, "None");
+    SetComDir(COMD_Stop);
+  }
+  aMacroCommandList = CreateArray();
+  // Kommando sollen nicht gelöscht werden
+  AddEffect("MacroCommandLocked", this, 301);
+  // Befehl einsetzen
+  var ret = SetMacroCommand(pCallback, szCommand, pTarget, iX, iY, iDelay, iAggro);
+  // Andere Befehle wieder eintragen
+  if(ret)
+  {
+    for(var iCom in aComs)
+      if(iCom)
+        aMacroCommandList[GetLength(aMacroCommandList)] = iCom;
+  }
+  else
+    aMacroCommandList = aComs;
+  // Kommandos freigeben
+  RemoveEffect("MacroCommandLocked", this);
+  // Rückgabe
+  return ret;
+}
+
+// Befehl ans Ende setzen
+public func AppendMacroCommand(object pCallback, string szCommand, object pTarget, int iX, int iY, int iDelay, int iAggro)
+{
+  // kein ordentlicher Befehl -> nichts tun
+  if(!szCommand) return;
+  if(szCommand == "Attack") szCommand = "Follow";
+  if(szCommand != "MoveTo" && szCommand != "Follow" && szCommand != "Wait" && szCommand != "None")
+  {
+    ErrorLog("Unknown macro command: %s", szCommand);
+    return;
+  }
+  // Parameter evtl. vorbearbeiten oder besondere Checks
+  if(szCommand == "MoveTo")
+    if(pTarget)
+    {
+      iX = pTarget->GetX();
+      iY = pTarget->GetY();
+    }
+  if(szCommand == "Follow")
+    if(!pTarget)
+    {
+      ErrorLog("Too few arguments for FOLLOW (no target object)");
+      return;
+    }
+  // Befehl eintragen
+  var iEffect = AddEffect("MacroCommand", this, 300, 0, this);
+  aMacroCommandList[GetLength(aMacroCommandList)] = iEffect;
+  EffectVar(0, this, iEffect) = szCommand;
+  EffectVar(1, this, iEffect) = pTarget;
+  EffectVar(2, this, iEffect) = iX;
+  EffectVar(3, this, iEffect) = iY;
+  EffectVar(4, this, iEffect) = iDelay;
+  EffectVar(5, this, iEffect) = pCallback;
+  EffectVar(6, this, iEffect) = iAggro;
+  // Starten?
+  if(GetLength(aMacroCommandList) == 1)
+  {
+    if(szCommand != "None")
+      Call(Format("MacroCom%s", szCommand));
+    else
+      ClearMacroCommands();
+  }
+  return 1;
+}
+
+// Abfrage
+public func GetMacroCommand(int iCommandNum, int iElement)
+{
+  // An der Stelle gibt es nichts?
+  if(iCommandNum < 0 || GetLength(aMacroCommandList) <= iCommandNum) return;
+  // Element zurückgeben
+  return EffectVar(iElement, this, aMacroCommandList[iCommandNum]);
+}
+
+// Beenden (wenn, dann nur extern gebraucht)
+public func FinishMacroCommand(bool fNoCallback, bool fNoSuccess, int iCommandNum)
+{
+  // An der Stelle gibt es nichts?
+  if(iCommandNum < 0 || GetLength(aMacroCommandList) <= iCommandNum) return;
+  // mit Callback -> Callback machen
+  if(!fNoCallback)
+  {
+    if(!fNoSuccess)
+      return MacroComSuccess(iCommandNum);
+    else
+      return MacroComSuccessFailed(iCommandNum);
+  }
+  // Ohne Callback -> kein Callback ;)
+  RemoveMacroCommand(iCommandNum);
+  // Nächstes Kommando starten
+  if(GetMacroCommand() && !iCommandNum)
+    if(GetMacroCommand() != "None")
+      Call(Format("MacroCom%s", GetMacroCommand()));
+  return 1;
+}
+
+// Löscht alle Makrobefehle (ohne Callbacks)
+public func ClearMacroCommands()
+{
+  while(GetMacroCommand())
+    RemoveMacroCommand();
+  aMacroCommandList = CreateArray();
+  ClearScheduleCall(this, "MacroComMoveTo");
+  ClearScheduleCall(this, "MacroComWait");
+  ClearScheduleCall(this, "MacroComFollow");
+  ClearScheduleCall(this, "MacroComSuccessFailed");
+  ClearScheduleCall(this, "JumppadCheck");
+}
+
+func GetHorse()
+{
+	if(GetProcedure() == "ATTACH") return GetActionTarget();
+}
+
+/* Makros */
+
+// MoveTo
+protected func MacroComMoveTo()
+{
+  // Erstes Kommando ist gar nicht MoveTo?
+  if(GetMacroCommand(0,0) != "MoveTo") return;
+  // Kein Ziel? (bewirkt, dass der Clonk nicht nach 0,0 laufen kann!)
+  if(!GetMacroCommand(0,2) && !GetMacroCommand(0,3))
+    if(!GetMacroCommand(0,4))
+      return MacroComSuccessFailed(0, Macro_MoveToNoTarget);
+  // Pfad suchen
+  aPath = CreateArray();
+  var start, end;
+  start = FindWaypoint(GetX(), GetY());
+  end = FindWaypoint(GetMacroCommand(0,2), GetMacroCommand(0,3));
+	if(start == end)
+	{
+		if(pMacroEnter) return SetCommand(this, "Enter", pMacroEnter);
+		return SetCommand(this, "MoveTo", 0, GetMacroCommand(0,2), GetMacroCommand(0,3));
+	}
+  if(!start || !end)
+	{
+		MacroComSuccessFailed(0, Macro_NoPath);
+		SetCommand(this, "MoveTo", 0, GetMacroCommand(0,2), GetMacroCommand(0,3));
+		return;
+	}
+	var breaktime = 0;
+	if(aNextPoint && start->GetNextWaypoint(end) == aNextPoint[0])
+	{
+		start = aNextPoint[0];
+		if(aNextPoint[1])
+			breaktime = aNextPoint[1];
+	}
+  aPath = FindPath(start, end, true);
+  // Kein Pfad konnte gefunden werden?
+  if(!aPath) return MacroComSuccessFailed(0, Macro_NoPath);
+
+  // ist der Endpunkt ein Transportpunkt? (ein Wegpunkt mit nur einem Ausgang
+  // und dieser Ausgang zeigt nicht zum Eingang)
+/*  if(end->GetPathCount() == 1) {
+    var before = 0;
+    var leng = GetLength(aPath);
+    if(start != end)
+      before = aPath[leng-2];
+    if(end->GetPathTarget(0) != before) {
+      // Ziel ändern (Regel: Pfad darf nicht auf Transportpunkt enden)
+      aPath[leng] = end->GetPathTarget(0);
+      // Ziel ändern auf folgenden Wegpunkt, Position entsprechend.
+      EffectVar(1, this, aMacroCommandList[0]) = end->GetPathTarget(0);
+      EffectVar(2, this, aMacroCommandList[0]) = GetX(end->GetPathTarget(0));
+      EffectVar(3, this, aMacroCommandList[0]) = GetY(end->GetPathTarget(0));
+    }
+  }*/
+  // In Bewegung setzen (der erste Wegpunkt sollte durch MoveTo erreichbar sein, wenn nicht -> doof
+  // Spezialhack: reitet!
+//  if(Call("IsRiding")) SetAction("Walk");
+	if(Abs(GetX()-GetX(aPath[0])) > 5)
+	{
+		aNextPoint = [aPath[0], 0];
+		SetCommand(this, "MoveTo", aPath[0]);
+		if(GetHorse()) SetCommand(GetHorse(), "MoveTo", aPath[0]);
+	}
+  AppendCommand(this, "Call", this, 1,0,0,0, "MacroComMoveToStep");
+  // Automatischer Abbruch
+  ScheduleCall(this, "MacroComSuccessFailed", 500, 0, 0, Macro_PathImpossible*0-10);
+  // Falls Startwegpunkt = Jumppadpunkt
+  if(GetLength(aPath) > 1 && aPath[0]->GetPathCount() == 1)
+    ScheduleCall(this, "JumppadCheck", 5, 0, aPath[1], 2);
+	if(breaktime)
+		ScheduleCall(this, "MacroComSuccessFailed", breaktime, 0, 0, Macro_PathImpossible);
+  //Log("%s #%d: MacroComMoveTo", GetName(), ObjectNumber());
+}
+local fDoLog;
+local fBreak;
+global func SetCommand(pTarget) { if(LocalN("fBreak", pTarget)) DoBreak(); return _inherited(pTarget, ...); }
+
+global func DoBreak() { a; }
+
+protected func MacroComMoveToStep(object dummy, int iStep) // MoveTo-Schritt
+{
+  // Erstes Kommando ist gar nicht MoveTo?
+  if(GetMacroCommand(0,0) != "MoveTo") return;
+  // Wird haben das Ende des Pfades erreicht?
+  if(GetLength(aPath) == iStep)
+  {if(fDoLog) Log("%s #%d: MacroComMoveTo finished", GetName(), ObjectNumber());
+    // Zum Ziel laufen und beenden
+		aNextPoint = 0;
+    var x = GetMacroCommand(0,2), y = GetMacroCommand(0,3);
+		ClearScheduleCall(this, "MacroComMoveTo");
+		if(pMacroEnter)
+			SetCommand(this, "Enter", pMacroEnter);
+    else
+			SetCommand(this, "MoveTo", 0, x,y);
+    AppendCommand(this, "Call", this, 0,0,0,0, "MacroComSuccess");
+		if(GetHorse())
+		{
+			SetCommand(GetHorse(), "MoveTo", 0, x,y);
+			AppendCommand(GetHorse(), "Call", this, 0,0,0,0, "MacroComSuccess");
+		}
+    return 1;
+  }
+  // Aus irgendeinem Grund ist kein Wegpunkt da?
+  if(!aPath[iStep]) return MacroComSuccessFailed(0, Macro_PathBroken);
+  if(!aPath[iStep-1]) return MacroComSuccessFailed(0, Macro_PathBroken);
+	// Rausfinden, welchen Weg wir gehen müssen
+  for(var i = 0, path = -1 ; i < aPath[iStep-1]->GetPathCount() ; i++)
+    if(aPath[iStep-1]->GetPathTarget(i) == aPath[iStep])
+    {
+      path = i;
+      break;
+    }
+  // Kein Weg? -> Fehler
+  if(path < 0) return MacroComSuccessFailed(0, Macro_PathBroken);
+  // Nächsten Wegpunkt begehen
+  MoveAlongPath(aPath[iStep-1], aPath[iStep], iStep+1, path);
+  AppendCommand(this, "Call", this, iStep+1,0,0,0, "MacroComMoveToStep");
+  // Automatischer Abbruch
+  ClearScheduleCall(this, "MacroComSuccessFailed");
+  // 200 Frames pro 100 Pixel Abstand sind angesetzt
+  var breaktime = Max(ObjectDistance(aPath[iStep-1], aPath[iStep]) / 100 * 200 * 5, 100);
+	var breaktime = aPath[iStep-1]->GetPathTime(path) * 110 / 100; // Normale Zeit plus 10% gratis!
+	if(aPath[iStep-1]->GetPathFlag(path) == Path_Lift) breaktime *= 2; // Wenn der Aufzug gerade nicht da ist kann es schon mal doppelt so lange dauern
+	if(breaktime)
+	{
+		// TODO: also for taken up follow command
+		ScheduleCall(this, "MacroComSuccessFailed", breaktime, 0, 0, Macro_PathImpossible);
+	}
+	aNextPoint = [aPath[iStep], breaktime];
+	DebugLog(Format("%s #%d: breaktime: %d (%d)", GetName(), ObjectNumber(), breaktime), "AI_ExecMovement");
+  //Log("%s #%d: MacroComMoveToStep", GetName(), ObjectNumber());
+  return 1;
+}
+
+protected func MacroComMoveToStepFailed() // MoveTo-Schritt fehlgeschlagen
+{//Log("%s #%d: MacroComMoveToStepFailed", GetName(), ObjectNumber());
+  // Erstes Kommando ist gar nicht MoveTo?
+  if(GetMacroCommand(0,0) != "MoveTo") return;
+  // Fehlschlag auf ganzer Linie
+  MacroComSuccessFailed(0, Macro_PathImpossible);
+  return 1;
+}
+
+// Follow
+protected func MacroComFollow(bool fStarted)
+{
+  // Sonderbehandlung: wurde schon gestartet
+  if(fStarted)
+  {
+    DebugLog(Format("%s #%d: MacroComFollow timer", GetName(), ObjectNumber()), "MacroComFollow");
+    // Prüfen, ob an der Stelle iPos in der Kette "Follow" steht
+    if(GetMacroCommand(1) != "Follow" && GetMacroCommand(0) != "Follow")
+      // Steht nicht da, ergo muss sich ein anderes Kommando reingeschaltet haben -> nichts tun
+      return;
+    // Wir haben kein MoveTo mehr? Dann sind wir angekommen (wir starten einfach neu)
+    if(GetMacroCommand() != "MoveTo") return MacroComFollow();
+    // Unser Ziel ist irgendwie weg?
+    if(!GetMacroCommand(1,1))
+    {
+      DebugLog(Format("%s #%d: MacroComFollow target lost", GetName(), ObjectNumber()), "MacroComFollow");
+      // MoveTo löschen
+      RemoveMacroCommand();
+      // Fehlschlag ausgeben
+      return MacroComSuccessFailed(0, Macro_FollowTargetLost);
+    }
+    // Schauen, ob unser Bewegungsziel noch ok ist
+    var x,y,target;
+    x = GetMacroCommand(0,2);
+    y = GetMacroCommand(0,3);
+    target = GetMacroCommand(0,1);
+    // Distanz > 30 Pixel?
+    if(Distance(AbsX(x), AbsY(y), AbsX(target->GetX()), AbsY(target->GetY())) > 30)
+    {
+      DebugLog(Format("%s #%d: MacroComFollow new MoveTo", GetName(), ObjectNumber()), "MacroComFollow");
+      // MoveTo löschen
+      if(GetMacroCommand() == "MoveTo") RemoveMacroCommand();
+      // Neues Kommando setzen
+      AddMacroCommand(0, "MoveTo", GetMacroCommand(0,1), 0, 0, 0, GetMacroCommand(0,6));
+    }
+    // Follow Weiterlaufen lassen
+    return ScheduleCall(this, "MacroComFollow", 30, 0, true);
+  }
+  DebugLog(Format("%s #%d: MacroComFollow started", GetName(), ObjectNumber()), "MacroComFollow");
+  // Erstes Kommando ist gar nicht Follow?
+  if(GetMacroCommand(0,0) != "Follow") return;
+  // Kein Ziel? -> Fehlschlag
+  if(!GetMacroCommand(0,1))
+    return MacroComSuccessFailed();
+  // Wir sind dem Ziel noch nicht nahe genug?
+  if(ObjectDistance(GetMacroCommand(0,1)) > 10)
+    // Follow bedeutet viele MoveTos -> loslaufen bitte
+    AddMacroCommand(0, "MoveTo", GetMacroCommand(0,1), 0, 0, 0, GetMacroCommand(0, 6));
+  // Aggrolevel
+  //if(GetMacroCommand(0, 6) != -1)
+    //SetAggroLevel(GetMacroCommand(0, 6));
+  // Alle 30 Frames aktualisieren wir
+  return ScheduleCall(this, "MacroComFollow", 30, 0, true);
+}
+
+// Wait
+protected func MacroComWait(bool fEnd)
+{
+  // Erstes Kommando ist gar nicht Wait?
+  if(GetMacroCommand(0,0) != "Wait") return;
+  // Beenden?
+  if(fEnd)
+    return MacroComSuccess(0);
+  // Dann warten wir jetzt eine Runde
+  return ScheduleCall(this, "MacroComWait", GetMacroCommand(0,4), 0, true);
+}
+
+/* Makro-Funktionen */
+
+// Makrobefehl an der Stelle iCommand ist erfolgreich
+protected func MacroComSuccess(iCommand, int iCmd2)
+{//Log("%s #%d: MacroComSuccess", GetName(), ObjectNumber());
+  // Für Aufrufe aus SetCommand(... "Call");
+  if(GetType(iCommand) == C4V_C4Object) iCommand = iCmd2;
+  // An der Stelle gibt es nichts?
+  if(iCommand < 0 || GetLength(aMacroCommandList) <= iCommand) return;
+  // Hat super geklappt! Callbackobjekt benachrichtigen, sofern vorhanden
+  var callback = GetMacroCommand(iCommand, 5);
+  if(callback) callback->~OnMacroCommandSuccess(this);
+  // Kommando aus der Liste entfernen
+  RemoveMacroCommand(iCommand);
+  // Evtl. Weg löschen
+  aPath = CreateArray();
+  // Nächstes Kommando starten
+  if(GetMacroCommand()) Call(Format("MacroCom%s", GetMacroCommand()));
+  return 1;
+}
+
+/*
+protected func MacroComTumble()
+{//Log("%s #%d: MacroComTumble", GetName(), ObjectNumber());
+  MacroComSuccessFailed(0, Macro_PathImpossible);
+  CheckStuck();
+}*/
+
+// Fehlercodes:
+static const Macro_NoPath = 0; // Keinen Weg gefunden
+static const Macro_PathImpossible = 1; // Weg konnte abgelaufen werden
+static const Macro_PathBroken = 2; // Pfad wurde beim Ablaufen unterbrochen (Wegpunkt gelöscht o.ä.)
+static const Macro_FollowTargetLost = 3; // Target für Follow verloren
+static const Macro_MoveToNoTarget = 4; // MoveTo hat kein Ziel bekommen
+
+// Makrobefehl an der Stelle iCommand ist fehlgeschlagen
+protected func MacroComSuccessFailed(int iCommand, int iReason)
+{
+//	DebugLog(Format("%s #%d: AI_ExecMovement", GetName(), ObjectNumber()), "AI_ExecMovement");
+	DebugLog(Format("%s #%d: MacroComSuccessFailed: %d (%d)", GetName(), ObjectNumber(), iCommand, iReason), "AI_ExecMovement");
+  // An der Stelle gibt es nichts?
+  if(iCommand < 0 || GetLength(aMacroCommandList) <= iCommand) return;
+  // Hat gar nicht geklappt! Callbackobjekt benachrichtigen, sofern vorhanden
+  var callback = GetMacroCommand(iCommand, 5);
+  if(callback) callback->~OnMacroCommandFailed(this, iReason);
+  // Kommando aus der Liste entfernen
+  RemoveMacroCommand(iCommand);
+  if(!iCommand) SetCommand(this, "None");
+  // Evtl. Weg löschen
+  aPath = CreateArray();
+  // Nächstes Kommando starten
+  if(GetMacroCommand()) Call(Format("MacroCom%s", GetMacroCommand()));
+  return 1;
+}
+
+// Makrobefehle aus der Liste entfernen
+private func RemoveMacroCommand(int iCommand)
+{//Log("%s #%d: RemoveMacroCommand: %d", GetName(), ObjectNumber(), iCommand);
+  // An der Stelle gibt es nichts?
+  if(iCommand < 0 || GetLength(aMacroCommandList) <= iCommand) return;
+  // Entfernen
+  for(var i = 0, iEff, checked ; i < GetEffectCount("MacroCommand", this) ; i++)
+  {
+    iEff = GetEffect("MacroCommand", this, i);
+    if(iEff == aMacroCommandList[iCommand])
+    {
+      RemoveEffect("MacroCommand", this, i);
+      continue;
+    }
+    if(GetEffect("MacroCommandLocked", this)) continue;
+    for(var mac in aMacroCommandList)
+      if(mac == iEff)
+        checked = true;
+    if(!checked) RemoveEffect("MacroCommand", this, i, true);
+    checked = false;
+  }
+/*  if(RemoveEffect(0, this, aMacroCommandList[iCommand]))
+    Log("Effect removed");*/
+  var aNewMacroComList = CreateArray();
+  i = 0;
+  for(var iCom in aMacroCommandList)
+  {
+    if(i == iCommand) continue;
+    aNewMacroComList[GetLength(aNewMacroComList)] = iCom;
+    i++;
+  }
+  // Erfolgreich entfernt
+  aMacroCommandList = aNewMacroComList;
+  return 1;
+}
+
+public func FxMacroCommandStop(object pTarget)
+{
+  // Wenn wir gesichert sind, werden wir nicht entfernt
+  if(GetEffect("MacroCommandLocked", pTarget)) return -1;
+}
+
+/* Wegfindung */
+
+// gibt Pfad von Wegpunkt pStart bis pEnd als Array aus. An Stelle 0 ist pStart.
+// wenn FindPath = 0, hat er keinen Pfad gefunden.
+public func FindPath(object pStart, object pEnd)
+{
+  // naive Wegfindung. Wir gehen davon aus, dass wenn der WP links von einem ist,
+  // nach links gegangen werden muss und gehen einfach Schritt fuer Schritt in diese
+  // Richtung.
+
+  // maximale Iterationen fuer Wegfindung (abhaengig von Anzahl Wegpunkte)
+  var iterationLimit = ObjectCount(WAYP);
+
+  var ex = GetX(pEnd);
+  var ey = GetY(pEnd);
+
+  var pCurrent = pStart;
+
+  var aWaypoints = CreateArray();
+
+  for(var j=0; j< iterationLimit; ++j) {
+
+    aWaypoints[j] = pCurrent;
+
+    // fertig!
+    if(pCurrent == pEnd)
+      return aWaypoints;
+
+    // ansonsten...
+    var cx = GetX(pCurrent);
+    var cy = GetY(pCurrent);
+    var cangle = Angle(cx,cy,ex,ey);
+
+    var pNext = 0;
+    var pathcount = (pCurrent->WAYP::GetPathCount());
+    var aBest = CreateArray();
+    var good = 0;
+    var neutral = 0;
+    var bad = 0;
+
+    // alle Nachbarknoten...
+    for(var i=0; i<pathcount; ++i) {
+      pNext = (pCurrent->WAYP::GetPathTarget(i));
+
+      // Fuer die richtige Richtung zaehlt nicht der Winkel des naechsten Knotens, sondern
+      // wenn pNext nur einen Nachfolger hat, zaehlt die Richtung in die der Nachfolger geht
+      // (was rekursiv fortsetzbar ist)
+      var jetpgedacht = 0;
+      while((pNext->WAYP::GetPathCount()) == 1) {
+        // Endknoten? Wir brauchen nicht weiteriterieren
+        if(pNext == pEnd) break;
+        pNext = (pNext->WAYP::GetPathTarget(0));
+      }
+
+      // Endknoten? Super, fertig!
+      if(pNext == pEnd) {
+        aBest[0] = i;
+        good = 1;
+        break;
+      }
+
+      // ansonsten
+      var nx = GetX(pNext);
+      var ny = GetY(pNext);
+      var nangle = Angle(cx,cy,nx,ny);
+
+      // diffangle: Nimmt Werte von 0 (genau richtig) bis 180 (genau falsch) an
+      var diffangle = Abs(Normalize(nangle-cangle,-180));
+      // Schummeln: der WP von dem man grad gekommen ist, wird als "bad" eingestuft
+      if(j>0)
+        if(pNext == aWaypoints[j-1])
+          diffangle = 180;
+      // möglichst ein Array aus Pfaden zusammenstellen, die etwa in die gewünschte Richtung
+      // führen... (Differenz <= 55°)
+      if(diffangle <= 55) {
+        aBest[good] = i;
+        ++good;
+      }
+      // dann vielleicht nicht ganz so zielführende...? (nur wenn kein Pfad in richtige Richtung führt)
+      if(diffangle <= 110 && diffangle > 55 && !good) {
+        aBest[neutral] = i;
+        ++neutral;
+      }
+      // ansonsten dann ein Array aus nicht-zielführenden...
+      if(diffangle > 110 && !neutral && !good) {
+        aBest[bad] = i;
+        ++bad;
+      }
+    }
+    // Debug
+    if(Debug("waypoints")) {
+      var dbg = 0;
+      var str = " ";
+      var wayp = 0;
+      if(good) { str = "good"; dbg = good; }
+      else if(neutral) { str = "neutral"; dbg = neutral; }
+      else { str = "bad"; dbg = bad; }
+      if(dbg>1) {
+        DebugLog("  Choosing path from %s...","waypoints",str);
+        for(var d = 0; d<dbg; ++d) {
+          wayp = (pCurrent->WAYP::GetPathTarget(aBest[d]));
+          DebugLog("  waypoint (%d), angle %d","waypoints",ObjectNumber(wayp),Abs(Normalize(Angle(GetX(pCurrent),GetY(pCurrent),GetX(wayp),GetY(wayp))-cangle,-180)));
+        }
+      }
+    }
+
+    // zufällig aus möglichen Pfaden auswählen
+    var chosenone = -1;
+    if(good)			{ chosenone = aBest[Random(good)]; }
+    else if(neutral)	{ chosenone = aBest[Random(neutral)]; }
+    else if(bad)		{ chosenone = aBest[Random(bad)]; }
+    else {
+      DebugLog("Failure: Selected waypoint leads into a dead end.","waypoints");
+      return false;
+    }
+    // ansonsten ok
+    pNext = (pCurrent->WAYP::GetPathTarget(chosenone));
+
+    DebugLog("Next %s waypoint (%d), angle %d","waypoints",str,ObjectNumber(pNext),Abs(Normalize(Angle(GetX(pCurrent),GetY(pCurrent),GetX(pNext),GetY(pNext))-cangle,-180)));
+
+    // Fertig
+    if(pNext == pEnd) {
+      DebugLog("Success: Complete path consists of %d waypoints.","waypoints",GetLength(aWaypoints));
+    }
+
+    // kommt bei naechster Iteration ins Array
+    pCurrent = pNext;
+  }
+  DebugLog("Failure: No path found after %d iterations.","waypoints",iterationLimit);
+  return false;
+}
+
+public func FindPath(object pStart, object pEnd)
+{
+  // naive Wegfindung. Wir gehen davon aus, dass wenn der WP links von einem ist,
+  // nach links gegangen werden muss und gehen einfach Schritt fuer Schritt in diese
+  // Richtung.
+
+  // maximale Iterationen fuer Wegfindung (abhaengig von Anzahl Wegpunkte)
+  var iterationLimit = ObjectCount(WAYP);
+
+  var ex = GetX(pEnd);
+  var ey = GetY(pEnd);
+
+  var pCurrent = pStart;
+
+  var aWaypoints = CreateArray();
+
+  for(var j=0; j< iterationLimit; ++j) {
+
+    aWaypoints[j] = pCurrent;
+
+    // fertig!
+    if(pCurrent == pEnd)
+      return aWaypoints;
+
+		var pNext = pCurrent->GetNextWaypoint(pEnd);
+		if(!pNext)
+		{
+      DebugLog("Failure: Selected waypoint leads into a dead end.","waypoints");
+      return false;
+    }
+
+    pCurrent = pNext;
+		continue;
+		// ansonsten...
+    var cx = GetX(pCurrent);
+    var cy = GetY(pCurrent);
+    var cangle = Angle(cx,cy,ex,ey);
+
+    var pNext = 0;
+    var pathcount = (pCurrent->WAYP::GetPathCount());
+    var aBest = CreateArray();
+    var good = 0;
+    var neutral = 0;
+    var bad = 0;
+
+    // alle Nachbarknoten...
+    for(var i=0; i<pathcount; ++i) {
+      pNext = (pCurrent->WAYP::GetPathTarget(i));
+
+      // Fuer die richtige Richtung zaehlt nicht der Winkel des naechsten Knotens, sondern
+      // wenn pNext nur einen Nachfolger hat, zaehlt die Richtung in die der Nachfolger geht
+      // (was rekursiv fortsetzbar ist)
+      var jetpgedacht = 0;
+      while((pNext->WAYP::GetPathCount()) == 1) {
+        // Endknoten? Wir brauchen nicht weiteriterieren
+        if(pNext == pEnd) break;
+        pNext = (pNext->WAYP::GetPathTarget(0));
+      }
+
+      // Endknoten? Super, fertig!
+      if(pNext == pEnd) {
+        aBest[0] = i;
+        good = 1;
+        break;
+      }
+
+      // ansonsten
+      var nx = GetX(pNext);
+      var ny = GetY(pNext);
+      var nangle = Angle(cx,cy,nx,ny);
+
+      // diffangle: Nimmt Werte von 0 (genau richtig) bis 180 (genau falsch) an
+      var diffangle = Abs(Normalize(nangle-cangle,-180));
+      // Schummeln: der WP von dem man grad gekommen ist, wird als "bad" eingestuft
+      if(j>0)
+        if(pNext == aWaypoints[j-1])
+          diffangle = 180;
+      // möglichst ein Array aus Pfaden zusammenstellen, die etwa in die gewünschte Richtung
+      // führen... (Differenz <= 55°)
+      if(diffangle <= 55) {
+        aBest[good] = i;
+        ++good;
+      }
+      // dann vielleicht nicht ganz so zielführende...? (nur wenn kein Pfad in richtige Richtung führt)
+      if(diffangle <= 110 && diffangle > 55 && !good) {
+        aBest[neutral] = i;
+        ++neutral;
+      }
+      // ansonsten dann ein Array aus nicht-zielführenden...
+      if(diffangle > 110 && !neutral && !good) {
+        aBest[bad] = i;
+        ++bad;
+      }
+    }
+    // Debug
+    if(Debug("waypoints")) {
+      var dbg = 0;
+      var str = " ";
+      var wayp = 0;
+      if(good) { str = "good"; dbg = good; }
+      else if(neutral) { str = "neutral"; dbg = neutral; }
+      else { str = "bad"; dbg = bad; }
+      if(dbg>1) {
+        DebugLog("  Choosing path from %s...","waypoints",str);
+        for(var d = 0; d<dbg; ++d) {
+          wayp = (pCurrent->WAYP::GetPathTarget(aBest[d]));
+          DebugLog("  waypoint (%d), angle %d","waypoints",ObjectNumber(wayp),Abs(Normalize(Angle(GetX(pCurrent),GetY(pCurrent),GetX(wayp),GetY(wayp))-cangle,-180)));
+        }
+      }
+    }
+
+    // zufällig aus möglichen Pfaden auswählen
+    var chosenone = -1;
+    if(good)			{ chosenone = aBest[Random(good)]; }
+    else if(neutral)	{ chosenone = aBest[Random(neutral)]; }
+    else if(bad)		{ chosenone = aBest[Random(bad)]; }
+    else {
+      DebugLog("Failure: Selected waypoint leads into a dead end.","waypoints");
+      return false;
+    }
+    // ansonsten ok
+    pNext = (pCurrent->WAYP::GetPathTarget(chosenone));
+
+    DebugLog("Next %s waypoint (%d), angle %d","waypoints",str,ObjectNumber(pNext),Abs(Normalize(Angle(GetX(pCurrent),GetY(pCurrent),GetX(pNext),GetY(pNext))-cangle,-180)));
+
+    // Fertig
+    if(pNext == pEnd) {
+      DebugLog("Success: Complete path consists of %d waypoints.","waypoints",GetLength(aWaypoints));
+    }
+
+    // kommt bei naechster Iteration ins Array
+    pCurrent = pNext;
+  }
+  DebugLog("Failure: No path found after %d iterations.","waypoints",iterationLimit);
+  return false;
+}
+
+// nächsten Wegpunkt von einer Position aus suchen (geht nur, wenn PathFree!)
+private func FindWaypoint(int iX, int iY)
+{
+  var wp;
+  while(wp = FindObject(WAYP, AbsX(iX), AbsY(iY), -1, -1, 0,0,0,0, wp)) {
+    if(PathFree(iX, iY, wp->GetX(), wp->GetY()) || GBackSolid(wp->GetX()-GetX(), wp->GetY()-GetY()))
+      return wp;
+  }
+  // Nix gefunden
+  return;
+}
+
+// Lässt den Clonk von einem Wegpunkt zum anderen laufen, wobei er die jeweilige Pfadeigenschaft beachten muss
+private func MoveAlongPath(object pCurrentWp, object pNextWp, int iNextStep, int path)
+{
+/*  // Rausfinden, welchen Weg wir gehen müssen
+  for(var i = 0, path = -1 ; i < pCurrentWp->GetPathCount() ; i++)
+    if(pCurrentWp->GetPathTarget(i) == pNextWp)
+    {
+      path = i;
+      break;
+    }
+  // Kein Weg? -> Fehler
+  if(path < 0) return MacroComSuccessFailed(0, Macro_PathBroken);*/
+  // Sonderbehandlung für Zielwegpunkte, die nur einen Pfad von sich wegführen haben (da könnten Jumppads o.ä. sein)
+/*  ClearScheduleCall(this, "JumppadCheck"); // Zur Sicherheit
+  if(GetLength(aPath) > iNextStep && pNextWp->GetPathCount() == 1)
+    ScheduleCall(this, "JumppadCheck", 5, 0, pNextWp, iNextStep);*/
+  // Flag rausfinden und entsprechend agieren
+  var flag = pCurrentWp->GetPathFlag(path);
+  if(flag == Path_MoveTo)
+  {
+    // Hinlaufen
+    SetCommand(this, "MoveTo", pNextWp);
+    return AddSpecialCommands(pCurrentWp, path);
+  }
+  if(flag == Path_Jump)
+  {
+    // Springen und dann laufen
+    var dir = pCurrentWp->GetPathDir(path);
+    var vx = GetPhysical("Walk")*dir*7/250, vy = -GetPhysical("Jump")/10;
+		if(dir < 0) dir = 0;
+    SetDir(dir);
+/*		SetAction("Walk");
+    Jump();
+		SetXDir(vx, this, 1000);SetYDir(vy, this, 1000);*/
+    SetCommand(this, "MoveTo", pNextWp);
+		AddCommand(this, "Jump");
+		AddCommand(this, "Call", this, dir, 0, 0, 0, "ForceDir");
+		AddCommand(this, "Wait", 0, 0, 0, 0, 0, 1);
+    return AddSpecialCommands(pCurrentWp, path);
+  }
+  if(flag == Path_Backflip)
+  {
+    // Backflippen und dann laufen
+    var dir = pCurrentWp->GetPathDir(path);
+    if(dir < 0) dir = 0;
+    SetDir(!dir);
+    var iEff = AddEffect("ControlStack", this, 110, 5, this);
+		if(GetDir() == DIR_Left)
+		  EffectVar(0, this, iEff) = COMD_Right;
+		else
+		  EffectVar(0, this, iEff) = COMD_Left;
+    Jump();
+    ScheduleCall(0, "JumpStart", 1, 1, true);
+
+    SetCommand(this, "MoveTo", pNextWp);
+    return AddSpecialCommands(pCurrentWp, path);
+  }
+  if(flag == Path_Lift)
+  {
+    // Wir suchen den Lift und warten oder betreten ihn
+    LiftControl(0, ObjectNumber(pCurrentWp), ObjectNumber(pNextWp));
+    return AddSpecialCommands(pCurrentWp, path);
+  }
+  if(flag == Path_Door)
+  {
+    // Wir suchen die Tür und öffnen sie
+    DoorControl(0, ObjectNumber(pCurrentWp), ObjectNumber(pNextWp));
+    return AddSpecialCommands(pCurrentWp, path);
+  }
+  if(flag == Path_Stairs)
+	{
+		// Wir suchen Treppenaufgänge und gehen rein
+    StairsControl(0, ObjectNumber(pCurrentWp), ObjectNumber(pNextWp));
+    return AddSpecialCommands(pCurrentWp, path);
+	}
+  // Unbekanntes flag, MoveTo versuchen
+  SetCommand(this, "MoveTo", pNextWp);
+  return AddSpecialCommands(pCurrentWp, path);
+}
+
+func ForceDir(pDummy, iDir) { SetDir(iDir); }
+
+/* Sonderfunktionen */
+
+protected func JumppadCheck(object pTargetWp, int iNextStep)
+{
+  // Pfad hat sich irgendwie geändert
+  if(GetLength(aPath) <= iNextStep) return;
+  var pNextWp = aPath[iNextStep];
+  // Feststellen, ob pTargetWp immernoch unser Bewegungsziel ist
+  if(aPath[iNextStep-1] != pTargetWp)
+    return;
+  // Schauen, ob wir näher an pNextWp dran sind
+  if(ObjectDistance(pTargetWp) > ObjectDistance(pNextWp))
+    // Wegpunkt wird übersprungen
+    return MacroComMoveToStep(0, iNextStep);
+  // Weiterlaufen
+  ScheduleCall(this, "JumppadCheck", 5, 0, pTargetWp, iNextStep);
+}
+
+protected func LiftControl(object dummy, int pCurrentWp, int pNextWp)
+{//CPCD
+  // Fässt den Lift schon an?
+  if(GetAction() == "Push")
+  {
+    var lift = GetActionTarget();
+    if(!lift) return;
+    // Nah genug am Ziel? Absteigen
+    if(Abs(GetY()-GetY(Object(pNextWp))) < 5)
+		{//ObjectDistance(Object(pNextWp)) <= 50)
+//			SetAction("Walk");
+      return AddCommand(this, "MoveTo", Object(pNextWp));
+		}
+    // Liftplatten befehligen
+		if(!lift->GetCommand())
+			lift->~SetMoveTo(Object(pNextWp)->GetY());
+//    lift->~ControlCommand("MoveTo",0, Object(pNextWp)->GetX());
+    // Warten
+    AddCommand(this, "Call", this, pCurrentWp, pNextWp, 0,0, "LiftControl");
+    AddCommand(this, "Wait", 0,0,0,0,0, 15);
+    return 1;
+  }
+  // Liftplatte suchen
+  var y1 = Object(pCurrentWp)->GetY();
+  var y2 = Object(pNextWp)->GetY();
+  if(y1 > y2) { y1 = y2; y2 = Object(pCurrentWp)->GetY(); }
+//  Log("%d %d %d %d", -25, AbsX(y1), 50, y2-y1);
+  var lift = FindObject2(Find_Or(Find_Func("IsLift"), Find_ID(ELEC)), Sort_Distance());//Find_AtRect(-50, AbsY(y1)-20-500, 100, y2-y1+20+500));
+  var pOtherControler = FindObject2(Find_OCF(OCF_CrewMember), Find_Action("Push"), Find_ActionTarget(lift), Find_Exclude(this));
+  // Kein Lift? -> Fehlschlag
+  if(!lift) return MacroComSuccessFailed(0, Macro_PathBroken);
+  // Lift nah genug? -> Einsteigen
+  if(Abs(GetY()-GetY(lift)) < 5)
+  {
+    AddCommand(this, "Call", this, pCurrentWp, pNextWp, 0,0, "LiftControl");
+    AddCommand(this, "Grab", lift);
+    return 1;
+  }
+  else if(!lift->GetCommand() && !pOtherControler)
+		lift->~SetMoveTo(Object(pCurrentWp)->GetY());
+  // Warten
+  AddCommand(this, "Call", this, pCurrentWp, pNextWp, 0,0, "LiftControl");
+
+  AddCommand(this, "Wait", 0,0,0,0,0, 15);
+  return 1;
+}
+
+protected func DoorControl(object dummy, int pCurrentWp, int pNextWp)
+{
+  // Liftplatte suchen
+  var x1 = Object(pCurrentWp)->GetX();
+  var x2 = Object(pNextWp)->GetX();
+  if(x1 > x2) { x1 = x2; x2 = Object(pCurrentWp)->GetX(); }
+//  Log("%d %d %d %d", x1-GetX(), -25, x2-x1, 50);
+  var door = FindObject2(Find_ID(CPDP), Find_AtRect(x1-GetX(), -25, x2-x1, 50));
+	if(door)
+	{
+		if(door->IsOpen()) AddCommand(this, "MoveTo", Object(pNextWp));
+		else
+		{
+			AddCommand(this, "Call", door, 0, 0, 0,0, "DoClose");
+			AddCommand(this, "MoveTo", Object(pNextWp));
+			AddCommand(this, "Call", door, 0, 0, 0,0, "DoOpen");
+		}
+	}
+	door = FindObject2(Find_Or(Find_ID(CPGL), Find_ID(CPGR)), Find_AtRect(x1-GetX(), -25, x2-x1, 50));
+	if(door)
+	{
+		AddCommand(this, "Call", door, 0, 0, 0,0, "Close");
+    AddCommand(this, "MoveTo", Object(pNextWp));
+		AddCommand(this, "Call", door, 0, 0, 0,0, "Open");
+		return; 
+	}
+	door = FindObject2(Find_Or(Find_ID(CPBL), Find_ID(CPGR)), Find_AtRect(x1-GetX(), -50, x2-x1, 100));
+	if(door)
+	{
+		AddCommand(this, "Call", door, 0, 0, 0,0, "ControlUp");
+		AddCommand(this, "MoveTo", Object(pNextWp));
+		AddCommand(this, "Wait", 0,0,0,0,0, 65);
+		AddCommand(this, "Call", door, 0, 0, 0,0, "ControlDown");
+		return 1;
+	}
+	door = Object(pCurrentWp)->FindObject2(Find_ID(WGTW), Find_AtRect(-5, -50, 10, 100));
+	if(door && GetY(Object(pCurrentWp))>GetY(door) && Abs(GetX(Object(pCurrentWp))-GetX(door)) < 5)
+	{
+		var szCommand;
+		if(GetX(Object(pCurrentWp)) < GetX(Object(pNextWp)))
+		{
+			szCommand = "ControlRight";
+			if(door->RightGateOpen()) szCommand = 0;
+		}
+		else
+		{
+			szCommand = "ControlLeft";
+			if(door->LeftGateOpen()) szCommand = 0;
+		}Log(".%v %v", door, szCommand);
+		if(szCommand) AddCommand(this, "Call", door, 0, 0, 0,0, szCommand);
+		AddCommand(this, "MoveTo", Object(pNextWp));
+		if(szCommand) AddCommand(this, "Call", door, 0, 0, 0,0, szCommand);
+		return 1;
+	}
+	door = Object(pNextWp)->FindObject2(Find_ID(WGTW), Object(pNextWp)->Find_AtRect(-5, -50, 10, 100));
+	if(door && GetY(Object(pNextWp))>GetY(door) && Abs(GetX(Object(pNextWp))-GetX(door)) < 5)
+	{
+		var szCommand;
+		if(GetX(Object(pCurrentWp)) > GetX(Object(pNextWp)))
+		{
+			szCommand = "ControlRight";
+			if(door->RightGateOpen()) szCommand = 0;
+		}
+		else
+		{
+			szCommand = "ControlLeft";
+			if(door->LeftGateOpen()) szCommand = 0;
+		}
+		if(szCommand) AddCommand(this, "Call", door, 0, 0, 0,0, szCommand);
+		AddCommand(this, "MoveTo", Object(pNextWp));
+		if(szCommand) AddCommand(this, "Call", door, 0, 0, 0,0, szCommand);
+		return 1;
+	}
+  return 1;
+}
+
+protected func StairsControl(object dummy, int pCurrentWp, int pNextWp)
+{
+  // Treppenhaus suchen
+	var direction;
+	if(GetY(Object(pNextWp)) < GetY()) direction = "ContainedUp";
+	else direction = "ContainedDown";
+	var wait = 0;
+  var stairs = Object(pCurrentWp)->FindObject2(Find_Func("IsStaircase"), Find_AtRect(-25, -25, 50, 50));
+	if(!stairs) { direction = 0; stairs = Object(pCurrentWp)->FindObject2(Find_ID(CSTE),Find_AtRect(-25, -25, 50, 50)); }
+	if(!stairs) { wait = 35; direction = 0; stairs = Object(pCurrentWp)->FindObject2(Find_ID(WGTW),Find_AtRect(-25, -25, 50, 50)); }
+	if(!stairs) AddCommand(this, "MoveTo", Object(pNextWp));
+	else
+	{
+    AddCommand(this, "MoveTo", Object(pNextWp));
+		if(direction) AddCommand(this, "Call", stairs, 0, 0, 0,0, direction);
+		if(wait) AddCommand(this, "Wait", 0,0,0,0,0, wait);
+		AddCommand(this, "Enter", stairs);
+	}
+  return 1;
+}
+
+// Alles was der Wegpunkt als ArriveCommand hat
+protected func AddSpecialCommands(object pCurrentWp, int path)
+{
+  if(!(pCurrentWp->GetArriveCommandCount(path))) return;
+  for(var i= pCurrentWp->GetArriveCommandCount(path) - 1,command ; i > -1 ; i--)
+    AddCommand(this, pCurrentWp->GetArriveCommand(path, i),
+                       pCurrentWp->GetArriveCommand(path, i, 1),
+                       pCurrentWp->GetArriveCommand(path, i, 2),
+                       pCurrentWp->GetArriveCommand(path, i, 3),
+                       pCurrentWp->GetArriveCommand(path, i, 4), 0,
+                       pCurrentWp->GetArriveCommand(path, i, 5));
+}

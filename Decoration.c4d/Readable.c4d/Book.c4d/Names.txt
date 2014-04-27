@@ -1,0 +1,2 @@
+DE:Buch
+US:Book

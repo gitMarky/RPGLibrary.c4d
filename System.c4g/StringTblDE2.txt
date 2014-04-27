@@ -1,0 +1,12 @@
+MenuContainerSearch=Durchsuchen: %s
+
+MenuInvInteractWith=Aktion: %s
+MenuInvUseBackpack=%s {{%i}} %d/%d {{%i}} %d/%d als Rucksack verwenden
+MenuInvPackTo=Ablegen in %s: %s %d %s %d/%d
+MenuInvNoTargets=Hier gibts nichts zu holen...
+
+MenuInvDropIn=Ablegen in %s
+MenuInvChooseWeapon=Waffe auswählen
+MenuInvEquip=%s anlegen
+Cancel=Abbrechen
+Drop=Ablegen

@@ -1,0 +1,1 @@
+Fades the screen of a player like with SetGamma.

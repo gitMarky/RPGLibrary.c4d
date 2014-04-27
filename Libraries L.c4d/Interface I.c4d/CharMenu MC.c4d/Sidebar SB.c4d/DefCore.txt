@@ -1,0 +1,8 @@
+[DefCore]
+id=LISB
+Name=HUD Sidebar
+Category=C4D_StaticBack
+Width=288
+Height=44
+Offset=0,0
+Picture=0,0,288,44

@@ -1,0 +1,1 @@
+Stellt die Grundfunktion für ein Gebäude mit Innenansicht dar.

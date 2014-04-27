@@ -1,0 +1,16 @@
+[DefCore]
+id=LICS
+Name=ComboMenuSymbol
+Category=C4D_Object|C4D_Foreground|C4D_IgnoreFoW
+Width=30
+Height=30
+Offset=-15,-15
+Picture=0,0,30,30
+Vertices=1
+BorderBound=1
+Rotate=0
+NoBreath=1
+NoFight=1
+StretchGrowth=1
+IncompleteActivity=1
+Exclusive=1

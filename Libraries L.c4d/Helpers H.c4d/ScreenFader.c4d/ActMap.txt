@@ -1,0 +1,15 @@
+[Action]
+Name=Mng
+Procedure=NONE
+NextAction=Hold
+
+[Action]
+Name=PlrMng
+Procedure=NONE
+NextAction=Hold
+
+[Action]
+Name=View
+FacetBase=1
+Procedure=FLOAT
+NextAction=Hold

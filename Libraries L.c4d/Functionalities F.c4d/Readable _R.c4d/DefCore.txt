@@ -1,0 +1,5 @@
+[DefCore]
+id=LF_R
+Version=4,9,8
+Name=Readable
+Category=1

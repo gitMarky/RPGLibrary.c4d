@@ -1,0 +1,8 @@
+[Action]
+Name=Vis
+Procedure=FLOAT
+Directions=2
+Length=1
+Delay=0
+Facet=16,0,16,16
+NextAction=Hold

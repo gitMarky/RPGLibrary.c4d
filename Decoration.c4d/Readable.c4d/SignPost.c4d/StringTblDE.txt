@@ -1,0 +1,4 @@
+CtrlRead=Lesen
+
+OptTravel=Reisen
+OptCancel=Abbrechen

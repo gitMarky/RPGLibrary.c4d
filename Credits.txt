@@ -1,0 +1,14 @@
+// CREDITZ!
+
+Hazard Team:
+- Dunkelheit- und Lasersystem, div. Effekte
+
+OpenClonk Team:
+- Randrian: Seilphysik
+
+David Dormagen, Sven2, Randrian:
+- diverse Hilfsobjekte wie Wallscript, Bücher, Deko, usw.
+- sehr gute Vorarbeit!
+
+TqmTqm:
+- Stringmanipulationen - war zu faul sie selbst zu programmieren ;)

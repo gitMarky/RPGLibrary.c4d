@@ -1,0 +1,11 @@
+[DefCore]
+id=_FOW
+Name=Shadow
+Version=4,9,5,4
+Category=16777217
+Width=4
+Height=4
+Offset=-2,-2
+Value=0
+Mass=1
+Picture=0,0,4,4

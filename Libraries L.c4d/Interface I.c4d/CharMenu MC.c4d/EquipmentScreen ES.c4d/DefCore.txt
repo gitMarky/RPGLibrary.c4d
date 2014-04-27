@@ -1,0 +1,8 @@
+[DefCore]
+id=LIES
+Name=HUD Equipment
+Category=C4D_StaticBack
+Width=386
+Height=220
+Offset=0,0
+Picture=0,0,386,220

@@ -1,0 +1,11 @@
+[Action]
+Name=Barrel1
+Length=1
+Delay=0
+Facet=24,0,24,18
+
+[Action]
+Name=Barrel2
+Length=1
+Delay=0
+Facet=48,0,24,18

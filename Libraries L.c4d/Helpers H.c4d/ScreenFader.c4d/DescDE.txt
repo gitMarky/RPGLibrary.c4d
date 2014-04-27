@@ -1,0 +1,1 @@
+Bietet die Möglichkeit, den Bildschirm ähnlich wie mit SetGamma zu faden.

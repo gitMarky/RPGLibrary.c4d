@@ -1,0 +1,3 @@
+DescUp=Open
+DescDown=Close
+MsgNoDirect=Too heavy. I should search for a switch.

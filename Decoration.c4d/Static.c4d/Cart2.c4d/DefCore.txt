@@ -1,0 +1,15 @@
+[DefCore]
+id=_CRT
+Version=4,9,8,2
+Name=Small Cart
+Category=C4D_Vehicle
+Width=54
+Height=19
+Offset=-27,-9
+Vertices=1
+VertexY=9
+VertexFriction=80
+Value=10
+Mass=50
+Components=WOOD=2
+Picture=0,0,54,19

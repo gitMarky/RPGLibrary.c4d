@@ -1,0 +1,3 @@
+DescUp=÷ffnen
+DescDown=Schlieﬂen
+MsgNoDirect=Zu schwer. Ich sollte einen Schalter suchen.

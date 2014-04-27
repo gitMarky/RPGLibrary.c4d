@@ -1,0 +1,14 @@
+[Particle]
+Name=Blood
+MaxCount=900
+InitFn=StdInit
+ExecFn=StdExec
+DrawFn=Std
+CollisionFn=Die
+Face=0,0,16,16,-8,-8
+Delay=0
+Reverse=0
+GravityAcc=100
+VertexCount=1
+VertexY=1
+Additive=0

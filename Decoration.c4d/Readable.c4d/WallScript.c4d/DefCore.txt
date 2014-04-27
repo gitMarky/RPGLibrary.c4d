@@ -1,0 +1,14 @@
+[DefCore]
+id=_WSC
+Name=WallScript
+Version=4,9,5
+Category=2
+Width=20
+Height=20
+Offset=-10,-10
+Value=30
+Mass=20
+Components=ROCK=2
+Picture=0,0,20,20
+Grab=1
+HorizontalFix=1

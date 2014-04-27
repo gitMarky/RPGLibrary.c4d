@@ -1,0 +1,13 @@
+MenuContainerSearch=Durchsuchen: %s
+
+MenuInvInteractWith=Aktion: %s
+MenuInvUseBackpack={{%i}} (%d/%d) %s (%d/%d)
+MenuInvPackTo={{TALK:15}} %s (%d%s/%d)
+xxMenuInvPackTo={{TALK:15}} + %s (%d): %s (%d/%d)
+MenuInvNoTargets=Hier gibts nichts zu holen...
+
+MenuInvDropIn=Ablegen in %s
+MenuInvChooseWeapon=Waffe auswählen
+MenuInvEquip=%s anlegen
+Cancel=Abbrechen
+Drop=Ablegen

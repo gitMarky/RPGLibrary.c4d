@@ -1,0 +1,2 @@
+DE:Begehbares Gebäude
+US:Accessible building

@@ -1,0 +1,10 @@
+[DefCore]
+id=MD70
+Name=MenuDeco
+Version=4,9,5,4
+Category=1
+MaxUserSelect=0
+Width=1
+Height=1
+Mass=1
+Picture=0,0,128,128

@@ -1,0 +1,8 @@
+[DefCore]
+id=LIAV
+Name=HUD Avatar
+Category=C4D_StaticBack
+Width=120
+Height=180
+Offset=0,0
+Picture=0,0,120,180

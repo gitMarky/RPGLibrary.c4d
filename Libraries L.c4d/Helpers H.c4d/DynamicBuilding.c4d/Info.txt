@@ -1,0 +1,10 @@
+Begehbare Hütte(n)
+
+Experimentelles Objekt - hat Auswirkungen auf das Gameplay und ist daher eher für Adventures gedacht
+
+Version 1.0 - 09.08.02
+
+Todo:
+
+- Gebäude sollten sich selbst wieder verschließen, falls im Inneren kein CrewMember mehr lebt
+- weitere Gebäude

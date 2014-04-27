@@ -1,0 +1,16 @@
+[DefCore]
+id=SP69
+Name=Signpost
+Version=4,9,5,4
+Category=2
+Width=16
+Height=16
+Offset=-8,-8
+Vertices=1
+VertexY=7
+Value=30
+Mass=20
+Components=WOOD=1
+Picture=0,0,16,16
+Grab=1
+HorizontalFix=1

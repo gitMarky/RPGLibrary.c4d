@@ -1,0 +1,5 @@
+[DefCore]
+id=LF_I
+Version=4,9,8
+Name=Item
+Category=1

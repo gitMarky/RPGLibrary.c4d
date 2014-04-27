@@ -1,0 +1,17 @@
+[DefCore]
+id=BCRS
+Name=Big Crystal
+Version=4,6,2
+Category=1
+Width=30
+Height=45
+Offset=-15,-22
+Value=1
+Mass=6
+Vertices=4
+VertexX=-15,15,-15,15
+VertexY=21,-21,-21,21
+Picture=0,0,30,45
+StretchGrowth=1
+Oversize=1
+Rotate=1
