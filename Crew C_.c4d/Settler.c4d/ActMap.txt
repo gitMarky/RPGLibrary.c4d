@@ -373,7 +373,6 @@ Delay=4
 NextAction=Walk
 ObjectDisabled=1
 EndCall=ArmorRemoved
-ObjectDisabled=1
 Reverse=1
 
 
@@ -455,7 +454,6 @@ Delay=4
 NextAction=Walk
 ObjectDisabled=1
 EndCall=ArmorRemoved
-ObjectDisabled=1
 Reverse=1
 
 

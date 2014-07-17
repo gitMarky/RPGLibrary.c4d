@@ -1,0 +1,21 @@
+MenuContainerSearch=Search: %s
+
+MenuInvInteractWith=Action: %s
+MenuInvUseBackpack={{%i}} (%d/%d) %s (%d/%d)
+MenuInvPackTo={{TALK:15}} %s (%d%s/%d)
+xxMenuInvPackTo={{TALK:15}} + %s (%d): %s (%d/%d)
+MenuInvNoTargets=Nothing in here...
+
+MenuInvDropIn=Put into %s
+MenuInvChooseWeapon=Choose weapon
+MenuInvEquip=Equip %s
+Cancel=Cancel
+Drop=Drop
+
+CtrlInventoryDesc=Inventory
+CombatSheatheAll=Sheathe weapons
+MenuInvUse=Use
+MenuInvEquipWeapon1=Equip weapon 1: %s
+MenuInvEquipWeapon2=Equip weapon 2: %s
+MenuInvEquipWeapon3=Equip weapon 3: %s
+MenuInvChooseBackpack=Choose backpack

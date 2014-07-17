@@ -3,9 +3,10 @@
 #strict 2
 
 
-global func CreateLocalN2(string szName , object pTarget, vValue)
+global func &CreateLocalN2(string szName , object pTarget, vValue)
 {
-	return AddEffect("IntVarsave",pTarget,50,0,0,0, szName, vValue);
+	/*return*/ AddEffect("IntVarsave",pTarget,50,0,0,0, szName, vValue);
+	return LocalN2(szName, pTarget);
 }
 
 global func &LocalN2(string szName , object pTarget)

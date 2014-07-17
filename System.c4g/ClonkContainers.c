@@ -56,7 +56,8 @@ public func MenuInvOpen( object pInObj )
 		{
 			var overlayID = 3;
 			SetGraphics("",button,CXIN,overlayID,GFXOV_MODE_IngamePicture);
-			SetObjDrawTransform(400,0,5000,0,400,5000,button,overlayID,0);
+			SetObjDrawTransform(400, 0, 5000, 0, 400, 5000, button, overlayID);
+			//SetObjDrawTransform(400, 0, 5000, 0, 400, 5000, button, overlayID, 0);
 			//SetObjDrawTransform(600,0,0,0,600,0,button,overlayID);
 		}
 		i++;

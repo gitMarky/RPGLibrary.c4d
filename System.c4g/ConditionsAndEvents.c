@@ -2,15 +2,46 @@
 
 global func CheckConditions( aConditions, string szTarget, object pTarget, string szUser, object pUser)
 {
+//	// keine Bedingungen sind immer erfüllt
+//	if(!aConditions) return true;
+//	if( GetType(aConditions) == C4V_Array ) if(GetLength(aConditions) < 1) return true;
+//
+//	var fFulfilled = true; // im Zweifel für den Angeklagten
+//	var aCond;
+//
+//	if( GetType( aConditions ) == C4V_String )
+//		fFulfilled = CheckCondition( aConditions, szTarget, pTarget, szUser, pUser );
+//	else
+//	{
+//			for( aCond in aConditions )
+//				// die erste nicht-erfüllte Bedingung macht ihn schuldig ;)
+//				if(!CheckCondition( aCond, szTarget, pTarget, szUser, pUser ))
+//				{
+//					fFulfilled = false;
+//					break;
+//				}
+//	}
+//
+//	return fFulfilled;
+	return CheckConditionsDetailed( aConditions, szTarget, pTarget, szUser, pUser)[0];
+}
+
+global func CheckConditionsDetailed( aConditions, string szTarget, object pTarget, string szUser, object pUser)
+{
+	var fFulfilled = [];
 	// keine Bedingungen sind immer erfüllt
-	if(!aConditions) return true;
-	if( GetType(aConditions) == C4V_Array ) if(GetLength(aConditions) < 1) return true;
+	if(!aConditions) return [true];
+	if( GetType(aConditions) == C4V_Array ) if(GetLength(aConditions) < 1) return [true];
 
 	var fFulfilled = true; // im Zweifel für den Angeklagten
+	var iFulfilled = 0;    // Anzahl der erfüllten Bedingungen
 	var aCond;
 
 	if( GetType( aConditions ) == C4V_String )
+	{
 		fFulfilled = CheckCondition( aConditions, szTarget, pTarget, szUser, pUser );
+		if(fFulfilled) iFulfilled = 1;
+	}
 	else
 	{
 			for( aCond in aConditions )
@@ -20,10 +51,14 @@ global func CheckConditions( aConditions, string szTarget, object pTarget, strin
 					fFulfilled = false;
 					break;
 				}
+				else
+				{
+					iFulfilled++;
+				}
 	}
 
 
-	return fFulfilled;
+	return [fFulfilled, iFulfilled];
 }
 
 global func CheckCondition( aCondition, string szTarget, object pTarget, string szUser, object pUser )

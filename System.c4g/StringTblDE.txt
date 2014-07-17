@@ -11,3 +11,11 @@ MenuInvChooseWeapon=Waffe auswählen
 MenuInvEquip=%s anlegen
 Cancel=Abbrechen
 Drop=Ablegen
+
+CtrlInventoryDesc=Inventar
+CombatSheatheAll=Waffen wegstecken
+MenuInvUse=Benutzen
+MenuInvEquipWeapon1=Waffe 1 anlegen: %s
+MenuInvEquipWeapon2=Waffe 2 anlegen: %s
+MenuInvEquipWeapon3=Waffe 3 anlegen: %s
+MenuInvChooseBackpack=Rucksack wählen

@@ -12,6 +12,9 @@ Dialoge sind auch lesbar ;)
 
 #strict 2
 
+static const gDialogue_Object_Speaker = 0;
+static const gDialogue_Object_Target = -1;
+
 /* Format für lesbare Dinge: eine eigene kleine Scriptsprache
 
 Der Dialog selbst ist ein Array. Darin enthalten sind weitere Arrays, die nach folgendem Format aufgebaut sind:
@@ -45,9 +48,10 @@ array aMenuStyle:
 	dwColor:
 		Farbe, in welcher der Text angegeben werden soll
 	iStyle:
-		Stil, in welchem der Text dargestellt werden soll:
-		0 - wird ausgeblendet, wenn die Voraussetzungen nicht erfüllt sind
-		1 - wird rot eingeblendet, wenn die Voraussetzungen nicht erfüllt sind
+	    Anzahl der Bedingungen, die erfüllt werden müssen:
+	    0 - wird immer ausgeblendet, wenn nicht alle Voraussetzungen erfüllt sind
+	    x - wird ausgeblendet, solange die ersten x Voraussetzungen nicht erfüllt sind.
+	        Wird rot eingeblendet, wenn die ersten x Voraussetzungen, aber nicht alle Voraussetzungen erfüllt sind.
 	iExtra:
 		siehe AddMenuItem
 	XPar1:
@@ -114,6 +118,9 @@ global func StdDlgEventCancel(bool bState){ return Format("CreateDlgVar(\"Cancel
 global func StdDlgArrayExitAlways(){ return [2147483647,-1,"Abbrechen","",0,[MCMX,0,0,0,0,-1],-1,0,"StopDialogue(pTarget)"];}
 global func StdDlgArrayExitCancel(){ return [2147483647,-1,"Abbrechen","",0,[MCMX,0,0,0,0,-1],-1,"DlgVar(\"Cancel\",pTarget,pSpeaker)","StopDialogue(pTarget)"];}
 global func StdDlgVar(string prefix, string variable, string operation){ return Format("%sDlgVar(\"%s\",pTarget,pSpeaker)%s",prefix,variable,operation); }
+global func StdDlgVarSafeRemoveObject(string variable){ return Format("!DlgVar(\"%s\",pTarget,pSpeaker)||RemoveObject(DlgVar(\"%s\",pTarget,pSpeaker))", variable, variable);}
+
+global func DlgObjVar(string prefix, string variable, string operation){ return Format("%sLocalN2(\"%s\",pTarget)%s",prefix,variable,operation); }
 
 local aDialogue, iStartDialogue, pLastSpeaker;
 
@@ -362,7 +369,11 @@ protected func ProcessDialogueOption( object pTarget, iDialogue )
 	// vorerst gibt es noch keine Conditions
 	var fAdd = false;
 
-	if( CheckConditions(  aConditions, GetTargetString(), pTarget, GetUserString(), GetSpeaker())) fAdd = true;
+	//if( CheckConditions(  aConditions, GetTargetString(), pTarget, GetUserString(), GetSpeaker())) fAdd = true;
+	var conditionInfo = CheckConditionsDetailed(  aConditions, GetTargetString(), pTarget, GetUserString(), GetSpeaker());
+
+	fAdd = conditionInfo[0];
+	var iFulfilled = conditionInfo[1];
 
 	if( szMenuOption == 0 || szMenuOption == "" )
 	{
@@ -408,7 +419,7 @@ protected func ProcessDialogueOption( object pTarget, iDialogue )
 
 		if( fAdd == false && iStyle == 1) szCommand = "eval(\"true\")";//"";
 
-		if( fAdd || iStyle == 1 )
+		if( fAdd || (iStyle > 0 && iFulfilled >= iStyle))
 			MsgBoxAddOption( pTarget, idIcon, szMenuOption, szCommand, 0, extra, xPar);
 	}
 

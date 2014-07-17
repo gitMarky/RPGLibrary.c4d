@@ -1,0 +1,6 @@
+AttributeStrength=Strength
+AttributeDexterity=Dexterity
+AttributeMagic=Magic
+SkillBlacksmith=Blacksmithing
+PerkPerk1=Bonus 1
+PerkPerk2=Bonus 2
