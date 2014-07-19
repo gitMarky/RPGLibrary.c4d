@@ -7,8 +7,8 @@ local aQuestStages;
 local szQuestName;
 local bQuestActive;
 
-static const gQuest_Stage_Finished = -1;
-static const gQuest_Stage_Failed = -2;
+static const gQuestStageFinished = -1;
+static const gQuestStageFailed = -2;
 
 
 global func CreateQuest( string szName, array aDesc, array aStages )
@@ -45,7 +45,7 @@ global func FinishQuest( string szName, object pPlayer, bool bGlobal, string szF
 	var quest = FindQuest( szName );
 	if(!quest) return false;
 
-	quest->SetStage( gQuest_Stage_Finished, pPlayer, bGlobal, szFunc, vP1, vP2 );
+	quest->SetStage( gQuestStageFinished, pPlayer, bGlobal, szFunc, vP1, vP2 );
 }
 
 global func FailQuest( string szName, object pPlayer, bool bGlobal, string szFunc, vP1, vP2 )
@@ -53,7 +53,7 @@ global func FailQuest( string szName, object pPlayer, bool bGlobal, string szFun
 	var quest = FindQuest( szName );
 	if(!quest) return false;
 
-	quest->SetStage( gQuest_Stage_Failed, pPlayer, bGlobal, szFunc, vP1, vP2 );
+	quest->SetStage( gQuestStageFailed, pPlayer, bGlobal, szFunc, vP1, vP2 );
 }
 
 global func SetQuestStage( string szName, int iStage, object pPlayer, bool bGlobal, string szFunc, vP1, vP2 )
@@ -267,7 +267,7 @@ public func SetStage( int iStage, object pPlayer, bool bGlobal, string szFunc, v
 				bSet = true;
 
 			// schon beendet!
-			if( GetStage(pPlr) == gQuest_Stage_Finished ) bSet = false;
+			if( GetStage(pPlr) == gQuestStageFinished ) bSet = false;
 
 			if( bSet )
 			{
@@ -277,7 +277,7 @@ public func SetStage( int iStage, object pPlayer, bool bGlobal, string szFunc, v
 					var log = pPlr->~GetQuestLogEx();
 					if(log)
 					{
-						if( iStage == gQuest_Stage_Finished )
+						if( iStage == gQuestStageFinished )
 							log->~FinishQuest(szQuestName);
 						else
 							log->~FailQuest(szQuestName);
