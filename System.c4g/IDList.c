@@ -14,6 +14,8 @@ static const ID_Menu_Equipment = LIES;
 static const ID_Menu_Combo = LICM;
 static const ID_Menu_ComboSymbol = LICS;
 
+static const ID_Menu_StandardButton = LIGH;
+
 // Menu Decos
 static const ID_MenoDeco_Wood = MD69;
 static const ID_MenuDeco_Temple = MD70;
