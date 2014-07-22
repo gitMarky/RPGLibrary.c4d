@@ -122,6 +122,9 @@ global func StdDlgVarSafeRemoveObject(string variable){ return Format("!DlgVar(\
 
 global func DlgObjVar(string prefix, string variable, string operation){ return Format("%sLocalN2(\"%s\",pTarget)%s",prefix,variable,operation); }
 
+global func StdDlgIconContinue(){ return [LMM2,0,0,2,4]; }
+global func StdDlgIconReturn(){ return LMM2; }
+
 global func StdDlgQuestStage(string prefix, string quest, string operator)
 {
 	return Format("%sQuestStage(\"%s\",pTarget)%s",prefix, quest, operator);
