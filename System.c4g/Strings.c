@@ -91,24 +91,10 @@ global func Substring(int start,string zeichenkette,int ende){
 global func CharAt(string zeichenkette,int i){
 	return (GetLetter(GetChar(zeichenkette,i)));
 }
-global func GetLetter(int zahl){
-	 if(zahl == 228) return "ä";
-	 if(zahl == 246) return "ö";
-	 if(zahl == 252) return "ü";
-	 if(zahl == 223) return "ß";
-	 if(zahl == 196) return "Ä";
-	 if(zahl == 214) return "Ö";
-	 if(zahl == 220) return "Ü";
-
-
-	//var asciiArray = [" ","?","!","''","#","$","%","&","'","(",")","*","+",",","-",".","/","0","1","2","3","4","5","6","7","8","9",":",";","<","=",">","?","@","A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z","[","Backslash","]","^","`","a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z","{","|","}","~"];
-	// korrigierte Tabelle: § stimmt allerdings nicht, ist nur ein Platzhalter
-	var asciiArray = [" ","!","\"","#","$","%","&","'","(",")","*","+",",","-",".","/","0","1","2","3","4","5","6","7","8","9",":",";","<","=",">","?","@","A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z","[","/","]","^","§","`","a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z","{","|","}","~"];
-	
-	//for(var i=0; i<GetLength(asciiArray);i++)
-	//	Log("Array: %d, Char: %d, Sign: %s",i+32,GetChar(asciiArray[i]),asciiArray[i]);
-	
-	return(asciiArray[zahl-32]);
+global func GetLetter(int zahl)
+{
+	var asciiArray = ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", " ", "!", "\"", "#", "$", "%", "&", "'", "(", ")", "*", "+", ",", "-", ".", "/", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", ":", ";", "<", "=", ">", "?", "", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "[", "\\", "]", "^", "_", "`", "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "{", "|", "}", "~", "", "€", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "§", "", "", "", "", "", "", "", "", "°", "", "²", "³", "´", "µ", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "Ä", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "Ö", "", "", "", "", "", "Ü", "", "", "ß", "", "", "", "", "ä", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "ö", "", "", "", "", "", "ü"];
+	return asciiArray[zahl];
 }
 
 
@@ -120,4 +106,73 @@ global func GetLetterCount( string szL, string szString)
 		if(szL == CharAt(szString,i)) x++;
 	}
 	return x;
+}
+
+global func TestGetCharGetLetter()
+{
+	var textArray = ["^","1","2","3","4","5","6","7","8","9","0","ß","´","q","w","e","r","t","z","u","i","o","p","ü","+","a","s","d","f","g","h","j","k","l","ö","ä","#","<","y","x","c","v","b","n","m",",",".","-",
+	                 "°","!","\"","§","$","%","&","/","(",")","=","?","`","Q","W","E","R","T","Z","U","I","O","P","Ü","*","A","S","D","F","G","H","J","K","L","Ö","Ä","'",">","Y","X","C","V","B","N","M",";",":","_",
+	                 "²","³","{","[","]","}","\\","€","~","|","µ"," "];
+
+	for(var text in textArray)
+	{
+		Log("%s == %s : %v", text, GetLetter(GetChar(text)), text == GetLetter(GetChar(text)));
+	}
+}
+
+global func LogTheAsciiCharArray()
+{
+	var textArray = ["^","1","2","3","4","5","6","7","8","9","0","ß","´","q","w","e","r","t","z","u","i","o","p","ü","+","a","s","d","f","g","h","j","k","l","ö","ä","#","<","y","x","c","v","b","n","m",",",".","-",
+	                 "°","!","\"","§","$","%","&","/","(",")","=","?","`","Q","W","E","R","T","Z","U","I","O","P","Ü","*","A","S","D","F","G","H","J","K","L","Ö","Ä","'",">","Y","X","C","V","B","N","M",";",":","_",
+	                 "²","³","{","[","]","}","\\","€","~","|","µ"," "];
+
+	var maxChar = 0;
+	var charArray = [];
+	for(var i = 0; i < GetLength(textArray); i++)
+	{
+		charArray[i] = GetChar(textArray[i]);
+
+		if (charArray[i] > maxChar)
+			maxChar = charArray[i];
+	}
+
+	var sortedTextArray = [];
+	var sortedCharArray = [];
+
+	for(var char = 0; char <= maxChar; char++)
+	{
+		var position = -1;
+		for(var index = 0; index < GetLength(charArray); index++)
+		{
+			if (charArray[index] == char)
+			{
+				position = index;
+				break;
+			}
+		}
+
+		if (position >= 0)
+		{
+			sortedTextArray[char] = textArray[position];
+			sortedCharArray[char] = charArray[position];
+
+			if (textArray[position] == "\""
+			 || textArray[position] == "\\")
+			{
+				sortedTextArray[char] = Format("\\%s", textArray[position]); // Add the escapes
+			}
+
+		}
+		else
+		{
+			sortedTextArray[char] = "";
+			sortedCharArray[char] = char;
+		}
+	}
+
+	Log("Text: %v", textArray);
+	Log("Char: %v", charArray);
+	Log("Sorting...");
+	Log("Text: %v", sortedTextArray);
+	Log("Char: %v", sortedCharArray);
 }

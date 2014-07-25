@@ -2,189 +2,375 @@
 
 #strict 2
 #appendto TIME
+/*-- Tageszeiten --*/
 
-/* Locals */
+#strict 2
 
-static days,hours,minutes,seconds;
-static sky_red, sky_green, sky_blue, sky_alpha;
-static daylight_override, daylight;
+/* Konstanten */
 
-local dawn_done, dusk_done;
+// Die Gamme-Konstanten aus der Doku. Das sollte in System.c4g-Script!
 
-/* Verzögerte Initialisierung */
+static const GAMMA_Ramp_Global = 		0; // Szenarienglobaler Wert
+static const GAMMA_Ramp_Climate = 		1; // Klima/Jahreszeiten (Engineintern benutzt, wenn im Szenario aktiviert!)
+static const GAMMA_Ramp_User1 = 		2; // frei
+static const GAMMA_Ramp_DayNight = 		3; // Tag/Nacht
+static const GAMMA_Ramp_User2 = 		4; // frei
+static const GAMMA_Ramp_Lightning = 	5; // Blitze
+static const GAMMA_Ramp_Effects = 		6; // Zaubereffekte
+static const GAMMA_Ramp_User3 =		 	7; // frei
 
-//global func GetRealTime(){ return(hours);}
+
+static const g_TIME_BaseSpeed_SecondsPerTick = 48; //8;
+
+static const g_TIME_Day_Seconds = 86400;
+static const g_TIME_Hour_Seconds = 3600;
+static const g_TIME_Minute_Seconds = 60;
+
+static const g_TIME_TickInterval_Frames = 10;
+
+static const g_TIME_YearLength = 20; // so viele Tage dauert ein Jahr
+
+/* Variablen */
+
+static time_years, time_days, time_hours, time_minutes;
+static time_hours_old;
+static time_object;
+
+static original_sky_dword; // So sah der Himmel vorher aus
+static original_sky_array; // und jetzt nochmal als Farb-Array [r,g,b,a]
+static original_skybg_dword; // So sah der Himmel vorher aus
+
+static original_mat_dword; // So sah der Himmel vorher aus
+
+static time_sky_dword; // So sieht der Himmel mit der aktuellen Farbmodulation des Zeit-Objekts aus
+
+static time_altDarkness; // wenn false, dann wird die Dunkelheit über den Tag verteilt per Cosinus gesetzt
+						 // wenn true, dann wird sie tagsüber und nachts konstant gesetzt, im Übergang per Cosinus
+
+static daylight, daylight_override;
+
+local time; // Aktuelle Zeit, in Sekunden
+local advance_seconds_per_tick; // So viele Sekunden vergehen je Tick
+
+
+////////////////////////////////////////////////////////////////////
+//
+// Engine Zeug und Organisatorisches
+
+protected func Initialize()
+{
+	advance_seconds_per_tick = g_TIME_BaseSpeed_SecondsPerTick;
+
+	time = Time( 12, 0, 0);
+
+	if(!ObjectCount2(Find_ID(DARK)))
+	{
+			CreateObject(DARK, 0, 0, NO_OWNER);
+	}
+
+	time_altDarkness = true;
+
+	SetAction("Initialize");
+}
 
 private func Initialized()
 {
-	_inherited();
-	/*
-	SetPosition(20,20);
-	// Starthelligkeit
-	Timing();
-	// Steuerungsaktion
-	SetAction("Time");*/
+	SetDarkness(GameCall("MinDarkness"));
+
+	advance_seconds_per_tick = g_TIME_BaseSpeed_SecondsPerTick * (ObjectCount(TIME) + 1);
+
+	// Andere Objekte des gleichen Typs entfernen
+	var pOther;
+	while(pOther = FindObject(GetID()))
+		RemoveObject(pOther);
+
+	// Jetzt aber mal komfortabel das Objekt speichern...
+	time_object = this;
+
+	// Himmelsmodulation speichern - geht nur mit nicht-transparentem Himmel, momentan
+	if (!original_sky_dword) original_sky_dword = GetSkyAdjust(false);
+	if (!original_skybg_dword) original_skybg_dword = GetSkyAdjust(true);
+	if (!original_mat_dword) original_mat_dword = RGBa(255,255,255,0);
+	original_sky_array = [ GetRGBaValue(original_sky_dword, 1),
+	                       GetRGBaValue(original_sky_dword, 2),
+	                       GetRGBaValue(original_sky_dword, 3),
+	                       GetRGBaValue(original_sky_dword, 0)];
+
+	FxIntTimeAdvanceTimer();
+	AddEffect("IntTimeAdvance", this, 1, g_TIME_TickInterval_Frames, this);
 }
-  
-/* Konfiguration */
 
-global func SetTime(d,h,m,s)
+private func FxIntTimeAdvanceTimer()
 {
-	days=d;
-	hours=h;
-	minutes=m;
-	seconds=s;
-
-	var time;
-	if( time = FindObject(TIME))
-		PrivateCall(time,"Timing",true,true);
+	DoTimeProgress(true);
+	DoSkyShade();
 }
 
-/* Zeitverlauf */  
-
-private func Timing( bool fIgnoreProcess, bool fInstant )
+protected func UpdateTransferZone()
 {
+	// Kleiner Trick, damit der Himmel nach dem Laden aktualisiert wird
+	if (GetAction() == "Time") FxIntTimeAdvanceTimer();
+}
 
-	if(!fIgnoreProcess && !GetFilm())
+////////////////////////////////////////////////////////////////////
+//
+// Die eigentlichen Effekte
+
+// Zählt die Tage, Stunden, usw.
+private func DoTimeProgress(bool updateDays)
+{
+	// Und weiter...
+	time += advance_seconds_per_tick;
+
+	// Tage zählen
+	while (updateDays && time >= g_TIME_Day_Seconds)
 	{
-
-		minutes=minutes+1;
-		if(seconds>=60) { seconds=0; minutes++; }
-		if(minutes>=60) { minutes=0; hours++; }
-		if(hours>=24) { hours=0; days++; }
-
+		time_days++;
+		time -= g_TIME_Day_Seconds;
 	}
 
-	var temp,a,t;
-
-	if(hours<4) temp=6000;
-
-	if(hours>=4) if(hours<=9)
+	while (time_days >= g_TIME_YearLength)
 	{
-		t=(hours*100)+(minutes*100)/60;
-		a=(BoundBy(t-400,0,700))/5;
-		temp=(BoundBy(6+a,6,100)*100000)/100;
+		time_days -= g_TIME_YearLength;
+		time_years++;
 	}
 
-	if(hours>9) if(hours<16)  temp=100000;
+	time_hours = time / g_TIME_Hour_Seconds;
+	time_minutes = (time - time_hours * g_TIME_Hour_Seconds)/g_TIME_Minute_Seconds;
 
-	if(hours>=16) if(hours<=21)
+	// Alle Objekte wissen lassen, dass sich die Zeiten ändern ^^
+	if( time_hours != time_hours_old )
 	{
-		t=(hours*100)+(minutes*100)/60;
-		a=(BoundBy(t-1600,0,700))/5;
-		//temp=(BoundBy(100-a,6,100)*100000)/100;
-		temp=(BoundBy(100-a,6,100)*1000);
-		//Log("t/a/temp %d/%d/%d",t,a,temp);
+		var obj;
+		for(obj in FindObjects(Find_Func("UpdateTime", time_hours, time_hours_old)));
+
+		time_hours_old = time_hours;
+	}
+}
+
+
+// By Ringwaul
+// Macht tolle Farben.
+private func DoSkyShade()
+{
+	// first determine the time phase we are in
+	var sunrise, sunset, night, day;
+
+	sunrise = IsDawn();
+	day = IsDay();
+	sunset = IsDusk();
+	night = IsNight();
+
+	var skyshade = [0,0,0,0]; //R,G,B,A
+	var nightcolour = [10,25,40]; // default darkest-night colour
+	var daycolour = original_sky_array;//[255,255,255];
+	var sunsetcolour = [140,45,10];
+	var sunrisecolour = [140,100,70];
+
+	var sunrise_start = GetDawnPeriod()[0];
+	var sunrise_end = GetDawnPeriod()[1];
+	var sundown_start = GetDuskPeriod()[0];
+	var sundown_end = GetDuskPeriod()[1];
+
+//	if (!day)
+//	{
+//		// Darkness of night dependent on the moon-phase
+//		var satellite = FindObject(Find_ID(MOON));
+//		if(satellite)
+//		{
+//			var lightness = satellite->GetMoonLightness();
+//			nightcolour = [ 6 * lightness / 100, 8 + 25 * lightness / 100, 15 + 60 * lightness / 100 ];
+//		}
+//	}
+
+	// Sunrise
+	if (sunrise)
+	{
+		var time_since_sunrise = time - sunrise_start;
+		// progress in 0..1800
+		var progress = time_since_sunrise * 1800 / (sunrise_end - sunrise_start);
+
+		for(var i=0; i<3; ++i)
+		{
+			var nightfade = Cos(progress/2, nightcolour[i],10);
+			var dayfade = daycolour[i] - Cos(progress/2, daycolour[i],10);
+			var sunrisefade = Sin(progress, sunrisecolour[i],10);
+
+			skyshade[i] = Min(255,dayfade + nightfade + sunrisefade);
+		}
+
+		skyshade[3] = Min(255,progress/2);
+	}
+	// Day
+	else if (day)
+	{
+		skyshade[0] = 255;
+		skyshade[1] = 255;
+		skyshade[2] = 255;
+
+		skyshade[3] = 255;
+	}
+	// Sunset
+	else if (sunset)
+	{
+		var time_since_sunset = time - sundown_start;
+		// progress in 0..1800
+		var progress = time_since_sunset * 1800 / (sundown_end - sundown_start);
+
+		for(var i=0; i<3; ++i)
+		{
+			var dayfade = Cos(progress/2, daycolour[i],10);
+			var nightfade = nightcolour[i] - Cos(progress/2, nightcolour[i],10);
+			var sunsetfade = Sin(progress, sunsetcolour[i],10);
+
+			skyshade[i] = Min(255,dayfade + nightfade + sunsetfade);
+		}
+
+		skyshade[3] = Min(255,900-progress/2);
+	}
+	// Night
+	else if (night)
+	{
+		skyshade[0] = nightcolour[0];
+		skyshade[1] = nightcolour[1];
+		skyshade[2] = nightcolour[2];
+
+		skyshade[3] = 0;
 	}
 
-	if(hours>21) temp=6000;
-  
-	temp=temp/1000;
 
-	//Log("%d:%d:%d Uhr, %d",hours,minutes,seconds,temp);
+	// Shade sky.
+//	Log("sky color: %d %d %d %d", skyshade[0], skyshade[1], skyshade[2], skyshade[3]);
+	time_sky_dword = RGBa(skyshade[0], skyshade[1], skyshade[2], 0);
 
-	temp += daylight_override;
+	// Shade landscape.
+	var gamma = [0,0,0];
+	var min_gamma = [30,75,120];
+	gamma[0] = BoundBy(skyshade[0], min_gamma[0], 128);
+	gamma[1] = BoundBy(skyshade[1], min_gamma[1], 128);
+	gamma[2] = BoundBy(skyshade[2], min_gamma[2], 128);
 
-	temp = BoundBy( temp, 6, 100 );
+	SetGamma(0, RGB(gamma[0], gamma[1], gamma[2]), RGB(127+gamma[0], 127+gamma[1], 127+gamma[2]), GAMMA_Ramp_DayNight);
 
-	RestoreSkyColor(temp,fInstant);
+//	if(!day && !night)
+//	{
+//		// Adjust celestial objects.
+//		for (var celestial in FindObjects(Find_Func("IsCelestial")))
+//			celestial->SetObjAlpha(255 - skyshade[3]);
+//
+//		// Adjust clouds
+//		for(var cloud in FindObjects(Find_ID(Cloud))){
+//			cloud->SetLightingShade(255 - skyshade[2]);
+//		}
+//	}
 
-	daylight=temp;
+	// Und zusätzlich Licht aus!
 
-	if(IsNight()) if(!dusk_done) TimeEvent("Dusk");
-	if(IsDay()) if(!dawn_done) TimeEvent("Dawn");
+	if (!darkness_object) // der macht das sowieso am Ende
+	{
+		SetSkyAdjust(time_sky_dword);
+	}
+	else // Ist fast dasselbe wie die Himmelsfärbung, aber: zeitlich nach hinten versetzt
+	{
+		var percent;
+
+		if (!time_altDarkness)
+		{
+			percent = 50 + Cos(time * 360 / g_TIME_Day_Seconds, 50);
+		}
+		else
+		{
+			var nodark_start = (sunrise_start + sunrise_end)/2;
+			var nodark_end = (sundown_start + sundown_end)/2;
+
+			var dark_start = (sundown_end + g_TIME_Day_Seconds)/2;
+			var dark_end = sunrise_start / 2;
+
+			if (Inside(time, nodark_start, nodark_end))
+			{
+				percent = 0;
+			}
+			else if (time >= dark_start || time <= dark_end)
+			{
+				percent = 100;
+			}
+			else
+			{
+				var time_shifted = (time + Time(12)) % g_TIME_Day_Seconds - Time(12);
+
+				var phase;
+				if (time_shifted >= 0)
+					phase = 180 - 180 * (time-dark_end) / (nodark_start-dark_end);
+				else
+					phase = 180 * (time-nodark_end) / (dark_start - nodark_end);
+
+				percent = 50 - Cos(phase, 50);
+			}
+
+		}
+
+		daylight = 100 - percent;
+
+		SetDarkness(DarknessGradeRelative(percent - daylight_override));
+	}
 }
 
-public func TimeEvent( event )
+////////////////////////////////////////////////////////////////////
+//
+// Berechnungen und so Zeug
+
+private func GetLightIntensity(int iTime)
 {
-	var obj;
 
-	while( obj = FindObject( 0, 0,0,0,0,0,0,0,0,obj ))
-	ObjectCall(obj, event);
-
-	if( event == "Dusk" ) { dusk_done = 1; dawn_done = 0; }
-	if( event == "Dawn" ) { dusk_done = 0; dawn_done = 1; }
 }
 
-protected func UpdateTransferZone(){ return(0);}
-  
-/* Status */
+////////////////////////////////////////////////////////////////////
+//
+// Globale Funktionen
 
-global func IsDay(){ return(Inside(hours,5,18));}
-  
-global func IsNight(){ return(!IsDay());}
-    
-/* Himmelsfarbe */
+global func GetDawnPeriod(){ return [Time(  4, 0, 0), Time(  7, 0, 0)]; }
+global func GetDuskPeriod(){ return [Time( 18, 0, 0), Time( 21, 0, 0)]; }
 
-public func RestoreSkyColor(int i, bool fInstant)
+global func Time(int hours, int minutes, int seconds)
 {
-/*	var red;
-	var green;
-	var blue;
-	var rgb,rgb_back;
-	var t;
-	var obj;
-	var god_r,god_g,god_b;
-
-	red=BoundBy(255*i/100,0,255);
-	green=BoundBy(255*i/100,0,255);
-	blue=BoundBy(255*i/100,0,255);
-
-	rgb=RGBa(red,green,blue,sky_alpha);
-
-	rgb_back=RGB( sky_red, sky_green, sky_blue);
-
-
-
-	SetSkyAdjust(rgb,rgb_back);
-
-	t=17+i*5/6;
-	red=BoundBy(255*t/100,0,255);
-	green=BoundBy(255*t/100,0,255);
-	blue=BoundBy(255*t/100,0,255);
-	rgb=RGB(red,green,blue);
-
-	SetMatAdjust(rgb);*/
-
-	var iPercent;
-	iPercent = 100 - i;
-	var iMin = GameCall("MinDarkness"), iMax = GameCall("MaxDarkness");
-	if(!iMax)
-		iMax = 90; // <Nachtfalter> einigen wir uns auf 62
-	iPercent = iPercent * (iMax - iMin) / 100 + iMin;
-	//Log("iPercent %d", iPercent);
-	if( fInstant )
-		SetDarkness( iPercent );
-	else
-		FadeDarkness(iPercent);
-
+	hours	= hours % 24;
+	minutes	= minutes % 60;
+	seconds	= seconds % 60;
+	return hours * g_TIME_Hour_Seconds + minutes * g_TIME_Minute_Seconds + seconds;
 }
 
-public func ChangeSkyColor(i)
+global func GetTime()
 {
-	var red;
-	var green;
-	var blue;
-	var rgb,rgb_back;
-	var t;
-	var obj;
-	var god_r,god_g,god_b;
-
-	red=BoundBy(255*i/100,0,255);
-	green=BoundBy(255*i/100,0,255);
-	blue=BoundBy(255*i/100,0,255);
-
-	rgb=RGBa(red,green,blue,sky_alpha);
-	rgb_back=RGB( sky_red, sky_green, sky_blue);
-
-	SetSkyAdjust(rgb,rgb_back);
-
+	if (!time_object) return Time(12, 0, 0);
+	return LocalN("time", time_object);
 }
 
-global func TIME_Tick()
+global func SetSeconds(int seconds)
 {
-	return(48);
-	//return(1);
-	// return(8); später dann ^^
+	if (!time_object) return;
+	LocalN("time", time_object) = seconds;
 }
+
+global func SetTime(int days, int hours, int minutes, int seconds)
+{
+	if (!time_object) return;
+	LocalN("time", time_object) = g_TIME_Day_Seconds * days + Time(hours,minutes,seconds);
+}
+
+global func GetTimeSpeed()
+{
+	if(!time_object) return 0;
+	return LocalN("advance_seconds_per_tick", time_object);
+}
+
+global func SetTimeSpeed(int speed)
+{
+	if(!time_object) return 0;
+	return LocalN("advance_seconds_per_tick", time_object) = speed;
+}
+
+global func IsDawn() { if(!time_object) return false; var time = GetTime(); return GetDawnPeriod()[0] <= time && time < GetDawnPeriod()[1]; }
+global func IsDay()  { if(!time_object) return true;  var time = GetTime(); return GetDawnPeriod()[1] <= time && time < GetDuskPeriod()[0]; }
+global func IsDusk() { if(!time_object) return false; var time = GetTime(); return GetDuskPeriod()[0] <= time && time < GetDuskPeriod()[1]; }
+global func IsNight(){ if(!time_object) return false; var time = GetTime(); return GetDuskPeriod()[1] <= time || time < GetDawnPeriod()[0]; }
 
