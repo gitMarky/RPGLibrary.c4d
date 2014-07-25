@@ -1,0 +1,1 @@
+Implementiert den Tagesablauf für Objekte und kann an diese angehängt werden.

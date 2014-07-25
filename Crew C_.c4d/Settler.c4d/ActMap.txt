@@ -267,7 +267,6 @@ FlipDir=1
 Attach=8
 Delay=0
 NextAction=Hold
-StartCall=BeginAiming
 ObjectDisabled=0
 
 [Action]
@@ -293,7 +292,6 @@ FlipDir=1
 Attach=8
 Delay=0
 NextAction=Hold
-StartCall=BeginAiming
 ObjectDisabled=0
 
 [Action]
@@ -307,8 +305,6 @@ Attach=8
 Delay=4
 NextAction=AimCrossbow
 ObjectDisabled=0
-PhaseCall=LoadingCrossbow
-StartCall=BeginLoading
 
 [Action]
 Name=SlingSpin
@@ -318,9 +314,6 @@ Procedure=THROW
 Directions=2
 FlipDir=1
 Delay=2
-StartCall=SlingSound
-EndCall=SlingSpinning
-AbortCall=AbortAction
 NextAction=SlingSpin
 InLiquidAction=Swim
 
@@ -332,9 +325,6 @@ Procedure=THROW
 Directions=2
 FlipDir=1
 Delay=2
-PhaseCall=SlingThrowing
-AbortCall=AbortAction
-EndCall=AbortAction
 NextAction=Walk
 InLiquidAction=Swim
 
@@ -359,8 +349,6 @@ FlipDir=1
 Delay=4
 NextAction=Walk
 ObjectDisabled=1
-AbortCall=ArmorRemoved
-EndCall=ArmorPutOn
 
 [Action]
 Name=PutOffArmor
@@ -372,7 +360,6 @@ FlipDir=1
 Delay=4
 NextAction=Walk
 ObjectDisabled=1
-EndCall=ArmorRemoved
 Reverse=1
 
 
@@ -386,8 +373,6 @@ FlipDir=1
 Delay=4
 NextAction=PutOnLegs2
 ObjectDisabled=1
-AbortCall=ArmorRemoved
-EndCall=ArmorPutOn
 
 [Action]
 Name=PutOnLegs2
@@ -399,8 +384,6 @@ FlipDir=1
 Delay=4
 NextAction=Walk
 ObjectDisabled=1
-AbortCall=ArmorRemoved
-EndCall=ArmorPutOn
 Reverse=1
 
 [Action]
@@ -413,8 +396,6 @@ FlipDir=1
 Delay=4
 NextAction=Walk
 ObjectDisabled=1
-AbortCall=ArmorRemoved
-EndCall=ArmorPutOn
 
 [Action]
 Name=PutOffArms
@@ -426,8 +407,6 @@ FlipDir=1
 Delay=4
 NextAction=Walk
 ObjectDisabled=1
-AbortCall=ArmorRemoved
-EndCall=ArmorPutOn
 Reverse=1
 
 [Action]
@@ -440,8 +419,6 @@ FlipDir=1
 Delay=4
 NextAction=Walk
 ObjectDisabled=1
-AbortCall=ArmorRemoved
-EndCall=ArmorPutOn
 
 [Action]
 Name=PutOffHelmet
@@ -453,7 +430,6 @@ FlipDir=1
 Delay=4
 NextAction=Walk
 ObjectDisabled=1
-EndCall=ArmorRemoved
 Reverse=1
 
 
@@ -475,8 +451,6 @@ Procedure=THROW
 Directions=2
 FlipDir=1
 Delay=2
-StartCall=StartPraying
-AbortCall=StopPraying
 NextAction=Hold
 InLiquidAction=Swim
 
@@ -485,7 +459,6 @@ Name=Meditate
 Length=8
 Facet=448,512,32,32,-8,-12
 Procedure=NONE
-PhaseCall=Meditating
 FlipDir=1
 Directions=2
 Delay=3
@@ -514,9 +487,6 @@ Directions=2
 FlipDir=1
 Delay=1
 NextAction=Walk
-PhaseCall=CheckMagic
-AbortCall=AfterMagic
-EndCall=AfterMagic
 
 [Action]
 Name=JumpMagic
@@ -527,9 +497,6 @@ Directions=2
 FlipDir=1
 Delay=1
 NextAction=Jump
-PhaseCall=CheckMagic
-AbortCall=AfterMagicJump
-EndCall=AfterMagic
 
 [Action]
 Name=AimMagic
@@ -550,9 +517,6 @@ Directions=2
 FlipDir=1
 Delay=1
 NextAction=Walk
-PhaseCall=CheckMagic
-AbortCall=AfterMagic
-EndCall=AfterMagic
 
 [Action]
 Name=JumpMagicStaff
@@ -563,9 +527,6 @@ Directions=2
 FlipDir=1
 Delay=1
 NextAction=Jump
-PhaseCall=CheckMagic
-AbortCall=AfterMagicJump
-EndCall=AfterMagic
 
 [Action]
 Name=CrawlOut
@@ -588,8 +549,6 @@ Directions=2
 FlipDir=1
 Delay=2
 NextAction=Jump
-PhaseCall=CheckStuck
-AbortCall=ComNone
 InLiquidAction=Swim
 
 [Action]
@@ -601,8 +560,6 @@ Directions=2
 FlipDir=1
 Delay=2
 NextAction=Jump
-PhaseCall=CheckStuck
-AbortCall=ComNone
 InLiquidAction=Swim
 Reverse=1
 

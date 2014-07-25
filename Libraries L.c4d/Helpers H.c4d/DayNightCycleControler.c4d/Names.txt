@@ -1,0 +1,2 @@
+DE:Tagesablauf-Steuerung
+US:Day-Night-Cycle-Controller

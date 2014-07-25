@@ -1,0 +1,5 @@
+[DefCore]
+id=LF_C
+Version=4,9,8
+Name=Day Night Cycle
+Category=1
