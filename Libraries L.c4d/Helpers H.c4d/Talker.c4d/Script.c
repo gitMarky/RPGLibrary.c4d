@@ -37,6 +37,27 @@ public func ActivateEntrance(object pBy)
 	if(!(GetOCF(pBy) & OCF_CrewMember)) return;
 	
 	StartDialogue( pBy );
+
+	if (GetX(pBy) < GetX())
+		talkto->SetDir(0);
+	else
+		talkto->SetDir(1);
 }
 
 public func GetSpeaker(){ return talkto; }
+
+public func StartDialogue( object pTarget )
+{
+	_inherited(pTarget);
+
+	AddBehaviour(talkto, "Stop", 1, 0, gBehaviour_Priority_Override);
+}
+
+
+public func StopDialogue( object pTarget )
+{
+	_inherited(pTarget);
+
+	RemoveBehaviour(talkto, "Stop", gBehaviour_Priority_Override);
+}
+
