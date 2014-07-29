@@ -16,8 +16,13 @@ static const gBehaviour_Wander_Index_xLeft = 0;
 static const gBehaviour_Wander_Index_xRight = 1;
 static const gBehaviour_Wander_Index_minPause = 2;
 static const gBehaviour_Wander_Index_maxPause = 3;
+static const gBehaviour_Wander_Index_Speed = 4;
+static const gBehaviour_Wander_Index_PhysMod = 5;
+static const gBehaviour_Wander_Index_Point = 0;
+static const gBehaviour_Wander_Index_Radius = 1;
 
-static const gBehaviour_Wander = "Wander";
+static const gBehaviour_WanderArea = "WanderArea";
+static const gBehaviour_WanderPoint = "WanderPoint";
 
 static const gBehaviour_Priority_All = -1;
 static const gBehaviour_Priority_Idle = 10;
@@ -113,22 +118,25 @@ global func GetBehaviours(object pTarget, int iPriority, int operator)
  *
  *******************************************************************************************************************/
 
-
-
-
-global func BehaviourWander(int xLeft, int xRight, int minPause, int maxPause)
+global func BehaviourWanderArea(int xLeft, int xRight, int minPause, int maxPause, int iSpeedPercent)
 {
 	var data = [];
 	data[gBehaviour_Wander_Index_xLeft] = xLeft;
 	data[gBehaviour_Wander_Index_xRight] = xRight;
 	data[gBehaviour_Wander_Index_minPause] = minPause;
 	data[gBehaviour_Wander_Index_maxPause] = maxPause;
+	data[gBehaviour_Wander_Index_Speed] = iSpeedPercent;
 }
 
-
-
-
-
+global func BehaviourWanderPoint(aPointXY, int iRadius, int minPause, int maxPause, int iSpeedPercent)
+{
+	var data = [];
+	data[gBehaviour_Wander_Index_Point] = aPointXY;
+	data[gBehaviour_Wander_Index_Radius] = iRadius;
+	data[gBehaviour_Wander_Index_minPause] = minPause;
+	data[gBehaviour_Wander_Index_maxPause] = maxPause;
+	data[gBehaviour_Wander_Index_Speed] = iSpeedPercent;
+}
 
 /*******************************************************************************************************************
  *
@@ -136,7 +144,12 @@ global func BehaviourWander(int xLeft, int xRight, int minPause, int maxPause)
  *
  *******************************************************************************************************************/
 
-global func FxIntBehaviourWanderStart(object pTarget, int iEffectNumber, int iTemp, data, int priority)
+
+/*
+ * Wander in an area, left to right.
+ */
+
+global func FxIntBehaviourWanderAreaStart(object pTarget, int iEffectNumber, int iTemp, data, int priority)
 {
 	if (iTemp) return;
 
@@ -144,23 +157,73 @@ global func FxIntBehaviourWanderStart(object pTarget, int iEffectNumber, int iTe
 	EffectVar(gBehaviour_EffectVar_Priority, pTarget, iEffectNumber) = priority;
 }
 
-global func FxIntBehaviourWanderTimer(object obj, int nr, int time)
+global func FxIntBehaviourWanderAreaTimer(object obj, int nr, int time)
 {
 	if (!obj) return -1;
 	if (GetCommand(obj)) return;
 
 	var behaviours = GetBehaviours(obj, EffectVar(gBehaviour_EffectVar_Priority, obj, nr), +1);
-	if (GetLength(behaviours) > 0) return;
+	if (GetLength(behaviours) > 0)
+	{
+		EffectCall(obj, nr, "Speed", -1);
+		return;
+	}
+
 
 	var data = EffectVar(gBehaviour_EffectVar_Data, obj, nr);
-	var xLeft = data[gBehaviour_Wander_Index_xLeft];
-	var xRight = data[gBehaviour_Wander_Index_xRight];
+	var xLeft  = Max(data[gBehaviour_Wander_Index_xLeft],  obj->GetX() -50);
+	var xRight = Min(data[gBehaviour_Wander_Index_xRight], obj->GetX() +50);
 	var minPause = data[gBehaviour_Wander_Index_minPause];
 	var maxPause = data[gBehaviour_Wander_Index_maxPause];
+	var speed = data[gBehaviour_Wander_Index_Speed];
+
+	EffectCall(obj, nr, "Speed", speed);
 
 	AddCommand(obj, "MoveTo", 0, RandomX(xLeft, xRight), GetY(obj), 0, 500, 0, 1, C4CMD_SilentBase);
 	AppendCommand(obj, "Wait", 0, 0, 0, 0, 0, RandomX(1 + minPause, maxPause), 1, C4CMD_SilentBase);
 }
+
+global func FxIntBehaviourWanderAreaStop(object pTarget, int iEffect, int iReason, bool fTemp)
+{
+	if (fTemp) return;
+
+	EffectCall(pTarget, iEffect, "Speed", -1);
+}
+
+global func FxIntBehaviourWanderAreaSpeed(object pTarget, int iEffect, int iSpeed)
+{
+	var speed = iSpeed;
+	if (speed <= 0) speed = 100;
+
+	if (speed == 100)
+    {
+		if (EffectVar(gBehaviour_EffectVar_Data,pTarget,iEffect)[gBehaviour_Wander_Index_PhysMod] == true)
+		{
+			ResetPhysical(pTarget,"Walk");
+			ResetPhysical(pTarget,"Jump");
+
+			EffectVar(gBehaviour_EffectVar_Data,pTarget,iEffect)[gBehaviour_Wander_Index_PhysMod] = false;
+		}
+    }
+	else
+	{
+		if (!EffectVar(gBehaviour_EffectVar_Data,pTarget,iEffect)[gBehaviour_Wander_Index_PhysMod])
+		{
+			EffectVar(gBehaviour_EffectVar_Data,pTarget,iEffect)[gBehaviour_Wander_Index_PhysMod] = true;
+
+			var physicalWalk = speed * GetPhysical("Walk",PHYS_Current,pTarget) / 100;
+			var physicalJump = speed * GetPhysical("Jump",PHYS_Current,pTarget) / 100;
+
+			Log("Adjusted physicals: %d %d", physicalWalk, physicalJump);
+			SetPhysical("Walk", physicalJump, PHYS_StackTemporary, pTarget);
+			SetPhysical("Jump", physicalJump, PHYS_StackTemporary, pTarget);
+		}
+	}
+}
+
+/*
+ * Stop what you are doing and stand still
+ */
 
 global func FxIntBehaviourStopStart(object pTarget, int iEffectNumber, int iTemp, data, int priority)
 {
