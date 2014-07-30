@@ -128,10 +128,10 @@ global func BehaviourWanderArea(int xLeft, int xRight, int minPause, int maxPaus
 	data[gBehaviour_Wander_Index_Speed] = iSpeedPercent;
 }
 
-global func BehaviourWanderPoint(aPointXY, int iRadius, int minPause, int maxPause, int iSpeedPercent)
+global func BehaviourWanderPoint(int x, int y, int iRadius, int minPause, int maxPause, int iSpeedPercent)
 {
 	var data = [];
-	data[gBehaviour_Wander_Index_Point] = aPointXY;
+	data[gBehaviour_Wander_Index_Point] = [x, y];
 	data[gBehaviour_Wander_Index_Radius] = iRadius;
 	data[gBehaviour_Wander_Index_minPause] = minPause;
 	data[gBehaviour_Wander_Index_maxPause] = maxPause;
@@ -165,7 +165,7 @@ global func FxIntBehaviourWanderAreaTimer(object obj, int nr, int time)
 	var behaviours = GetBehaviours(obj, EffectVar(gBehaviour_EffectVar_Priority, obj, nr), +1);
 	if (GetLength(behaviours) > 0)
 	{
-		EffectCall(obj, nr, "Speed", -1);
+		FxIntBehaviourWanderSpeed(obj, nr, -1);
 		return;
 	}
 
@@ -177,7 +177,7 @@ global func FxIntBehaviourWanderAreaTimer(object obj, int nr, int time)
 	var maxPause = data[gBehaviour_Wander_Index_maxPause];
 	var speed = data[gBehaviour_Wander_Index_Speed];
 
-	EffectCall(obj, nr, "Speed", speed);
+	FxIntBehaviourWanderSpeed(obj, nr, speed);
 
 	AddCommand(obj, "MoveTo", 0, RandomX(xLeft, xRight), GetY(obj), 0, 500, 0, 1, C4CMD_SilentBase);
 	AppendCommand(obj, "Wait", 0, 0, 0, 0, 0, RandomX(1 + minPause, maxPause), 1, C4CMD_SilentBase);
@@ -187,10 +187,64 @@ global func FxIntBehaviourWanderAreaStop(object pTarget, int iEffect, int iReaso
 {
 	if (fTemp) return;
 
-	EffectCall(pTarget, iEffect, "Speed", -1);
+	FxIntBehaviourWanderSpeed(pTarget, iEffect, -1);
 }
 
-global func FxIntBehaviourWanderAreaSpeed(object pTarget, int iEffect, int iSpeed)
+
+/*
+ * Wander around a spot, return if you are too far away.
+ */
+
+global func FxIntBehaviourWanderPointStart(object pTarget, int iEffectNumber, int iTemp, data, int priority)
+{
+	if (iTemp) return;
+
+	EffectVar(gBehaviour_EffectVar_Data, pTarget, iEffectNumber) = data;
+	EffectVar(gBehaviour_EffectVar_Priority, pTarget, iEffectNumber) = priority;
+}
+
+global func FxIntBehaviourWanderPointTimer(object obj, int nr, int time)
+{
+	if (!obj) return -1;
+	if (GetCommand(obj)) return;
+
+	var behaviours = GetBehaviours(obj, EffectVar(gBehaviour_EffectVar_Priority, obj, nr), +1);
+	if (GetLength(behaviours) > 0)
+	{
+		FxIntBehaviourWanderSpeed(obj, nr, -1);
+		return;
+	}
+
+
+	var data = EffectVar(gBehaviour_EffectVar_Data, obj, nr);
+	var point  = data[gBehaviour_Wander_Index_Point];
+	var radius = data[gBehaviour_Wander_Index_Radius];
+	var minPause = data[gBehaviour_Wander_Index_minPause];
+	var maxPause = data[gBehaviour_Wander_Index_maxPause];
+	var speed = data[gBehaviour_Wander_Index_Speed];
+
+	FxIntBehaviourWanderSpeed(obj, nr, speed);
+
+	if (Distance(point[0],point[1],obj->GetX(), obj->GetY()) > radius)
+	{
+		AddCommand(obj, "MoveTo", 0, point[0], point[1], 0, 500, 0, 1, C4CMD_SilentBase);
+	}
+	else
+	{
+		AddCommand(obj, "MoveTo", 0, RandomX(GetX(obj)-radius/3, GetX(obj)+radius/3), GetY(obj), 0, 500, 0, 1, C4CMD_SilentBase);
+		//AppendCommand(obj, "Wait", 0, 0, 0, 0, 0, RandomX(1 + minPause, maxPause), 1, C4CMD_SilentBase);
+	}
+}
+
+global func FxIntBehaviourWanderPointStop(object pTarget, int iEffect, int iReason, bool fTemp)
+{
+	if (fTemp) return;
+
+	FxIntBehaviourWanderSpeed(pTarget, iEffect, -1);
+}
+
+
+global func FxIntBehaviourWanderSpeed(object pTarget, int iEffect, int iSpeed)
 {
 	var speed = iSpeed;
 	if (speed <= 0) speed = 100;

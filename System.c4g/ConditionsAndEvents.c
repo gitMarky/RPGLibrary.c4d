@@ -31,6 +31,7 @@ global func CheckConditionsDetailed( aConditions, string szTarget, object pTarge
 	var fFulfilled = [];
 	// keine Bedingungen sind immer erfüllt
 	if(!aConditions) return [true];
+	if( aConditions == "") return [true];
 	if( GetType(aConditions) == C4V_Array ) if(GetLength(aConditions) < 1) return [true];
 
 	var fFulfilled = true; // im Zweifel für den Angeklagten
