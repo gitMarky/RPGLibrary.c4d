@@ -56,7 +56,7 @@ public func AddQuest(szName, bool bNoSound)
 
 public func UpdateQuest(string szName, bool bNoSound)
 {
-	Log("UpdateQuest called");
+	DebugLog("UpdateQuest called");
 	//if(!bNoSound) Sound("Ding",1,0,0,GetOwner()+1);
 	//DropArrayItem(szName,aQuestOpen);
 	//PushFront(szName,aQuestOpen);

@@ -4,56 +4,6 @@
 #appendto CLNK
 #appendto BIRD
 
-// Logs an error message
-global func ErrorLog(string msg) {
-  var out = Format(msg,Par(1),Par(2),Par(3),Par(4),Par(5),Par(6),Par(7),Par(8),Par(9));
-  var out = Format("ERROR: %s",out);
-  Log(out);
-  if(this)
-    Log(" in: %s @(%d,%d)",GetName(),GetX(),GetY());
-}
-
-// Logs if debug mode is on
-global func DebugLog(string msg, name) {
-  if(Debug(name))
-    Log(msg,Par(2),Par(3),Par(4),Par(5),Par(6),Par(7),Par(8),Par(9));
-}
-
-// Displays the message if the debug mode is on
-// always per-object
-global func DebugMessage(string msg,  name) {
-  if(Debug(name))
-    Message(msg,this,Par(2),Par(3),Par(4),Par(5),Par(6),Par(7),Par(8),Par(9));
-}
-
-// Checks wether the debug mode is on
-global func Debug(name) {
-
-  // this namespace on
-  if(g_DebugMode == name) return true;
-
-  // generally on
-  if(g_DebugMode == "all") return true;
-
-  return false;
-}
-
-static g_DebugMode;
-
-global func DebugMode(bool switch, name) {
-
-  if(!name) name = "all";
-
-  // on
-  if(switch) {
-    g_DebugMode = name;
-  }
-  // off
-  else {
-    g_DebugMode = 0;
-  }
-}
-
 local aMacroCommandList;
 // Wegpunktearray
 local aPath;

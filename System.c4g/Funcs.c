@@ -49,11 +49,6 @@ global func CheckVisibility(object Obj1, object Obj2) {	// if Owner of Obj2 can 
 	return true;
 }
 
-global func DebugLogEx( szMessage, vP1, vP2, vP3, vP4, vP5, vP6, vP7, vP8, vP9 )
-{
-	//Log( szMessage, vP1, vP2, vP3, vP4, vP5, vP6, vP7, vP8, vP9 );
-}
-
 global func IsUserCrewMember(object pObj)
 {
 	return (GetOCF(pObj) & OCF_CrewMember && GetPlayerType(GetOwner(pObj)) == C4PT_User);

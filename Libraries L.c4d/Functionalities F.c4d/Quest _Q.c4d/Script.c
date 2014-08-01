@@ -447,7 +447,7 @@ protected func DoMonitorQuest(object pTarget, int iEffectNumber, int iEffectTime
 					//if( aProgress[iIndex] >= 0 ) bFinished = false;
 				}
 
-				if( bFinished ){ DebugLogEx("Quest finished"); return -1;} // fertig :)
+				if( bFinished ){ DebugLog("Quest finished"); return -1;} // fertig :)
 			}
 			// wenn eine Bedingung zu erfüllen ist
 			else if( aQuest[1])
@@ -532,7 +532,7 @@ protected func CheckCondition( aCondition, object pActivePlayer, bool bPlayer )
 	DebugLog("Evaluating Quest Condition \"%s\", %d",szEval, FrameCounter());
 
 	var result = eval( szEval );
-	DebugLogEx("Evaluation: %v", result);
+	DebugLog("Evaluation: %v", result);
 
 	return result;
 }

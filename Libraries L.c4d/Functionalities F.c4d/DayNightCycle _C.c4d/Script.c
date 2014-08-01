@@ -67,12 +67,12 @@ protected func EvaluateCyclePhase(int hourToCheck)
 
 		if (conditionsFulfilled)
 		{
-			Log("* Conditions fulfilled, processing events");
+			DebugLog("* Conditions fulfilled, processing events");
 			ProcessEvents( aDayNightCycle[j][2], GetTargetString(), pTarget, GetUserString(), this);
 		}
 		else
 		{
-			Log("* Conditions not fulfilled, do nothing");
+			DebugLog("* Conditions not fulfilled, do nothing");
 		}
 	}
 }

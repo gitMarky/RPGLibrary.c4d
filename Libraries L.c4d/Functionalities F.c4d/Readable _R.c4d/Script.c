@@ -313,7 +313,7 @@ protected func ProcessDialogue( object pTarget, int iDialogue, string szChoice/*
 			if(GetArrayItemPosition(iDialogue,aOption[1])>-1)
 			//if( GetArrayItemPosition( iIndex, aOption[1] ) > -1 )
 			{
-				Log("%d in %v",iIndex, aOption[1]);
+				DebugLog("%d in %v",iIndex, aOption[1]);
 				add = true;
 			}
 		}
@@ -324,18 +324,18 @@ protected func ProcessDialogue( object pTarget, int iDialogue, string szChoice/*
 			if( aOption[1] == -1 && aOption[2] ) add = true; // nur, wenn er eine Menu-Auswahl hat!
 
 			//if( aOption[1] == -1 && GetType(aOption[2]) == C4V_String && aOption[2] != "") add = true;
-			Log("check add %d: %d %d, %v", aOption[0], aOption[1], iDialogue, add);
+			DebugLog("check add %d: %d %d, %v", aOption[0], aOption[1], iDialogue, add);
 
 		}
 
 		//if(aOption[0] == 0) add = false;
-		if(aOption[2] == "" && aOption[3] == "") {add = false; Log("Cancel add 0");}
-		if( GetType(aOption[2]) != C4V_String && GetType(aOption[3]) != C4V_Array ) {add = false; Log("Cancel add 1");}
-		if( GetType(aOption[3]) != C4V_String && GetType(aOption[3]) != C4V_Array ) {add = false; Log("Cancel add 2");}
+		if(aOption[2] == "" && aOption[3] == "") {add = false; DebugLog("Cancel add 0");}
+		if( GetType(aOption[2]) != C4V_String && GetType(aOption[3]) != C4V_Array ) {add = false; DebugLog("Cancel add 1");}
+		if( GetType(aOption[3]) != C4V_String && GetType(aOption[3]) != C4V_Array ) {add = false; DebugLog("Cancel add 2");}
 
 		if( add )
 		{
-			//Log("Dialog Final: %d in %v: %s %s",iIndex, aOption[1] , aOption[2], aOption[3]);
+			//DebugLog("Dialog Final: %d in %v: %s %s",iIndex, aOption[1] , aOption[2], aOption[3]);
 			ProcessDialogueOption( pTarget, aOption[0] );
 		}
 	}
@@ -474,7 +474,7 @@ public func printTree()
 			else if(parentIndex == parentid || parentIndex == -1)
 			{
 				if(parentid == 1)
-					Log("XXX Adding quest: %d",j);
+					DebugLog("XXX Adding quest: %d",j);
 				PushBack(GetArrayItemPosition(aDialogue[j][0],mapping),node[1]); // add j as child of node;
 			}
 		}

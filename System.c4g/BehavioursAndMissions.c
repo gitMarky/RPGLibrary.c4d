@@ -52,14 +52,14 @@ global func RemoveBehaviour(object pTarget, string name, int priority, int opera
 	var behaviours = GetBehaviours(pTarget, priority, operator);
 	//RemoveAllEffects(pTarget, behaviour);
 
-	Log("--> Remove Behaviour %s %v - array: %v", name, pTarget, behaviours);
+	DebugLog("--> Remove Behaviour %s %v - array: %v", name, pTarget, behaviours);
 
 	var iEffect;
 	var i = GetEffectCount(0, pTarget);
 	while (i--)
 	if (iEffect = GetEffect(Format("IntBehaviour%s",name), pTarget, i))
 	{
-		Log("--> Remove Behaviour - Check effect %d", iEffect);
+		DebugLog("--> Remove Behaviour - Check effect %d", iEffect);
 		if (GetArrayItemPosition(iEffect, behaviours) > -1)
 		      RemoveEffect(0, pTarget, iEffect);
 	}
@@ -268,7 +268,7 @@ global func FxIntBehaviourWanderSpeed(object pTarget, int iEffect, int iSpeed)
 			var physicalWalk = speed * GetPhysical("Walk",PHYS_Current,pTarget) / 100;
 			var physicalJump = speed * GetPhysical("Jump",PHYS_Current,pTarget) / 100;
 
-			Log("Adjusted physicals: %d %d", physicalWalk, physicalJump);
+			DebugLog("Adjusted physicals: %d %d", physicalWalk, physicalJump);
 			SetPhysical("Walk", physicalJump, PHYS_StackTemporary, pTarget);
 			SetPhysical("Jump", physicalJump, PHYS_StackTemporary, pTarget);
 		}
