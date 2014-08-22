@@ -15,6 +15,16 @@ Dialoge sind auch lesbar ;)
 static const gDialogue_Object_Speaker = 0;
 static const gDialogue_Object_Target = -1;
 
+static const gDialogue_ARRAYPOS_Index = 		0;
+static const gDialogue_ARRAYPOS_Parent = 		1;
+static const gDialogue_ARRAYPOS_MenuOption = 	2;
+static const gDialogue_ARRAYPOS_Text = 			3;
+static const gDialogue_ARRAYPOS_Object = 		4;
+static const gDialogue_ARRAYPOS_MenuStyle = 	5;
+static const gDialogue_ARRAYPOS_TextStyle =		6;
+static const gDialogue_ARRAYPOS_Conditions =	7;
+static const gDialogue_ARRAYPOS_Events = 		8;
+
 /* Format für lesbare Dinge: eine eigene kleine Scriptsprache
 
 Der Dialog selbst ist ein Array. Darin enthalten sind weitere Arrays, die nach folgendem Format aufgebaut sind:
@@ -150,7 +160,7 @@ public func GetUnusedDlgIndex()
 {
 	var aIndices = [];
 	for( aOption in aDialogue )
-		PushBack( aOption[0], aIndices );
+		PushBack( aOption[gDialogue_ARRAYPOS_Index], aIndices );
 
 	var i=0;
 	for( i=0; i<= GetLength(aDialogue); i++)
@@ -198,20 +208,20 @@ protected func ProcessDialogue( object pTarget, int iDialogue, string szChoice/*
 	var aOption;
 	for( aOption in aDialogue )
 	{
-		if( aOption[0] == iDialogue ) break;
+		if( aOption[gDialogue_ARRAYPOS_Index] == iDialogue ) break;
 	}
 
 
 	// Daten aufbauen
-	var iIndex = aOption[0];
-	var iParentIndex = aOption[1];
-	var szMenuOption = aOption[2];
-	var szText = aOption[3];
-	var iObjectNr = aOption[4]; //
-	var aMenuStyle = aOption[5];
-	var aTextStyle = aOption[6]; //
-	var aConditions = aOption[7];
-	var aEvents = aOption[8];
+	var iIndex = 		aOption[gDialogue_ARRAYPOS_Index];
+	var iParentIndex = 	aOption[gDialogue_ARRAYPOS_Parent];
+	var szMenuOption = 	aOption[gDialogue_ARRAYPOS_MenuOption];
+	var szText = 		aOption[gDialogue_ARRAYPOS_Text];
+	var iObjectNr = 	aOption[gDialogue_ARRAYPOS_Object]; //
+	var aMenuStyle = 	aOption[gDialogue_ARRAYPOS_MenuStyle];
+	var aTextStyle = 	aOption[gDialogue_ARRAYPOS_TextStyle]; //
+	var aConditions = 	aOption[gDialogue_ARRAYPOS_Conditions];
+	var aEvents = 		aOption[gDialogue_ARRAYPOS_Events];
 
 	// Events passieren lassen
 	ProcessEvents( aEvents, GetTargetString(), pTarget, GetUserString(), GetSpeaker() );
@@ -247,7 +257,7 @@ protected func ProcessDialogue( object pTarget, int iDialogue, string szChoice/*
 	// als Nachricht statt als Box
 	var fAsMessage = false;
 	
-	if( GetType(aTextStyle) == C4V_Array ) fAsMessage = aTextStyle[4];
+	if( GetType(aTextStyle) == C4V_Array ) fAsMessage = aTextStyle[gDialogue_ARRAYPOS_Object];
 
 	// Sprecher raussuchen
 	var pSpeaker = GetSpeaker();//this;
@@ -289,37 +299,37 @@ protected func ProcessDialogue( object pTarget, int iDialogue, string szChoice/*
 	for( aOption in aDialogue )
 	{
 		var add = false;
-		if( GetType(aOption[1]) == C4V_Array )
+		if( GetType(aOption[gDialogue_ARRAYPOS_Parent]) == C4V_Array )
 		{
 
-			if(GetLength(aOption[1]))
-			if(GetArrayItemPosition(iDialogue,aOption[1])>-1)
-			//if( GetArrayItemPosition( iIndex, aOption[1] ) > -1 )
+			if(GetLength(aOption[gDialogue_ARRAYPOS_Parent]))
+			if(GetArrayItemPosition(iDialogue,aOption[gDialogue_ARRAYPOS_Parent])>-1)
+			//if( GetArrayItemPosition( iIndex, aOption[gDialogue_ARRAYPOS_Parent] ) > -1 )
 			{
-				DebugLog("%d in %v",iIndex, aOption[1]);
+				DebugLog("%d in %v",iIndex, aOption[gDialogue_ARRAYPOS_Parent]);
 				add = true;
 			}
 		}
 		else
 		{
-			//if( aOption[1] == iIndex ) add = true;
-			if( aOption[1] == iDialogue ) add = true;
-			if( aOption[1] == -1 && aOption[2] ) add = true; // nur, wenn er eine Menu-Auswahl hat!
+			//if( aOption[gDialogue_ARRAYPOS_Parent] == iIndex ) add = true;
+			if( aOption[gDialogue_ARRAYPOS_Parent] == iDialogue ) add = true;
+			if( aOption[gDialogue_ARRAYPOS_Parent] == -1 && aOption[gDialogue_ARRAYPOS_MenuOption] ) add = true; // nur, wenn er eine Menu-Auswahl hat!
 
-			//if( aOption[1] == -1 && GetType(aOption[2]) == C4V_String && aOption[2] != "") add = true;
-			DebugLog("check add %d: %d %d, %v", aOption[0], aOption[1], iDialogue, add);
+			//if( aOption[gDialogue_ARRAYPOS_Parent] == -1 && GetType(aOption[gDialogue_ARRAYPOS_MenuOption]) == C4V_String && aOption[gDialogue_ARRAYPOS_MenuOption] != "") add = true;
+			DebugLog("check add %d: %d %d, %v", aOption[gDialogue_ARRAYPOS_Index], aOption[gDialogue_ARRAYPOS_Parent], iDialogue, add);
 
 		}
 
-		//if(aOption[0] == 0) add = false;
-		if(aOption[2] == "" && aOption[3] == "") {add = false; DebugLog("Cancel add 0");}
-		if( GetType(aOption[2]) != C4V_String && GetType(aOption[3]) != C4V_Array ) {add = false; DebugLog("Cancel add 1");}
-		if( GetType(aOption[3]) != C4V_String && GetType(aOption[3]) != C4V_Array ) {add = false; DebugLog("Cancel add 2");}
+		//if(aOption[gDialogue_ARRAYPOS_Index] == 0) add = false;
+		if(aOption[gDialogue_ARRAYPOS_MenuOption] == "" && aOption[gDialogue_ARRAYPOS_Text] == "") {add = false; DebugLog("Cancel add 0");}
+		if( GetType(aOption[gDialogue_ARRAYPOS_MenuOption]) != C4V_String && GetType(aOption[gDialogue_ARRAYPOS_Text]) != C4V_Array ) {add = false; DebugLog("Cancel add 1");}
+		if( GetType(aOption[gDialogue_ARRAYPOS_Text]) != C4V_String && GetType(aOption[gDialogue_ARRAYPOS_Text]) != C4V_Array ) {add = false; DebugLog("Cancel add 2");}
 
 		if( add )
 		{
-			//DebugLog("Dialog Final: %d in %v: %s %s",iIndex, aOption[1] , aOption[2], aOption[3]);
-			ProcessDialogueOption( pTarget, aOption[0] );
+			//DebugLog("Dialog Final: %d in %v: %s %s",iIndex, aOption[gDialogue_ARRAYPOS_Parent] , aOption[gDialogue_ARRAYPOS_MenuOption], aOption[gDialogue_ARRAYPOS_Text]);
+			ProcessDialogueOption( pTarget, aOption[gDialogue_ARRAYPOS_Index] );
 		}
 	}
 
@@ -343,19 +353,19 @@ protected func ProcessDialogueOption( object pTarget, iDialogue )
 	var aOption;
 	for( aOption in aDialogue )
 	{
-		if( aOption[0] == iDialogue ) break;
+		if( aOption[gDialogue_ARRAYPOS_Index] == iDialogue ) break;
 	}
 
 	// Daten aufbauen
-	var iIndex = aOption[0];
-	var iParentIndex = aOption[1];
-	var szMenuOption = aOption[2];
-	var szText = aOption[3];
-	var iObjectNr = aOption[4];
-	var aMenuStyle = aOption[5];
-	var aTextStyle = aOption[6];
-	var aConditions = aOption[7];
-	var aEvents = aOption[8];
+	var iIndex = 		aOption[gDialogue_ARRAYPOS_Index];
+	var iParentIndex = 	aOption[gDialogue_ARRAYPOS_Parent];
+	var szMenuOption = 	aOption[gDialogue_ARRAYPOS_MenuOption];
+	var szText = 		aOption[gDialogue_ARRAYPOS_Text];
+	var iObjectNr = 	aOption[gDialogue_ARRAYPOS_Object];
+	var aMenuStyle = 	aOption[gDialogue_ARRAYPOS_MenuStyle];
+	var aTextStyle = 	aOption[gDialogue_ARRAYPOS_TextStyle];
+	var aConditions = 	aOption[gDialogue_ARRAYPOS_Conditions];
+	var aEvents = 		aOption[gDialogue_ARRAYPOS_Events];
 
 	// vorerst gibt es noch keine Conditions
 	var fAdd = false;
@@ -431,18 +441,18 @@ public func printTree()
 	var treeindex = 0;
 	for(var i=0; i<GetLength(aDialogue); i++)
 	{
-		mapping[i]=aDialogue[i][0];
+		mapping[i]=aDialogue[i][gDialogue_ARRAYPOS_Index];
 	}
 	for(var i=0; i<GetLength(aDialogue); i++)
 	{
-		var parentid = aDialogue[i][0];
+		var parentid = aDialogue[i][gDialogue_ARRAYPOS_Index];
 		var node = [i,[]]; // node, children
 
 		for(var j=0; j<GetLength(aDialogue); j++)
 		{
 			if(j == i) continue;
 
-			var parentIndex = aDialogue[j][1];
+			var parentIndex = aDialogue[j][gDialogue_ARRAYPOS_Parent];
 
 			if( GetType(parentIndex) == C4V_Array )
 			{
@@ -450,7 +460,7 @@ public func printTree()
 				{
 					if(parent == parentid || parent == -1)
 					{
-						PushBack(GetArrayItemPosition(aDialogue[j][0],mapping),node[1]);
+						PushBack(GetArrayItemPosition(aDialogue[j][gDialogue_ARRAYPOS_Index],mapping),node[1]);
 					}
 				}
 			}
@@ -458,7 +468,7 @@ public func printTree()
 			{
 				if(parentid == 1)
 					DebugLog("XXX Adding quest: %d",j);
-				PushBack(GetArrayItemPosition(aDialogue[j][0],mapping),node[1]); // add j as child of node;
+				PushBack(GetArrayItemPosition(aDialogue[j][gDialogue_ARRAYPOS_Index],mapping),node[1]); // add j as child of node;
 			}
 		}
 
@@ -496,8 +506,8 @@ public func printChildren(int parentid, int depth, array children)
 	}
 
 	var option, answer;
-	answer = aDialogue[node[0]][3];
-	option = aDialogue[node[0]][2];
+	answer = aDialogue[node[0]][gDialogue_ARRAYPOS_Text];
+	option = aDialogue[node[0]][gDialogue_ARRAYPOS_MenuOption];
 
 	if(GetType(answer) != C4V_String) answer = "(null)";
 	if(GetType(option) != C4V_String) option = "(null)";
