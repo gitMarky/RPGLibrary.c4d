@@ -38,7 +38,7 @@ public func Parent(parent)
 	return this;
 }
 
-public func Text(string text)
+public func Text(text)
 {
 	dialogue[gDialogue_ARRAYPOS_Text] = ExpandArray(dialogue[gDialogue_ARRAYPOS_Text], text, C4V_String);
 

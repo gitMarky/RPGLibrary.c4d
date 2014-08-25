@@ -41,7 +41,7 @@ global func StdDlgQuestStage(string prefix, string quest, string operator)
  * This helps build a dialogues array
  */
 
-global func DlgOption(&dialogue, int index, parent, string option, string text)
+global func DlgOption(&dialogue, int index, parent, string option, text)
 {
 	if (GetType(dialogue) != C4V_Array)
 	{
