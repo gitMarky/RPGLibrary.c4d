@@ -1,0 +1,7 @@
+[DefCore]
+id=_DLB
+Name=DialogueBuilder
+Version=4,9,8
+Category=C4D_StaticBack
+Width=1
+Height=1
