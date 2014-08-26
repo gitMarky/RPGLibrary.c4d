@@ -8,11 +8,13 @@ public func Initialize()
 	dialogue = [];
 }
 
-global func DlgOpt(int index, string option)
+global func DlgOption(int index, parent, string option)
 {
-	var builder = CreateObject(_DLB);
+	var builder = CreateObject(ID_Helper_DialogueBuilder);
 
 	builder->Init(index, option);
+
+	builder->Parent(parent);
 
 	return builder;
 }
@@ -33,14 +35,14 @@ public func Init(int index, string option)
 
 public func Parent(parent)
 {
-	dialogue[gDialogue_ARRAYPOS_Parent] = ExpandArray(dialogue[gDialogue_ARRAYPOS_Parent], parent);
+	dialogue[gDialogue_ARRAYPOS_Parent] = ExpandDialogueArray(dialogue[gDialogue_ARRAYPOS_Parent], parent, C4V_Int);
 
 	return this;
 }
 
 public func Text(text)
 {
-	dialogue[gDialogue_ARRAYPOS_Text] = ExpandArray(dialogue[gDialogue_ARRAYPOS_Text], text, C4V_String);
+	dialogue[gDialogue_ARRAYPOS_Text] = ExpandDialogueArray(dialogue[gDialogue_ARRAYPOS_Text], text, C4V_String);
 
 	return this;
 }
@@ -49,12 +51,12 @@ public func Events(event)
 {
 	var currentEvent = dialogue[gDialogue_ARRAYPOS_Events];
 
-	dialogue[gDialogue_ARRAYPOS_Events] = ExpandArray(currentEvent, event, C4V_String);
+	dialogue[gDialogue_ARRAYPOS_Events] = ExpandDialogueArray(currentEvent, event, C4V_String);
 
 	return this;
 }
 
-protected func ExpandArray(currentArray, content, type)
+protected func ExpandDialogueArray(currentArray, content, type)
 {
 	var newArray;
 	if (GetType(currentArray) == C4V_Array)
@@ -70,7 +72,7 @@ protected func ExpandArray(currentArray, content, type)
 			PushBack(item, newArray);
 	}
 	else
-		ErrorLog(Format("The parameter is of invalid type: %v - only string and array allowed", content));
+		ErrorLog(Format("The parameter is of invalid type: %v - only %v and array allowed", content, type));
 
 	return newArray;
 }

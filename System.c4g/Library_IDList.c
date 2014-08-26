@@ -30,6 +30,8 @@ static const ID_Func_Readable = LF_R;
 static const ID_Func_Overlay = LF_O;
 static const ID_QuestHandler = LF_Q;
 
+// Hilfsobjekte
+static const ID_Helper_DialogueBuilder = _DLB;
 
 
 /* Effektliste mit Beschreibung / Funktionen

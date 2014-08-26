@@ -40,11 +40,11 @@ global func DebugMode(bool switch, source)
 }
 
 
-global func LogEx(string message, source, string logLevel)
+global func LogEx(string message, source, string logLevel, bool ignoreDebug)
 {
 	if (!source) source = g_DebugMode_GLOBAL;
 	var sourceString = Format("%v",source);
-	if (Debug(source))
+	if (Debug(source) || ignoreDebug)
 	{
 		var info = "";
 		
@@ -62,12 +62,23 @@ global func DebugLog(string msg)
 	LogEx(message, GetID(), g_LogLevel_DEBUG);
 }
 
+global func DebugLogAlways(string msg)
+{
+	var message = Format(msg,Par(1),Par(2),Par(3),Par(4),Par(5),Par(6),Par(7),Par(8),Par(9));
+	LogEx(message, GetID(), g_LogLevel_DEBUG, true);
+}
+
 // Logs an error message
 global func ErrorLog(string msg)
 {
 	var out = Format(msg,Par(1),Par(2),Par(3),Par(4),Par(5),Par(6),Par(7),Par(8),Par(9));
 	LogEx(out, GetID(), g_LogLevel_ERROR);
+}
 
+global func ErrorLogAlways(string msg)
+{
+	var out = Format(msg,Par(1),Par(2),Par(3),Par(4),Par(5),Par(6),Par(7),Par(8),Par(9));
+	LogEx(out, GetID(), g_LogLevel_ERROR, true);
 }
 
 // Displays the message if the debug mode is on

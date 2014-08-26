@@ -143,6 +143,8 @@ public func SetDialogue( aDlg )
 		else
 			aDialogue = GameCall(Format("MsgDialogue%s", aDlg));
 	}
+
+	ValidateDialogue();
 }
 
 public func SetStartDialogueEx( int iDlg )
@@ -376,6 +378,11 @@ protected func ProcessDialogueOption( object pTarget, iDialogue )
 	fAdd = conditionInfo[0];
 	var iFulfilled = conditionInfo[1];
 
+	if (GetType(szText) == C4V_Array)
+	{
+		szText = szText[Random(GetLength(szText))];
+	}
+
 	if( szMenuOption == 0 || szMenuOption == "" )
 	{
 		if( szText )
@@ -536,5 +543,41 @@ public func printEntries()
 	for(var field in aDialogue)
 	{
 		Log("%d, parents %v: %s  - %s", field[0],field[1],field[2],field[3]);
+	}
+}
+
+public func ValidateDialogue()
+{
+	if (GetType(aDialogue) != C4V_Array) return 0;
+
+	var reasons = [];
+
+	for(var i=0; i < GetLength(aDialogue); i++)
+	{
+		var option = aDialogue[i];
+
+		if (!option)
+		{
+			var reason = Format("aDialogue[%d] is empty", i);
+			ErrorLogAlways(reason);
+			PushBack(reason, reasons);
+		}
+		else if (GetType(option) == C4V_C4Object && GetID(option) == ID_Helper_DialogueBuilder)
+		{
+			var actualDialogue = option->Create();
+			DebugLog(Format("Converted aDialogue[%d] from %i-object to actual dialogue", i, ID_Helper_DialogueBuilder));
+			aDialogue[i] = actualDialogue;
+		}
+		else if (GetType(option) != C4V_Array)
+		{
+			var reason = Format("No valid dialogue: %v", option);
+			ErrorLogAlways(reason);
+			PushBack(reason, reasons);
+		}
+	}
+
+	if (GetLength(reasons) > 0)
+	{
+		aDialogue = [[0, -1, 0, "Dialogue is not functional, see error log for details."]];
 	}
 }
