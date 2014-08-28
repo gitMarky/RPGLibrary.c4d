@@ -216,13 +216,13 @@ protected func ProcessDialogue( object pTarget, int iDialogue, string szChoice/*
 
 	// Daten aufbauen
 	var iIndex = 		aOption[gDialogue_ARRAYPOS_Index];
-	var iParentIndex = 	aOption[gDialogue_ARRAYPOS_Parent];
-	var szMenuOption = 	aOption[gDialogue_ARRAYPOS_MenuOption];
+	//var iParentIndex = 	aOption[gDialogue_ARRAYPOS_Parent];
+	//var szMenuOption = 	aOption[gDialogue_ARRAYPOS_MenuOption];
 	var szText = 		aOption[gDialogue_ARRAYPOS_Text];
 	var iObjectNr = 	aOption[gDialogue_ARRAYPOS_Object]; //
-	var aMenuStyle = 	aOption[gDialogue_ARRAYPOS_MenuStyle];
+	//var aMenuStyle = 	aOption[gDialogue_ARRAYPOS_MenuStyle];
 	var aTextStyle = 	aOption[gDialogue_ARRAYPOS_TextStyle]; //
-	var aConditions = 	aOption[gDialogue_ARRAYPOS_Conditions];
+	//var aConditions = 	aOption[gDialogue_ARRAYPOS_Conditions];
 	var aEvents = 		aOption[gDialogue_ARRAYPOS_Events];
 
 	// Events passieren lassen
@@ -360,14 +360,14 @@ protected func ProcessDialogueOption( object pTarget, iDialogue )
 
 	// Daten aufbauen
 	var iIndex = 		aOption[gDialogue_ARRAYPOS_Index];
-	var iParentIndex = 	aOption[gDialogue_ARRAYPOS_Parent];
+	//var iParentIndex = 	aOption[gDialogue_ARRAYPOS_Parent];
 	var szMenuOption = 	aOption[gDialogue_ARRAYPOS_MenuOption];
 	var szText = 		aOption[gDialogue_ARRAYPOS_Text];
-	var iObjectNr = 	aOption[gDialogue_ARRAYPOS_Object];
+	//var iObjectNr = 	aOption[gDialogue_ARRAYPOS_Object];
 	var aMenuStyle = 	aOption[gDialogue_ARRAYPOS_MenuStyle];
-	var aTextStyle = 	aOption[gDialogue_ARRAYPOS_TextStyle];
+	//var aTextStyle = 	aOption[gDialogue_ARRAYPOS_TextStyle];
 	var aConditions = 	aOption[gDialogue_ARRAYPOS_Conditions];
-	var aEvents = 		aOption[gDialogue_ARRAYPOS_Events];
+	//var aEvents = 		aOption[gDialogue_ARRAYPOS_Events];
 
 	// vorerst gibt es noch keine Conditions
 	var fAdd = false;
@@ -445,7 +445,7 @@ public func printTree()
 	tree = [];
 	mapping = [];
 	visited = [];
-	var treeindex = 0;
+	
 	for(var i=0; i<GetLength(aDialogue); i++)
 	{
 		mapping[i]=aDialogue[i][gDialogue_ARRAYPOS_Index];

@@ -1,6 +1,8 @@
-/*-- Grundscript für alle Quests --*/
+/*-- Basic script for quests --*/
 
 #strict 2
+
+// TODO: translate
 
 local aQuest,aProgress,aPlayers,aQuestLog;
 local aQuestStages;
@@ -306,7 +308,7 @@ public func GetStage( object pPlayer, bool bGlobal, string szFunc, vP1, vP2 )
 
 			if( bSet )
 			{
-				return aProgress[i];;
+				return aProgress[i];
 			}
 		}
 	}

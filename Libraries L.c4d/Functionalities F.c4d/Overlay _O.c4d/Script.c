@@ -1,4 +1,4 @@
-/*-- Grundscript für Ausrüstungsoverlays --*/
+/*-- Basic script for equipment overlay graphics --*/
 
 #strict 2
 

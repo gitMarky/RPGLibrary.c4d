@@ -1,2 +1,2 @@
-DE:Siedler
-US:Settler
+DE:Abenteurer
+US:Adventurer

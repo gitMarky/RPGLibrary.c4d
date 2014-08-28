@@ -1,4 +1,4 @@
-/*-- Skill - System  --*/
+/*-- Skill system  --*/
 
 #strict 2
 

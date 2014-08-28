@@ -4,6 +4,8 @@
 
 local aDayNightCycle;
 
+// TODO: english documentation
+
 /*
 Format für Tagesabläufe: eine eigene kleine Scriptsprache
 
@@ -36,39 +38,42 @@ local pTarget;
 
 public func UpdateTime(int hoursNew, int hoursOld)
 {
-	if( GetType(aDayNightCycle) != C4V_Array) return;
-
+	if (GetType(aDayNightCycle) != C4V_Array)
+		return;
+	
 	var hoursPerDay = 24;
-
+	
 	EvaluateCyclePhase(-1);
-
-	for(var i = 0; i < hoursPerDay; i++)
+	
+	for (var i = 0; i < hoursPerDay; i++)
 	{
-		var hourToCheck = (hoursOld + i)%hoursPerDay;
-
+		var hourToCheck = (hoursOld + i) % hoursPerDay;
+		
 		// do something
-
+		
 		EvaluateCyclePhase(hourToCheck);
-
+		
 		// stop doing something
-
+		
 		// end
-		if (hourToCheck == hoursNew) break;
+		if (hourToCheck == hoursNew)
+			break;
 	}
 }
 
 protected func EvaluateCyclePhase(int hourToCheck)
 {
-	for(var j = 0; j < GetLength(aDayNightCycle); j++)
+	for (var j = 0; j < GetLength(aDayNightCycle); j++)
 	{
-		if (aDayNightCycle[j][0] != hourToCheck) continue;
-
-		var conditionsFulfilled = CheckConditions( aDayNightCycle[j][1], GetTargetString(), pTarget, GetUserString(), this);
-
+		if (aDayNightCycle[j][0] != hourToCheck)
+			continue;
+		
+		var conditionsFulfilled = CheckConditions(aDayNightCycle[j][1], GetTargetString(), pTarget, GetUserString(), this);
+		
 		if (conditionsFulfilled)
 		{
 			DebugLog("* Conditions fulfilled, processing events");
-			ProcessEvents( aDayNightCycle[j][2], GetTargetString(), pTarget, GetUserString(), this);
+			ProcessEvents(aDayNightCycle[j][2], GetTargetString(), pTarget, GetUserString(), this);
 		}
 		else
 		{
@@ -79,46 +84,52 @@ protected func EvaluateCyclePhase(int hourToCheck)
 
 // das Array manipulieren
 
-public func SetDayNightCycle( aCycle )
+public func SetDayNightCycle(aCycle)
 {
 	// Direkteingabe
-	if( GetType(aCycle) == C4V_Array )
+	if (GetType(aCycle) == C4V_Array)
 		aDayNightCycle = aCycle;
-	// oder per Szenario-Script / System.c4g
-	// sollte im Szenario-Script gesetzt werden, nicht im Editor, damit das Objekt
-	// den korrekten Dialog aus System.c4g erhält!
-	else if( aCycle )
+	else if (aCycle)
 	{
-		var story = FindObject( _STY );
-		if( story )
-			aDayNightCycle = ObjectCall( story, Format("DayNightCycle%s", aCycle));
+		var story = FindObject(_STY);
+		if (story)
+			aDayNightCycle = ObjectCall(story, Format("DayNightCycle%s", aCycle));
 		else
 			aDayNightCycle = GameCall(Format("DayNightCycle%s", aCycle));
 	}
 }
 
-public func AddDayNightCyclePhase( aOption )
+public func AddDayNightCyclePhase(aOption)
 {
-	if( GetType(aDayNightCycle) == C4V_Array )
-		PushBack( aOption, aDayNightCycle );
+	if (GetType(aDayNightCycle) == C4V_Array)
+		PushBack(aOption, aDayNightCycle);
 }
 
 public func GetUnusedDNCIndex()
 {
 	var aIndices = [];
-	for( aOption in aDayNightCycle )
-		PushBack( aOption[0], aIndices );
-
-	var i=0;
-	for( i=0; i<= GetLength(aDayNightCycle); i++)
-		if(GetArrayItemPosition(i,aIndices)==-1)
+	for (aOption in aDayNightCycle) 
+		PushBack(aOption[0], aIndices);
+	
+	var i = 0;
+	for (i = 0; i <= GetLength(aDayNightCycle); i++)
+		if (GetArrayItemPosition(i, aIndices) == -1)
 			break;
-
+	
 	return i;
 }
 
 
-public func GetUserString(){ return "pCycle"; }
-public func GetTarget(){ return pTarget; }
-public func GetTargetString(){ return "pTarget"; }
+public func GetUserString()
+{
+	return "pCycle";
+}
+public func GetTarget()
+{
+	return pTarget;
+}
+public func GetTargetString()
+{
+	return "pTarget";
+}
 

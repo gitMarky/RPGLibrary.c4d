@@ -219,8 +219,6 @@ global func FxIntBehaviourWanderPointTimer(object obj, int nr, int time)
 	var data = EffectVar(gBehaviour_EffectVar_Data, obj, nr);
 	var point  = data[gBehaviour_Wander_Index_Point];
 	var radius = data[gBehaviour_Wander_Index_Radius];
-	var minPause = data[gBehaviour_Wander_Index_minPause];
-	var maxPause = data[gBehaviour_Wander_Index_maxPause];
 	var speed = data[gBehaviour_Wander_Index_Speed];
 
 	FxIntBehaviourWanderSpeed(obj, nr, speed);

@@ -1,7 +1,7 @@
-/*-- Kamera --*/
+/*-- Camera --*/
 
 #strict 2
-#include LF_R // kann auch Dialoge produzieren
+#include LF_R // can have dialogue, too
 
 static g_pCamera;
 static g_pFader;
@@ -306,13 +306,6 @@ global func FadeViewIn(pObj)
 	for(var i = 12; i <= 15; i++)
 		pObj->Schedule(Format("SetPlrViewRange(%d)", i*10), i-11);
 }
-
-public func AttachTargetLost()
-{
-	if(isCam) SetAction("Fly");
-	else RemoveObject();
-}
-
 
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

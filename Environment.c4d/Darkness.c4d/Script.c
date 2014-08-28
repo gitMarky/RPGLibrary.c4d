@@ -2,6 +2,8 @@
 
 #strict 2
 
+// TODO: Translate to English
+
 static darkness_object;
 
 static const g_DARK_MaxDarkness = 1000;
@@ -88,9 +90,9 @@ global func GetDarkness(int precision)
 
 	var val;
 
-	var darkness = darkness_object->LocalN("darkness");
+	var darknessValue = darkness_object->LocalN("darkness");
 
-	val = darkness/(g_DARK_MaxDarkness/precision);
+	val = darknessValue/(g_DARK_MaxDarkness/precision);
 
 	return val;
 }

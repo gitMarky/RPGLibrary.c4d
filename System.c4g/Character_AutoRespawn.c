@@ -181,9 +181,9 @@ public func OpenRelauchMenu(szMessage)
   var pTarget = this;
 	var pPicture = this;
 	if(g_pCamera) pTarget = g_pCamera;
-  var szPortrait = Format("Portrait:%i::%x::%s", pPicture->GetPortrait(0, 1), GetColorDw(pTarget), pPicture->GetPortrait(0, 0));
+  var portrait = Format("Portrait:%i::%x::%s", pPicture->GetPortrait(0, 1), GetColorDw(pTarget), pPicture->GetPortrait(0, 0));
   CreateMenu(WIPF,pTarget,this,0,Format("<c %x>%s:</c>", pPicture->GetColorDw(), pPicture->GetName()),0,C4MN_Style_Dialog);
-  AddMenuItem(szPortrait,0,NONE,pTarget,0,0,0,5);
+  AddMenuItem(portrait,0,NONE,pTarget,0,0,0,5);
 	for(var text in aRespawnMsg)
 		AddMenuItem(text,0,NONE,pTarget);
   AddMenuItem("Neustarten", "ReloadGame()", LMM2, pTarget, 0, 0, 0, 2, 4);

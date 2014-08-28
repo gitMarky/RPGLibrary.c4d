@@ -4,5 +4,5 @@
 
 protected func FrameDecorationBackClr()
 {
-  return(RGBa(50,50,50,128));
+	return RGBa(50, 50, 50, 128);
 }

@@ -1,9 +1,0 @@
-[Action]
-Name=Check
-Delay=35
-NextAction=Check
-EndCall=Check4Clonk
-
-[Action]
-Name=Attach
-Procedure=ATTACH

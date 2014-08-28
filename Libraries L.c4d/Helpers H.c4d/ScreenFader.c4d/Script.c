@@ -54,9 +54,6 @@ global func SetObjScreenModulation(object pObj, int iRGBa, int iBlitMode, int iR
 		pRamp->SetOwner(GetOwner(pObj));
 		AddEffect("IntCheckCursor",pObj,1,1,pRamp);
 	}
-//	// Sichtbarkeit prüfen
-//	if (GetCursor(GetOwner(pObj)) != pObj)
-//		SetVisibility(VIS_None, pRamp);
 
 	return true;
 }
@@ -86,13 +83,12 @@ global func GetScreenModulationEffect(object pObj, string effectName)
 	var effect = GetEffect(effectName, pObj);
 
 	if(!effect) effect = AddEffect(effectName, pObj, 1);
-	//if(!effect) return -1;
 	return effect;
 }
 
 global func CleanUpScreenModulationEffect(object pObj, int effect, string effectName)
 {
-	// nicht benötigte Effekte wieder entfernen
+	// remove unused effects
 	var removeEffect = true;
 	for(var i = 0; i < gScreenModulation_RampCount; i++)
 	{
@@ -110,7 +106,7 @@ global func SetScreenModulationRamp(object pObj, int iRGBa, int iBlitMode, int i
 {
 	var pRamp = EffectVar(iRamp, pObj, effect);
 
-	// keine Farbe
+	// no color
 	var r, g, b, a;
 	SplitRGBaValue(iRGBa, r, g, b, a);
 	if (!(r + g + b + a) || a == 255)
@@ -139,86 +135,3 @@ global func SetScreenModulationRamp(object pObj, int iRGBa, int iBlitMode, int i
 
 	return pRamp;
 }
-
-//global func FadeSightModulation(int iRGBa, int iBlitMode, int iRamp, int player, int fBack, int fForeground)
-//{
-//	// Manager und Rampe
-//	var pClrObj, pRamp;
-//	if (pClrObj = FindObjectOwner(_SCF, player, 0, 0, 0, 0, 0, "PlrMng"))
-//		pRamp = Local(iRamp, pClrObj);
-//
-//	// ansonsten ggf. Manager und Rampe erzeugen
-//	if(!pClrObj) (pClrObj = CreateObject(_SCF,AbsX(2),AbsY(2),player))->_SCF::PlrManage(player);
-//	if(!pRamp) (pRamp = Local(iRamp,pClrObj) = CreateObject(_SCF,AbsX(2),AbsY(2),player))->_SCF::Ramp();
-//
-//	if (fBack)
-//		pRamp->SetCategory(C4D_Foreground);
-//	if (fForeground)
-//	{
-//		pRamp->SetCategory(C4D_Foreground | C4D_Object);
-//		pRamp->SetAction("View");
-//		pRamp->Message("@!", pRamp);
-//	}
-//	AddEffect("FadeSightModulation", 0, 1, 1, 0, 0, iRGBa, iRamp, player, [fBack, fForeground]);
-//}
-//
-//global func FxFadeSightModulationStart( pTarget, iNumber, fTmp, iRGBa, iRamp, player, a)
-//{
-//	if (fTmp) return;
-//
-//	var r, g, b, a;
-//	var fBack = a[0];
-//	var fForeground = a[1];
-//	SplitRGBaValue(iRGBa, r, g, b, a);
-//	EffectVar(0, pTarget, iNumber) = 0;
-//	EffectVar(gScreenFader_EffectVar_RGBa_R, pTarget, iNumber) = r;
-//	EffectVar(gScreenFader_EffectVar_RGBa_G, pTarget, iNumber) = g;
-//	EffectVar(gScreenFader_EffectVar_RGBa_B, pTarget, iNumber) = b;
-//
-//	EffectVar(gScreenFader_EffectVar_Ramp, pTarget, iNumber) = iRamp;
-//	EffectVar(gScreenFader_EffectVar_Owner, pTarget, iNumber) = player;
-//	EffectVar(gScreenFader_EffectVar_Background, pTarget, iNumber) = fBack;
-//
-//	EffectVar(gScreenFader_EffectVar_Foreground, pTarget, iNumber) = fForeground;
-//}
-//
-//global func FxFadeSightModulationTimer( pTarget, iNumber)
-//{
-//	var a = 255 - EffectVar(0, pTarget, iNumber);
-//	if (EffectVar(gScreenFader_EffectVar_Background, pTarget, iNumber)) a = EffectVar(0, pTarget, iNumber);
-//
-//	SetPlrSightModulation( RGBa(EffectVar(gScreenFader_EffectVar_RGBa_R, pTarget, iNumber),
-//								EffectVar(gScreenFader_EffectVar_RGBa_G, pTarget, iNumber),
-//								EffectVar(gScreenFader_EffectVar_RGBa_B, pTarget, iNumber), a),
-//						EffectVar(4, pTarget, iNumber),
-//						EffectVar(gScreenFader_EffectVar_Ramp, pTarget, iNumber),
-//						EffectVar(gScreenFader_EffectVar_Owner, pTarget, iNumber),
-//						EffectVar(gScreenFader_EffectVar_Foreground, pTarget, iNumber));
-//
-//	EffectVar(0, pTarget, iNumber) += 26;
-//	if (EffectVar(0, pTarget, iNumber) >= 255)
-//	{
-//		if (EffectVar(gScreenFader_EffectVar_Background, pTarget, iNumber))
-//			SetPlrSightModulation(0,
-//					EffectVar(4, pTarget, iNumber),
-//					EffectVar(gScreenFader_EffectVar_Ramp, pTarget, iNumber),
-//					EffectVar(gScreenFader_EffectVar_Owner, pTarget, iNumber));
-//		else
-//			SetPlrSightModulation( RGBa(EffectVar(gScreenFader_EffectVar_RGBa_R, pTarget, iNumber),
-//										EffectVar(gScreenFader_EffectVar_RGBa_G, pTarget, iNumber),
-//										EffectVar(gScreenFader_EffectVar_RGBa_B, pTarget, iNumber), 0),
-//					EffectVar(4, pTarget, iNumber), EffectVar(gScreenFader_EffectVar_Ramp, pTarget, iNumber),
-//					EffectVar(gScreenFader_EffectVar_Owner, pTarget, iNumber));
-//		return -1;
-//	}
-//}
-//
-//func OnFadeDone()
-//{
-//	// keine Farbe
-//	var r, g, b, a, pClrObj;
-//	SplitRGBaValue(GetClrModulation(), r, g, b, a);
-//	if (!(r + g + b + a) || a == 255)
-//		RemoveObject();
-//}
-

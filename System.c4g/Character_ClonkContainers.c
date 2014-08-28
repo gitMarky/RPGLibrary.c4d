@@ -130,7 +130,7 @@ public func MenuInvInteractWith( object pObj, int iIsInventory )
 
 	if(!pObj) return;
 
-	var sz_info,i;
+	var i;
 	var caption=Format("$MenuInvInteractWith$",GetName(pObj));
 
 	var itemvolume;
@@ -149,7 +149,7 @@ public func MenuInvInteractWith( object pObj, int iIsInventory )
 
 	if(iIsInventory==1 && pBackpack)
 	{
-		var available,free,volume;
+		var free,volume;
 
 		volume=pBackpack->~PackVolume(); free=pBackpack->~ContentsVolume();
 
@@ -202,7 +202,7 @@ public func MenuInvInteractWith( object pObj, int iIsInventory )
 	{
 		if(iIsInventory != 1)
 		{
-			var available,free,volume;
+			var free,volume;
 
 			volume=pBackpack->~PackVolume(); free=pBackpack->~ContentsVolume();
 

@@ -2,6 +2,8 @@
 
 #strict 2
 
+// TODO: translate / code style
+
 local w,h; // Breite/Höhe des Objektes
 local iHiddenObjCnt; // Anzahl unsichtbarer Objekte (in Local(i))
 

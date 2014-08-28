@@ -39,27 +39,7 @@ global func PlayerError(string szMessage, object pPlayer, v1,v2,v3,v4,v5,v6,v7,v
 // Färbt einen mehrzeiligen Text ein
 global func ColorizeString(string sText, int dwColor)
   {
-  // Enginebug ist obsolet :D
   return Format("<c %x>%s</c>", dwColor, sText);
-  // wg. Enginebug zeilenweise einfärben...
-  var c,i,sLine="",sResult="";
-  while (c = GetChar(sText, i++))
-    if (c == GetChar("|"))
-      {
-      if (GetChar(sResult))
-        sResult = Format("%s|<c %x>%s</c>", sResult, dwColor, sLine);
-      else
-        sResult = Format("<c %x>%s</c>", dwColor, sLine);
-      sLine = "";
-      }
-    else
-      sLine = Format("%s%c", sLine, c);
-  if (GetChar(sLine))
-    if (GetChar(sResult))
-      sResult = Format("%s|<c %x>%s</c>", sResult, dwColor, sLine);
-    else
-      sResult = Format("<c %x>%s</c>", dwColor, sLine);
-  return sResult;
   }
   
 // Hellt dunkle Farben auf

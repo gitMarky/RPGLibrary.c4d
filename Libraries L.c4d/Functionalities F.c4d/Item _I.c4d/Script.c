@@ -1,12 +1,10 @@
-/*-- Grundscript für alle Items --*/
+/*-- Base script for items --*/
 
 #strict 2
 
-// Ist ein Gegenstand
-
 public func IsItem(){ return true; }
 
-// Eigenschaften des Gegenstandes
+// Item attributes
 
 public func ItemVolume(){ return 1; }
 public func ItemHidden(){ return false; }
@@ -29,16 +27,17 @@ public func ContentsVolume()
 	return i;
 }
 
-// Basis Info-Text bei Menus
+// Basic info text in Menus
 public func GetInfoText( object pObj,int iLine, object pComp, bool fSkipDesc )
 {
 	if( iLine == 0 ) return GetDesc(this);
 	return 0;
 }
 
-// Basis Benutzungs-Funktion für Activate() im RPG-Inventar, falls benutzbar
+// basic functions for using the item with Activate() in the RPG-Inventary, if usable
 public func GetInventoryUseInfo()
 {
+	// TODO: translate
 	// Array von Arrays vom Format
 	// [string szCaption, string szCommand, id idItem, int iCount, int iParameter, string szInfoCaption, int iExtra, any XPar1, any XPar2, string szConditions oder array ["Condition1","Condition2",...]]
 	// Funktion wie in AddMenuItem(), nur ohne pMenuObject

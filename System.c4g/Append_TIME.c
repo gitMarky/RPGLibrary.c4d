@@ -369,8 +369,8 @@ global func SetTimeSpeed(int speed)
 	return LocalN("advance_seconds_per_tick", time_object) = speed;
 }
 
-global func IsDawn() { if(!time_object) return false; var time = GetTime(); return GetDawnPeriod()[0] <= time && time < GetDawnPeriod()[1]; }
-global func IsDay()  { if(!time_object) return true;  var time = GetTime(); return GetDawnPeriod()[1] <= time && time < GetDuskPeriod()[0]; }
-global func IsDusk() { if(!time_object) return false; var time = GetTime(); return GetDuskPeriod()[0] <= time && time < GetDuskPeriod()[1]; }
-global func IsNight(){ if(!time_object) return false; var time = GetTime(); return GetDuskPeriod()[1] <= time || time < GetDawnPeriod()[0]; }
+global func IsDawn() { if(!time_object) return false; var curTime = GetTime(); return GetDawnPeriod()[0] <= curTime && curTime < GetDawnPeriod()[1]; }
+global func IsDay()  { if(!time_object) return true;  var curTime = GetTime(); return GetDawnPeriod()[1] <= curTime && curTime < GetDuskPeriod()[0]; }
+global func IsDusk() { if(!time_object) return false; var curTime = GetTime(); return GetDuskPeriod()[0] <= curTime && curTime < GetDuskPeriod()[1]; }
+global func IsNight(){ if(!time_object) return false; var curTime = GetTime(); return GetDuskPeriod()[1] <= curTime || curTime < GetDawnPeriod()[0]; }
 

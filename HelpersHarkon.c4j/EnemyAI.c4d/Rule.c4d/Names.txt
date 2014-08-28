@@ -1,2 +1,0 @@
-DE:Gegner KI
-US:Enemy AI

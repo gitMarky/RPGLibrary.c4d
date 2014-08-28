@@ -925,7 +925,7 @@ protected func CombatBloodSpray( int iAmount, int iBodyPart, object pFrom )
 {
 	// Blut sprühen
 
-	var start_x, start_y, vertex, amount, rot, min_xd, min_yd, max_xd, max_yd, i, x, c,d;
+	var start_x, start_y, vertex, rot, min_xd, min_yd, max_xd, max_yd, i, x, c,d;
 
 	vertex = 0;
 

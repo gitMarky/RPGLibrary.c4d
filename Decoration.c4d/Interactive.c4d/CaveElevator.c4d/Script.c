@@ -1,5 +1,5 @@
-/*-- Fahrstuhl --*/
+/*-- Elevator --*/
 
-#strict
+#strict 2
 
 #include ELEV

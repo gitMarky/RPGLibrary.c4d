@@ -1,4 +1,4 @@
-/*-- Licht --*/
+/*-- Light --*/
 
 #strict
 
@@ -158,19 +158,6 @@ global func AddLightPos( int iSize, int iX, int iY, iColor )
 	return light;
 }
 
-/*
-public func DoFlicker()
-{
-
-	iHeight = BoundBy( iHeight +RandomX(-10,10), 800, 1000 );
-	iWidth = BoundBy( iWidth +RandomX(-10,10), 800, 1000 );
-
-	iXSkew = BoundBy( iXSkew + RandomX(-20,20), -500,500 );
-	iYSkew = BoundBy( iYSkew + RandomX(-20,20), -500,500 );
-
-	SetObjDrawTransform (iWidth, iXSkew, 0, iYSkew, iHeight, 0); 
-}
-*/
 public func SetFlicker( bool bSet )
 {
 	if( bSet )

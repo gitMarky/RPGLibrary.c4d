@@ -28,9 +28,7 @@ public func Create()
 public func Init(int index, string option)
 {
 	dialogue[gDialogue_ARRAYPOS_Index] = 		index;
-	//dialogue[gDialogue_ARRAYPOS_Parent] = 		parent;
 	dialogue[gDialogue_ARRAYPOS_MenuOption] = 	option;
-	//dialogue[gDialogue_ARRAYPOS_Text] = 			text;
 }
 
 public func Parent(parent)

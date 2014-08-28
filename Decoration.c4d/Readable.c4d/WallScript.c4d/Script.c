@@ -1,8 +1,8 @@
-/*-- Wandnachricht --*/
+/*-- Wall script --*/
 
 #strict 2
 
-#include LF_R // ist lesbar
+#include LF_R // is readable
 
 protected func Initialize()
 {
@@ -32,6 +32,5 @@ protected func ControlUp(object pPlayer)
 }
 
 public func GetDialogueColor(){ return RGB(255,211,160); }
-public func GetDlgMsgColor(){ 	return RGB(72,60,45);
- }
+public func GetDlgMsgColor(){ 	return RGB(72,60,45);}
 

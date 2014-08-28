@@ -1,7 +1,7 @@
 /*-- Talker --*/
 
 #strict 2
-#include LF_R // ist "lesbar" ;)
+#include LF_R // is "readable" ;)
 
 local talkto;
 

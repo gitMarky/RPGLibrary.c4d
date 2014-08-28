@@ -77,8 +77,7 @@ global func StopFading(int color, object pObject) {
   if(!pObject)
     pObject = this();
 
-  var eff = GetEffectCount("*Fade*",pObject);
-  for(eff; eff; eff--)
+  for(var eff = GetEffectCount("*Fade*",pObject); eff; eff--)
     RemoveEffect("*Fade*",pObject);
 
   SetClrModulation(color,pObject);
@@ -89,8 +88,7 @@ global func StopFadingNew(object pObject)
   if(!pObject)
     pObject = this();
 
-  var eff = GetEffectCount("*Fade*",pObject);
-  for(eff; eff; eff--)
+  for(var eff = GetEffectCount("*Fade*",pObject); eff; eff--)
     RemoveEffect("*Fade*",pObject);
   }
 
