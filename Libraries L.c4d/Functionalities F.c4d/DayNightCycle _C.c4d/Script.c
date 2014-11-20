@@ -1,4 +1,19 @@
-/*-- Day night cycle  --*/
+/*-- 
+Provides functionality for cyclic behavior per day.
+
+@title Day night cycle
+@author Marky
+@version 0.1.0
+  --*/
+  
+/*--
+More specific docu test.
+
+@title Adding a day night cycle
+@category #Tutorials
+@file tutorialDayNightCycle.html
+@author Marky
+--*/
 
 #strict 2
 
@@ -36,6 +51,11 @@ string/array aEvents:
 
 local pTarget;
 
+/** Gets called by the time object when the hour variable changes.
+ *
+ * @param hoursNew the current time
+ * @param hoursOld the time before the change.
+ */
 public func UpdateTime(int hoursNew, int hoursOld)
 {
 	if (GetType(aDayNightCycle) != C4V_Array)
@@ -61,10 +81,16 @@ public func UpdateTime(int hoursNew, int hoursOld)
 	}
 }
 
+/**
+ * Goes through the cycle array and decides which behavior to execute.
+ * @param ihourToCheck The current hour
+ * @ignore Useful for understanding this object only.
+ */
 protected func EvaluateCyclePhase(int hourToCheck)
 {
 	for (var j = 0; j < GetLength(aDayNightCycle); j++)
 	{
+		// the wrong hour?
 		if (aDayNightCycle[j][0] != hourToCheck)
 			continue;
 		
@@ -84,9 +110,17 @@ protected func EvaluateCyclePhase(int hourToCheck)
 
 // das Array manipulieren
 
+/**
+ * Assigns a new day-night-cycle-array.
+ *
+ * @param aCycle this can either be<br>
+ *        - an array in the right format,<br>
+ *        - a string. A function "DayNightCycle" + "aCycle" has to exist<br>
+ *          in the story object or as a global function
+ */
 public func SetDayNightCycle(aCycle)
 {
-	// Direkteingabe
+	// direct input?
 	if (GetType(aCycle) == C4V_Array)
 		aDayNightCycle = aCycle;
 	else if (aCycle)
@@ -99,12 +133,20 @@ public func SetDayNightCycle(aCycle)
 	}
 }
 
+/**
+ * Adds an option to the end of the day-night-cycle-array.
+ *
+ * @param aOption the new option.
+ */
 public func AddDayNightCyclePhase(aOption)
 {
 	if (GetType(aDayNightCycle) == C4V_Array)
 		PushBack(aOption, aDayNightCycle);
 }
 
+/**
+ * Gives the first unused ID index in the day-night-cycle-array.
+ */
 public func GetUnusedDNCIndex()
 {
 	var aIndices = [];
@@ -119,17 +161,29 @@ public func GetUnusedDNCIndex()
 	return i;
 }
 
-
+/**
+ * The script system replaces this string with a reference to the day-night-cycle object.
+ * @return String that is used in the script language: "pCycle".
+ */
 public func GetUserString()
 {
 	return "pCycle";
 }
+
+/**
+ * The day-night-cycle is assigned to this object.
+ * @return object The object that is controlled by the day-night-cycle.
+ */
 public func GetTarget()
 {
 	return pTarget;
 }
+
+/**
+ * The script system replaces this string with a reference to the target object.
+ * @return String that is used in the script language: "pTarget".
+ */
 public func GetTargetString()
 {
 	return "pTarget";
 }
-

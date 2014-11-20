@@ -1,4 +1,8 @@
-/*-- Goal defined by script --*/
+/*-- Goal defined by script
+@title Script goal
+@author Unknown
+@version 0.1.0
+ --*/
 
 #strict 2
 #include GOAL

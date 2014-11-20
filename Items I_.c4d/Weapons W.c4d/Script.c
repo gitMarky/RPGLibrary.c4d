@@ -1,19 +1,79 @@
-/*--- Weapon ---*/
+/*--
+Template for melee weapons. Include this in an object, that can should be used as a weapon.
+
+@title Weapon
+@author Marky
+@version 0.1.0
+--*/
 
 #strict 2
 #include LF_I
 
 /* Is a melee weapon */
-public func IsWeapon(){	return true;}
-public func IsShield(){	return false;}
 
-public func CanSwing(string szStyle){	return true;}
-public func CanThrust(string szStyle){	return true;}
-public func CanStrike(string szStyle){	return true;}
-public func CanLow(string szStyle){	    return true;}
+/**
+ * Identifies the object as a melee weapon.
+ * @return bool Default value: true.
+ */
+public func IsWeapon()
+{
+	return true;
+}
+
+/**
+ * Identifies the object as a shield.
+ * @return bool Default value: false.
+ */
+public func IsShield()
+{
+	return false;
+}
+
+/**
+ * Set to true, if the weapon has a horizontal swing animation.
+ * @param szStyle Fighting style string, see TODO.
+ * @return bool Default value: true.
+ */
+public func CanSwing(/* Fighting style string, see TODO. */ string szStyle)
+{
+	return true;
+}
+
+/**
+ * Set to true, if the weapon has a thrust animation.
+ * @param szStyle Fighting style string, see TODO.
+ * @return bool Default value: true.
+ */
+public func CanThrust(/* Fighting style string, see TODO. */ string szStyle)
+{
+	return true;
+}
+
+/**
+ * Set to true, if the weapon has a vertical strike animation.
+ * @param szStyle Fighting style string, see TODO.
+ * @return bool Default value: true.
+ */
+public func CanStrike(/* Fighting style string, see TODO. */ string szStyle)
+{
+	return true;
+}
+
+/**
+ * Set to true, if the weapon has a low swing animation.
+ * @param szStyle Fighting style string, see TODO.
+ * @return bool Default value: true.
+ */
+public func CanLow(/* Fighting style string, see TODO. */ string szStyle)
+{
+	return true;
+}
 
 
-/* Can be forged */
+/**
+ * Set to true, if the weapon can be forged.
+ * @return Default value: true.
+ */
 public func IsAnvilProduct()
 {
 	return true;
@@ -38,7 +98,14 @@ public func GetOverlayGraphics(object pObj)
 	return gfx;
 }
 
-public func GetStrikeAction(string szStyle, bool fPrimary)
+/**
+ * This tells the character which animation to use when attacking.
+ * @note You do not have to overwrite this function, but it may be useful if you design a weapon with only one attack.
+ * @param szStyle The weapon fighting style, see TODO.
+ * @param fPrimary Pass true, if the weapon is the primary weapon.
+ * @return The weapon attack animation name.
+ */
+public func GetStrikeAction(/* The weapon fighting style, see TODO. */ string szStyle, /* Pass true, if the weapon is the primary weapon. */ bool fPrimary)
 {
 	var szAct = "Cancel", szSuffix;
 	
@@ -83,19 +150,8 @@ public func GetStrikeAction(string szStyle, bool fPrimary)
 	
 	return Format("%s_%s", szStyle, szAct);
 }
-/*
-public func GetBlockAction( string szStyle, bool fPrimary )
-{
-	var szAct, iRan;
-	if( szStyle == "SwSh" )
-	{
-		if( !fPrimary ) return "Cancel"; // Schwert und Buckler, d.h. ich bin immer Primary
-		szAct = "ParrySw";
-	}
 
-	return Format("%s_%s",szStyle,szAct);
-}
-*/
+
 public func GetBlockAction(string szStyle, bool fPrimary)
 {
 	var szAct = "Parry", szSuffix;
@@ -123,7 +179,6 @@ public func GetBlockAction(string szStyle, bool fPrimary)
 	return Format("%s_%s%s", szStyle, szAct, szSuffix);
 }
 
-
 public func GetStrikePos(string szStyle, bool fPrimary)
 {
 	if (szStyle == "SpSh")
@@ -136,6 +191,15 @@ public func GetStrikePos(string szStyle, bool fPrimary)
 }
 
 
-public func GetStrikeStyles(){	 return 1 | 2;}
-public func GetStrikeDistance(){ return -2;}
-public func GetStrikeDamage(){	 return 8;}
+public func GetStrikeStyles()
+{
+	return 1 | 2;
+}
+public func GetStrikeDistance()
+{
+	return -2;
+}
+public func GetStrikeDamage()
+{
+	return 8;
+}

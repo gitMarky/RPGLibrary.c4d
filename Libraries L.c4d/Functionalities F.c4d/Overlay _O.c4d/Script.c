@@ -1,4 +1,10 @@
-/*-- Basic script for equipment overlay graphics --*/
+/*-- 
+Basic script for equipment overlay graphics.
+@note This is still in work.
+@title Overlay
+@author Marky
+@version 0.1.0
+--*/
 
 #strict 2
 

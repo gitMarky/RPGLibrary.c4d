@@ -1,4 +1,9 @@
-/* Chandelier */
+/*--
+Candle holder that can be lit.
+
+@title Chandelier
+@author Sven2 or Randrian
+@version 0.1.0 --*/
 
 #strict 2
 
@@ -13,6 +18,9 @@ protected func Initialize()
 	return true;
 }
 
+/**
+ * Lets the chandelier fall down.
+ */
 public func SetOMG()
 {
 	RemoveEffect("IntChandelierFall", this);
@@ -26,13 +34,15 @@ protected func FxIntChandelierFallTimer()
 	if (FindObject2(aFallTargetsFilter))
 	{
 		Sound("TreeDown2");
-
+		
 		SetCategory(C4D_Structure);
 		return FX_Execute_Kill;
 	}
 }
 
-  
+/**
+ * Sets the chandelier up, such that it hangs at the current position. Falls down, if it is not placed in solid material.
+ */  
 public func SetHang()
 {
 	RemoveEffect("IntHang", this);
@@ -51,6 +61,9 @@ protected func FxIntHangTimer()
 	}
 }
 
+/**
+ * Explodes upon impact with a strength of 40. Also casts some debris.
+ */
 protected func Hit()
 {
 	// Rumms!
@@ -59,6 +72,7 @@ protected func Hit()
 	{
 		Split2Components(pBrick);
 	}
+	
 	Sound("Crystal1");
 	Sound("Crystal2");
 	Sound("Crystal3");
@@ -66,6 +80,9 @@ protected func Hit()
 	Split2Components();
 }
 
+/**
+ * Extinguishes the candles.
+ */
 public func SetLightOff()
 {
 	if (pLight1)
@@ -77,6 +94,9 @@ public func SetLightOff()
 		Sound("Pshshsh");
 }
 
+/**
+ * Lights the candles.
+ */
 public func SetLightOn()
 {
 	SetAction("On");

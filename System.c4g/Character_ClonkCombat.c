@@ -82,7 +82,7 @@ protected func ControlSpecial()
 			ComboCloseMenu(this);
 		else
 		{
-			ComboCreateMenu( this );
+			ComboCreateMenu(this);
 
 			if(pWeapon1)
 			{

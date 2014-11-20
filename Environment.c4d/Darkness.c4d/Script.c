@@ -1,4 +1,10 @@
-/*-- Düsternis --*/
+/*-- 
+Controls the gamma fading at night.
+
+@title Darkness
+@author Hazard Team (original), Marky (modified)
+@version 0.1.0
+--*/
 
 #strict 2
 
@@ -15,9 +21,13 @@ static const g_DARK_Default_MaxDarkness = 55;
 
 local darkness;
 
-protected func Activate(iPlr)
+/**
+ * Darkness is an environment object, as such it has an info window. This funcion creates the info window.
+ * @param iPlr The player number that requested the information window. Base is 0.
+ */
+protected func Activate(/* The player number that requested the information window. Base is 0. */ int iPlr)
 {
-	MessageWindow(GetDesc(),iPlr);
+	MessageWindow(GetDesc(), iPlr);
 }
 
 public func Initialize()
@@ -29,45 +39,56 @@ private func PostInitialize()
 {
 	// nur eine Dunkelheit!
 	var count = 1;
-	for (var d in FindObjects(Find_ID(GetID()),Find_Exclude(this)))
+	for (var d in FindObjects(Find_ID(GetID()), Find_Exclude(this))) 
 	{
 		count++;
 		RemoveObject(d);
 	}
-
+	
 	// einfach mal speichern
-	if (!darkness_object) darkness_object = this;
-
+	if (!darkness_object)
+		darkness_object = this;
+	
 	// originale Himmelsfarbe - wird auch im Zeit-Objekt gemacht, aber vllt hat man auch mal
 	// die Düsternis ohne Zeit?
-	if (!original_sky_dword) original_sky_dword = GetSkyAdjust(false);
-	if (!original_skybg_dword) original_skybg_dword = GetSkyAdjust(true);
-	if (!original_mat_dword) original_mat_dword = RGBa(255,255,255,0);
-
+	if (!original_sky_dword)
+		original_sky_dword = GetSkyAdjust(false);
+	if (!original_skybg_dword)
+		original_skybg_dword = GetSkyAdjust(true);
+	if (!original_mat_dword)
+		original_mat_dword = RGBa(255, 255, 255, 0);
+	
 
 	// sehr wichtig
 	if (!GetDarkness(g_DARK_MaxDarkness))
 		SetDarkness(count);
 }
 
-public func InitializePlayer(int iPlr)
+/**
+ * Activates Fog of War for the player.
+ * @param iPlr The player number. Base is 0.
+ */
+public func InitializePlayer(/* The player number. Base is 0. */ int iPlr)
 {
-	SetFoW(true,iPlr);
+	SetFoW(true, iPlr);
 }
 
-// jeder Clonk kriegt gratis einen Lichtschein, gratis!!1
-public func OnClonkRecruitment(object pClonk)
+/**
+ * Creates a light for the clonk.
+ * @param pClonk The clonk in question. This is applied to all crew members of the player.
+ */
+public func OnClonkRecruitment(/* The clonk in question. This is applied to all crew members of the player. */ object pClonk)
 {
 	if (ObjectCount(GetID()) > 1)
 	{
-		return ScheduleCall(this,"OnClonkRecruitment", 1, 0, pClonk);
+		return ScheduleCall(this, "OnClonkRecruitment", 1, 0, pClonk);
 	}
-
+	
 	SetPlrViewRange(CalcViewRange(), pClonk);
 	var tmp = AddLightAmbience(80, pClonk);
-
-	tmp->ChangeColor(RGBa(255,253,135,110)); // ein bisschen wärmer...
-
+	
+	tmp->ChangeColor(RGBa(255, 253, 135, 110)); // ein bisschen wärmer...
+	
 	SetVisibility(VIS_Owner, tmp);
 }
 
@@ -75,152 +96,186 @@ public func OnClonkRecruitment(object pClonk)
 //
 // Globale Funktionen zur Steuerung des Objekts
 
-
+/**
+ * Checks, whether a darkness object exists.
+ * @return bool true, if a darkness object exists.
+ */
 global func IsDark()
 {
 	//kein Dunkelheit-Objekt -> Keine Dunkelheit
-	if(!darkness_object) return(false);
+	if (!darkness_object)
+		return false;
 	return darkness_object;
 }
 
-global func GetDarkness(int precision)
+/**
+ * Returns the current level of darkness.
+ * @param precision [optional] No value or 0 relates to a precision of 10. 
+ * @return int Percentual value of darkness, multiplied by precision.
+ */
+global func GetDarkness(/* [optional] No value or 0 relates to a precision of 10. */ int precision)
 {
-	if(!darkness_object) return 0;
-	if(!precision) precision = 10;
-
+	if (!darkness_object)
+		return 0;
+	if (!precision)
+		precision = 10;
+	
 	var val;
-
+	
 	var darknessValue = darkness_object->LocalN("darkness");
-
-	val = darknessValue/(g_DARK_MaxDarkness/precision);
-
+	
+	val = darknessValue / (g_DARK_MaxDarkness / precision);
+	
 	return val;
 }
 
-// Skaliert den Grad relativ zu maximaler und minimaler Dunkelheit.
-// D.h. bei MaxDarkness = 70 machen die Befehle folgendes:
-//   SetDarkness(50) setzt die Dunkelheit auf 50%
-//   SetDarkness(DarknessGradeRelative(50)) setzt die Dunkelheit auf 35%
-//
-// Ist zusätzlich MinDarkness = 20, dann
-//   SetDarkness(DarknessGradeRelative(50)) setzt die Dunkelheit auf 45%
-global func DarknessGradeRelative(int iGrade)
+/**
+ * Returns a darkness value relative to the maximal and minimal darkness.
+ * @param iGrade The desired relative darkness grade, percentual value from 0 to 100.
+ * @return int A darkness value relative to the maximal and minimal darkness. Can be used with SetDarkness()
+ * @example {@code
+ *			SetDarkness(50); // sets darkness to 50%, regardless of current darkness 
+ *			SetDarkness(DarknessGradeRelative(50)); // sets darkness to 45%, if the miminum darkness is 20. 
+ * }
+ */
+global func DarknessGradeRelative(/* The desired relative darkness grade, percentual value from 0 to 100. */ int iGrade)
 {
 	var iMin = GameCall("MinDarkness"), iMax = GameCall("MaxDarkness");
-	if(!iMax) iMax = g_DARK_Default_MaxDarkness;
+	if (!iMax)
+		iMax = g_DARK_Default_MaxDarkness;
 	return BoundBy(iGrade, 0, 100) * (iMax - iMin) / 100 + iMin;
 }
 
+/**
+ * Absolute darkness, in percent.
+ * @return int The return value ranges from 0 to 100.
+ */
 global func GetDarknessGradeAbs()
 {
 	return GetDarkness(100);
 }
 
+/**
+ * Relative darkness, in percent.
+ * @return int The return value ranges from 0 to 100.
+ */
 global func GetDarknessGradeRel()
 {
 	var iMin = GameCall("MinDarkness"), iMax = GameCall("MaxDarkness");
-	if(!iMax) iMax = g_DARK_Default_MaxDarkness;
-
+	if (!iMax)
+		iMax = g_DARK_Default_MaxDarkness;
+	
 	return 100 * (GetDarkness(100) - iMin) / (iMax - iMin);
 }
 
-global func SetDarkness(int iGrade)
+/**
+ * Adjusts the current level of darkness.
+ * @param iGrade The new level of darkness, percentual value from 0 to 100.
+ * @return bool False, if there is no darkness in the scenario. Otherwise returns true. 
+ */
+global func SetDarkness(/* The new level of darkness, percentual value from 0 to 100. */ int iGrade)
 {
-	if(!darkness_object) return false;
-
+	if (!darkness_object)
+		return false;
+	
 	var grade = BoundBy(iGrade, 0, 100);
-
+	
 	darkness_object->LocalN("darkness") = 10 * grade;
 	DarknessApplyGrade(grade);
 	darkness_object->UpdateLights();
-
+	
 	return true;
 }
 
+/**
+ * A "refresh" function for darkness. You should not need to call this function, except in scenario scripts for loading sections and resuming savegames.
+ */
 global func UpdateDarkness()
 {
-	if(!darkness_object) return false;
+	if (!darkness_object)
+		return false;
 	DarknessApplyGrade(darkness_object->LocalN("darkness"));
 }
 
-global func SetSkyAdjust(int clr, int backclr)
+/**
+ * Overrides the engine function. This override is necessary such that a custom initial color modulation is saved. 
+ * @param clr Primary color modulation.
+ * @param backclr dwBackClr Background color modulation.
+ * @note Additional info in the original developer documentation.
+ * @ignore may be useful for developpers, but not for the average user.
+ */
+global func SetSkyAdjust(/* Primary color modulation. */ int clr, /* dwBackClr Background color modulation. */ int backclr)
 {
-	if(GetID() != DARK && GetID() != TIME)
+	if (GetID() != DARK && GetID() != TIME)
 	{
-		if (!original_sky_dword) original_sky_dword = clr;
-		if (!original_skybg_dword) original_skybg_dword = backclr;
+		if (!original_sky_dword)
+			original_sky_dword = clr;
+		if (!original_skybg_dword)
+			original_skybg_dword = backclr;
 	}
 	return inherited(clr, backclr, ...);
 }
 
 global func SetMatAdjust(int clr)
 {
-	if(GetID() != DARK && GetID() != TIME)
+	if (GetID() != DARK && GetID() != TIME)
 	{
-		if (!original_mat_dword) original_mat_dword = clr;
+		if (!original_mat_dword)
+			original_mat_dword = clr;
 	}
 	return inherited(clr, ...);
 }
 
-global func DarknessApplyGrade( int grade )
+/**
+ * Paints the sky, material and sets gamma ramps for a certain level of darkness.
+ * @param iGrade The new level of darkness, percentual value from 0 to 100.
+ * @note Uses the gamma ramp GAMMA_Ramp_User1 = 2.
+ */
+global func DarknessApplyGrade(int grade)
 {
 	grade = BoundBy(grade, 0, 100);
-
-	/*var dayHueShift = [0,0,0];
-	var nightHueShift = [0, -50, -50];*/
-
+	
 	var color = original_sky_dword;
-	if (time_object) color = time_sky_dword;
-
-//	var skyLBefore = GetLFromRGBa(color); // Die Düsternis hatte den Himmel heller gemacht...
-//	var matLBefore = GetLFromRGBa(original_mat_dword);
-//
-//	var gammaLight = ((100-grade/4) * 255) / 100;
-//	var skyLight =  ((100-grade) * skyLBefore) / 100;
-//	var matLight = BoundBy(80 + ((100-grade) * matLBefore) / 100, 0, 255);
-//
-//	SetGamma(RGB(0,0,0),HSL(0, grade/2, gammaLight/2), HSL(0,grade/2, gammaLight), GAMMA_Ramp_User1);
-//	DARK->SetSkyAdjust(
-//		SetLFromRGBa(color, skyLight),
-//		RGB(1,1,1)
-//	);
-//	DARK->SetMatAdjust(
-//		SetLFromRGBa(original_mat_dword, matLight)
-//	);
-
-	var gammaLight = ((100-grade/4) * 255) / 100;
-	var skyLight =  ((100-grade) * 255) / 100;
-	var matLight = BoundBy(80 + ((100-grade) * 255) / 100, 0, 255);
-
-	SetGamma(RGB(0,0,0),HSL(0, grade/2, gammaLight/2), HSL(0,grade/2, gammaLight), GAMMA_Ramp_User1);
-
+	if (time_object)
+		color = time_sky_dword;
+	var gammaLight = ((100 - grade / 4) * 255) / 100;
+	var skyLight = ((100 - grade) * 255) / 100;
+	var matLight = BoundBy(80 + ((100 - grade) * 255) / 100, 0, 255);
+	
+	SetGamma
+	(
+		RGB(0, 0, 0),
+		HSL(0, grade / 2, gammaLight / 2),
+		HSL(0, grade / 2, gammaLight),
+		GAMMA_Ramp_User1
+	);
+	
 	var adjustedSky = SetVFromRGBa(color, skyLight);
 	var adjustedMat = SetVFromRGBa(original_mat_dword, matLight);
-//	Log("darkness color: %d %d %d %d - grade %d", GetRGBaValue(adjustedSky,1), GetRGBaValue(adjustedSky,2), GetRGBaValue(adjustedSky,3), GetRGBaValue(adjustedSky,0), grade);
-
-	DARK->SetSkyAdjust(adjustedSky,RGB(1,1,1));
+	
+	DARK->SetSkyAdjust(adjustedSky, RGB(1, 1, 1));
 	DARK->SetMatAdjust(adjustedMat);
-
-	//Log("%X", rgba);
 }
 
 global func SetVFromRGBa(int rgba, int newVal)
 {
 	newVal = BoundBy(newVal, 0, 255);
-
+	
 	var r, g, b, a;
 	SplitRGBaValue(rgba, r, g, b, a);
-	return RGBa( r * newVal / 255,
-			     g * newVal / 255,
-			     b * newVal / 255,
-			     a);
+	return RGBa(r * newVal / 255, g * newVal / 255, b * newVal / 255, a);
 }
 
-global func CalcLight(&alphamod, &sizemod)
+/**
+ * Tells light objects how transparent they should be.
+ * @param alphamod Modifier for the alpha channel of the light. The lighter, the more transparent.
+ * @param sizemod Modifier for the size of the light. The darker, the larger.
+ */
+global func CalcLight(/* Modifier for the alpha channel of the light. The lighter, the more transparent. */ int alphamod, /* Modifier for the size of the light. The darker, the larger. */ int sizemod)
 {
-	sizemod = 100+GetDarkness(g_DARK_MaxDarkness)*3/2/10; // bis zu 250% so groß
-	alphamod = (g_DARK_MaxDarkness-GetDarkness(g_DARK_MaxDarkness))/50; // 0-20 alpha werden aufaddiert
-
+	sizemod = 100 + GetDarkness(g_DARK_MaxDarkness) * 3 / 2 / 10; // bis zu 250% so groß
+	alphamod = (g_DARK_MaxDarkness - GetDarkness(g_DARK_MaxDarkness)) / 50; // 0-20 alpha werden aufaddiert
+	
 	// keine Dunkelheit: beinahe unsichtbar
 	// Genauso bei Dunkelheit = 0
 	if (!IsDark() || !GetDarkness(g_DARK_MaxDarkness))
@@ -236,16 +291,16 @@ global func CalcLight(&alphamod, &sizemod)
 public func UpdateLights()
 {
 	var obj;
-
-	for(obj in FindObjects(Find_Func("IsLight")))
+	
+	for (obj in FindObjects(Find_Func("IsLight"))) 
 	{
 		obj->~Update();
 	}
-
+	
 	var viewRange = CalcViewRange();
-	for(obj in FindObjects(Find_OCF(OCF_CrewMember)))
+	for (obj in FindObjects(Find_OCF(OCF_CrewMember))) 
 	{
-		obj -> SetPlrViewRange(viewRange);
+		obj->SetPlrViewRange(viewRange);
 	}
 }
 
@@ -256,96 +311,15 @@ private func CalcViewRange()
 	{
 		iMax = 700;
 	}
-	return (700-6*GetDarkness(100))*iMax/700;
+	return (700 - 6 * GetDarkness(100)) * iMax / 700;
 }
 
 public func Destruction()
 {
 	SetDarkness(0);
 	UpdateLights();
-	for (var light in FindObjects(Find_Func("IsLight"),Find_Func("LocalN(\"bAmbience\")")))
+	for (var light in FindObjects(Find_Func("IsLight"), Find_Func("LocalN(\"bAmbience\")"))) 
 	{
 		RemoveObject(light);
 	}
 }
-
-
-//// iStep: wie viel Änderung der Dunkelheit pro 10 Frames
-//global func FadeDarkness(int iGrade, int iStep) {
-//	var obj;
-//	if(GetID(this()) != DARK)
-//		obj = FindObject(DARK);
-//	else
-//		obj = this();
-//	//kein Dunkelheit-Objekt -> Keine Dunkelheit
-//	if(!obj)
-//		return(false);
-//
-//	if(!iStep) iStep = 100;
-//
-//	iGrade = BoundBy(iGrade,0,100);
-//
-//	var darkness = obj->LocalN("darkness");
-//
-//	AddEffect("Fading",obj,20,1,obj,DARK,iGrade*10,darkness,iStep);
-//
-//	return(true);
-//}
-//
-//
-//
-//func FxFadingStart(object pTarget, int iEffectNumber, int iTemp, int endgrade, int startgrade, int frames) {
-//	if(iTemp) {
-//		return;
-//	}
-//	EffectVar(0, pTarget, iEffectNumber) = endgrade;
-//	EffectVar(1, pTarget, iEffectNumber) = startgrade;
-//	EffectVar(2, pTarget, iEffectNumber) = frames;
-//	EffectVar(3, pTarget, iEffectNumber) = 0;
-//}
-//
-//func FxFadingTimer(object pTarget, int iEffectNumber, int iEffectTime) {
-//	var grade = EffectVar(1,pTarget,iEffectNumber);
-//	var end = EffectVar(0,pTarget,iEffectNumber);
-//	var fade = EffectVar(2,pTarget,iEffectNumber);
-//	var go = EffectVar(3,pTarget,iEffectNumber);
-//	if (grade == end) {
-//		return(-1);
-//	}
-//	go += fade;
-//
-//	if (go >= 10) {
-//		if(grade > end) {
-//			grade = Max(grade-go/10, end);
-//		}
-//		else {
-//			grade = Min(grade+go/10, end);
-//		}
-//		go = 0;
-//
-//		EffectVar(1,pTarget,iEffectNumber) = grade;
-//
-//		//var g = BoundBy(128-grade*100/1000,0,128);
-//		//var m = BoundBy(255-grade*100/1000,0,255);
-//
-//		DarknessApplyGrade(grade);
-//		pTarget->LocalN("darkness") = grade;
-//		UpdateLights();
-//	}
-//
-//	EffectVar(3,pTarget,iEffectNumber) = go;
-//
-//}
-//
-//func FxFadingEffect(string szNewEffectName, object pTarget, int iEffectNumber, int iNewEffectNumber, int endgrade, int stargrade, int frames) {
-//	if(szNewEffectName == "Fading")
-//		return(-3);
-//}
-//
-//func FxFadingAdd(object pTarget, int iEffectNumber, string szNewEffectName, int iNewEffectTimer, int endgrade, int stargrade, int frames) {
-//	EffectVar(0,pTarget,iEffectNumber) = endgrade;
-//	EffectVar(2,pTarget,iEffectNumber) = frames;
-//}
-//
-//
-//

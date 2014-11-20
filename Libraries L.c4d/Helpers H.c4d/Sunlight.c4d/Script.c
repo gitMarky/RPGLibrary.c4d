@@ -52,12 +52,7 @@ public func Activate()
 
 public func Check4Clonk()
 {
-	if (FindObject2
-	(
-		Find_InRect(-200, -200, 400, 400),
-		Find_PlayerType(C4PT_User),
-		Find_OCF(OCF_CrewMember)
-	))
+	if (FindObject2( Find_InRect(-200, -200, 400, 400), Find_PlayerType(C4PT_User), Find_OCF(OCF_CrewMember)))
 	{
 		SetAction("Idle");
 		SetPlrViewRange(150);

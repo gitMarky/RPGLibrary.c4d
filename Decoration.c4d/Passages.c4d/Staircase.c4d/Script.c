@@ -1,16 +1,16 @@
-/*-- Staircase --*/
+/*--Connects to castle part staircases.@title Staircase@version 0.1.0@author Unknown, possibly Randrian--*/
 #strict 2
 #include CPT1 // Staircase
 /* Staircase */
 local pTargetUp;
-local pTargetDown;
-public func SetTargetDown(obj)
+local pTargetDown;/** * Connects the staircase to an object.  * * @param target The user exits at this object upon pressing ControlDown. */
+public func SetTargetDown(object target)
 {
-	pTargetDown = obj;
-}
-public func SetTargetUp(obj)
+	pTargetDown = target;
+}/** * Connects the staircase to an object.  * * @param target The user exits at this object upon pressing ControlUp. */
+public func SetTargetUp(object target)
 {
-	pTargetUp = obj;
+	pTargetUp = target;
 }
 protected func Initialize()
 {

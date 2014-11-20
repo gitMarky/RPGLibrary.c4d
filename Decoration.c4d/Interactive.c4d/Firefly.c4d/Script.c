@@ -1,4 +1,10 @@
-/*-- Firefly --*/
+/*--
+Appears at night and moves around a certain point. Reacts to thrown objects.
+
+@title Firefly
+@author Marky
+@version 0.1.0
+--*/
 
 #strict 2
 
@@ -64,6 +70,11 @@ private func Flying()
 	SetSpeed(xdir, ydir);
 }
 
+/**
+ * The firefly should not move away from its attraction point further than this distance.
+ * @return int The radius of the movement circle around the attraction point. Default value is 30.
+ * @note Overload this function if you want the fireflies to move further or not so far away from their attraction point.
+ */
 private func RoamingDistance()
 {
 	return 30;
@@ -84,6 +95,9 @@ protected func Check()
 		return Death();
 }
 
+/**
+ * The firefly dies if the temperature is below 10. Overload this function if you do not want the firefly to die from low temperature.
+ */
 private func TemperatureCheck()
 {
 	var temperature = GetTemperature();

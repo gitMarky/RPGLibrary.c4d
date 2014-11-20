@@ -28,7 +28,7 @@ public func RejectCollect( id idObj, object pObj )
 
 public func MenuInvOpen( object pInObj )
 {
-	RingCreateMenu( this );
+	RingCreateMenu(this);
 
 	var loot, chests, i;
 	i=0;

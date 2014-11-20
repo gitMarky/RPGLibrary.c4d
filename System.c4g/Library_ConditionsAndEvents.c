@@ -45,7 +45,7 @@ global func CheckConditions( aConditions, string szTarget, object pTarget, strin
 
 /**
  * Evaluates an array of conditions and returns if all of them are fulfilled and how many of them are fulfilled.
- * The function evaluates the conditions by calling CheckCondition()
+ * The function evaluates the conditions by calling CheckConditions()
  * @param aConditions Accepts a string or an array of strings. Passed to CheckCondition().
  * @param szTarget String identifier for an object. All occurrences of szTarget will be replaced with a reference
  * to pTarget.
@@ -106,12 +106,16 @@ global func CheckConditionsDetailed( aConditions, string szTarget, object pTarge
  * @param pTarget Replaces the szTarget string.
  * @param szUser String identifier for an object. All occurrences of szUser will be replaced with a reference
  * to pUser before evaluating the script.
- * @param pUser Replaces the szUser string.
+ * @param pUser Replaces the szUser string. 
  * @return bool the return value of the eval()-function.
  * @note This is intended for conditions, but it can be used for generic scripts in other ways, too. Be careful
- * with the input: CheckCondition("RemoveObject(szUser)", "blub", 0, "szUser", CreateObject(HUT2)) creates a hut
- * and tries to delete it. If deleting the hut fails, then the function returns false, but the hut is still there.
- * Similarly, the creation of the hut can change the landscape, which is not reverted even if the hut is successfully
+ * with the input:
+ * {@code
+ * CheckCondition("RemoveObject(szUser)", "blub", 0, "szUser", CreateObject(HUT2))
+ * }
+ * creates a hut and tries to delete it. If deleting the hut fails, then the function returns false, but the hut is 
+ * still there. 
+ * Similarly, the creation of the hut can change the landscape, which is not reverted even if the hut is successfully 
  * deleted.
  */
 global func CheckCondition( aCondition, string szTarget, object pTarget, string szUser, object pUser )
@@ -203,13 +207,13 @@ if (CheckConditions(["FindContents(GOLD, customer)", "Enter(vendor, FindContents
 The script still does the same as before, but may be more readable.
 @note
 The two examples may seem unnecessarily complex, because they parse a string with keywords and 
-evaluate that string with eval(). In a normal situation you can just call FindContents() without
+evaluate that string with eval(). In a normal situation you can just call FindContents() without 
 parsing anything, which is a lot more practical and performs better.@br
 For this reason we use events and conditions only in automated scripts. We use a data structure, 
-usually an array, and parse the information to create menus or variables. Sometimes we have
-if() blocks in our automation, that allow the user to specify behaviour. This is where events and
+usually an array, and parse the information to create menus or variables. Sometimes we have 
+if() blocks in our automation, that allow the user to specify behaviour. This is where events and 
 conditions are used.@br
-The automation usually is inherited from a library, so you can call local functions in the executing
+The automation usually is inherited from a library, so you can call local functions in the executing 
 object. This means that you can model more complex commands with local functions as well:@br
 {@code
 if (CheckConditions(["CanPurchase(FLNT, customer, vendor)"], "vendor", this, "customer", target))
@@ -217,9 +221,8 @@ if (CheckConditions(["CanPurchase(FLNT, customer, vendor)"], "vendor", this, "cu
 ProcessEvents(["DoPurchase(FLNT, customer, vendor)", "SayThanks(vendor)"], "vendor", this, "customer", target);
 }
 }
-bla
 @title Using events and conditions
-@category Tutorials
+@category #Tutorials
 @file tutorialEventsAndConditions.html
 @author Marky
 --*/

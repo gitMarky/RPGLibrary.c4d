@@ -1,4 +1,10 @@
-/*-- Basic script for quests --*/
+/*--
+Basic script for quest functionality.
+
+@title Quest
+@author Marky
+@version 0.1.0
+--*/
 
 #strict 2
 

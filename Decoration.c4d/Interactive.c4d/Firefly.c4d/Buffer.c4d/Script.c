@@ -1,4 +1,8 @@
-/*-- Generates fireflies when it starts getting dark. --*/
+/*-- Generates fireflies when it starts getting dark.
+@title Firefly generator
+@author Marky
+@version 0.1.0
+ --*/
 
 #strict 2
 

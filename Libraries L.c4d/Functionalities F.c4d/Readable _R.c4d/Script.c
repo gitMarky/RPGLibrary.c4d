@@ -1,4 +1,11 @@
-/*-- Grundscript für alle lesbaren Dinge --*/
+/*-- Basic script for all readable things, especially dialogues.
+@title Readable
+@author Marky
+@version 0.1.0
+@note This library should indeed be used for all readable
+ objects such as wall scripts, books, signposts and so on.
+ It provides a powerful framework for text coloring, menu decoration and portraits.
+--*/
 
 /*
 
@@ -111,11 +118,31 @@ string/array aEvents:
 
 */
 
+/**
+ * Returns an a reference to an object variable. This reference can be read and written.
+ * @param szVar The variable name.
+ * @param pTarget The variable is saved for this object.
+ * @param pSpeaker The variable is saved in this object.
+ * @return Referemce to the local variable "DlgVar[Object number][Variable name]" in pSpeaker.
+ * @note This should be used in dialogues, obviously. It works outside of dialogues, too.
+ * @example For scripting purposes the variable has the same parameter name, but it gets saved for different
+ * objects individually.<br>
+ * <code>for (var i = 0; i < GetLength(customers); i++)
+ * {
+ *    var customerName = GetName(customers[i]);
+ *    var depositValue = DlgVar("Deposit", customers[i], bank);
+ *
+ *    Log("%s has %d gold pieces in his account", customerName, depositValue);
+ * }
+ * </code>
+ * Logs the value of deposits of each customer of this bank.
+ */
 global func &DlgVar(string szVar, object pTarget, object pSpeaker)
 {
 	return LocalN2(Format("DlgVar%d%s",ObjectNumber(pTarget),szVar),pSpeaker);
 }
 
+// TODO: Remove, handle everything in DlgVar!
 global func &CreateDlgVar(string szVar, object pTarget, object pSpeaker)
 {
 	var szName = Format("DlgVar%d%s",ObjectNumber(pTarget),szVar);
@@ -126,8 +153,11 @@ global func &CreateDlgVar(string szVar, object pTarget, object pSpeaker)
 local aDialogue, iStartDialogue, pLastSpeaker;
 
 // das Array manipulieren
-
-public func SetDialogue( aDlg )
+/**
+ * Sets the dialogue contents.
+ * @param aDlg The dialogue array. Explained in TODO.
+ */
+public func SetDialogue( aDlg)
 {
 	// Direkteingabe
 	if( GetType(aDlg) == C4V_Array )
@@ -152,12 +182,22 @@ public func SetStartDialogueEx( int iDlg )
 	iStartDialogue = iDlg;
 }
 
+/**
+ * Adds a dialogue to the end of the dialogue array.
+ * @param aOption The new dialogue option.
+ * @note Will proably be removed
+ */
 public func AddDialogue( aOption )
 {
 	if( GetType(aDialogue) == C4V_Array )
 		PushBack( aOption, aDialogue );
 }
 
+/**
+ * Finds the first dialogue index that is not used.
+ * @return int The first unused dialogue index.
+ * @note This may mess up the displayed dialoges, may be removed in the future.
+ */
 public func GetUnusedDlgIndex()
 {
 	var aIndices = [];
@@ -174,7 +214,12 @@ public func GetUnusedDlgIndex()
 
 
 // Dialog aufbauen
-
+/**
+ * Opens the dialogue in an object.
+ * @param pTarget The object for which the dialogue should be displayed.
+ * @note The dialogue starts at dialogue index 0 per default. You can use SetStartDialogue()
+ * to change the starting index permanently.
+ */
 public func StartDialogue( object pTarget )
 {
 	if( GetType(aDialogue) != C4V_Array ) return;
@@ -186,12 +231,22 @@ public func StartDialogue( object pTarget )
 	ProcessDialogue( pTarget, iStartDialogue/*, bGlobal*/ );
 }
 
+/**
+ * Opens a specific dialogue in an object.
+ * @param pTarget The object for which the dialogue should be displayed.
+ * @param iDialogue The dialogue ID at which the dialogue starts.
+ * @note Contrary to StartDialogue() this is used for opening the dialogue at a specific index once.
+ */
 public func StartSpecificDialogue( object pTarget, int iDialogue )
 {
 	if( GetType(aDialogue) != C4V_Array ) return;
 	ProcessDialogue( pTarget, iDialogue );
 }
 
+/**
+ * Closes the dialogue menu in an object and performs all necessary cleanup operations.
+ * @param pTarget The object in which the dialogue is displayed. This is the pTarget from StartDialogue().
+ */
 public func StopDialogue( object pTarget )
 {
 	CloseMenu( pTarget );
@@ -433,10 +488,30 @@ protected func ProcessDialogueOption( object pTarget, iDialogue )
 
 }
 
+/**
+ * The object that the target speaks to in the dialogue. This is usually an NPC or the dialogue object itself.
+ * @return object An object, which is classified as the speaker. Default value: this.
+ * @note You do not need to change this.
+ */
 public func GetSpeaker(){ return this; }
+
+/**
+ * The script system replaces this string with a reference to the day-night-cycle object.
+ * @return String that is used in the script language: "pSpeaker".
+ */
 public func GetUserString(){ return "pSpeaker"; }
+
+/**
+ * The script system replaces this string with a reference to the target object.
+ * @return String that is used in the script language: "pTarget".
+ */
 public func GetTargetString(){ return "pTarget"; }
 
+/**
+ * Prints a dialogue tree in the log. This may be useful for debugging and finding places where a dialogue option should be displayed, but isn't.
+ * @note The log output is a debug log, enable debug mode first.
+ * TODO: reference debug mode
+ */
 public func printTree()
 {
 	local tree;
@@ -521,7 +596,7 @@ public func printChildren(int parentid, int depth, array children)
 
 	message = Format("%s[%s]:%s",message,option,answer);
 
-	Log(message);
+	DebugLog(message);
 
 	if(visited[parentid] > 1) return;
 
@@ -542,10 +617,14 @@ public func printEntries()
 {
 	for(var field in aDialogue)
 	{
-		Log("%d, parents %v: %s  - %s", field[0],field[1],field[2],field[3]);
+		DebugLog("%d, parents %v: %s  - %s", field[0],field[1],field[2],field[3]);
 	}
 }
 
+/**
+ * Verifies, that the dialogue array is valid and creates entries built by TODO.
+ * @note You do not have to call this yourself, this function gets called by SetDialogue()
+ */
 public func ValidateDialogue()
 {
 	if (GetType(aDialogue) != C4V_Array) return 0;

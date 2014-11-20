@@ -1,4 +1,9 @@
-/*-- Camera --*/
+/*--
+Helper object for cut scenes.
+@title Camera
+@author Unknown (original script), Marky (modified)
+@version 0.1.0
+--*/
 
 #strict 2
 #include LF_R // can have dialogue, too
@@ -9,26 +14,46 @@ static g_pFader;
 local iFading;
 local isCam;
 
-public func MenuQueryCancel(){ return 1; }
+public func MenuQueryCancel(){ return true; }
 
+/**
+ * Identifies whether a cut scene is active.
+ * @return True, if a cut scene is active.
+ */
 global func IsFilm() { return !!g_pCamera; }
+
+/**
+ * Gets the camera object.
+ * @return object A reference to the current camera object.
+ */
 global func GetFilm() { return g_pCamera; }
+
+/**
+ * TODO.
+ * @return int TODO
+ */
 global func GetFilmFade()
 {
 	if(!g_pFader) return -1;
 	return LocalN("iFading",g_pFader);
 }
 
+/**
+ * Starts a cut scene, if no cut scene is active. This makes the players invulnerable and the player loses control of them until the cut scene stops.
+ * @return bool True, if the cut scene could be started. False, if another cut scene is already active.
+ */
 global func StartFilm()
 {
 	// Schon ein Film? Nichts machen
-	if(g_pCamera) return;
+	if(g_pCamera) return false;
+	
 	// Kamera
 	g_pCamera = CreateObject(_CAM, 0, 0, -1);
 	g_pCamera->SetAction("Fly");
 	g_pCamera->SetCategory(2);
 	g_pCamera->LocalN("isCam") = 1;
 	g_pCamera->SetPlrViewRange(40);
+	
 	// Spieler vorbereiten
 	for(var i = 0; i < GetPlayerCount(C4PT_User); i++)
 	{
@@ -46,6 +71,8 @@ global func StartFilm()
 		}
 		SetCursor(iPlr, g_pCamera);
 	}
+	
+	return true;
 }
 
 
@@ -57,6 +84,12 @@ global func FxDivinityEffect(string szNewEffect)
 	if(szNewEffect == "Divinity") return -1; // Einer reicht
 }
 
+/**
+ * Makes an object invulnerable or removes the invulnerability.
+ *@param val True for invulnerability, false for no invulnerability.
+ *@param obj A reference to the object that is affected.
+ *@return True, if the operation was successful.
+ */
 global func SetDivinity(bool val, object obj)
 {
 	if (!obj) if (!(obj = this)) return false;
@@ -71,6 +104,13 @@ global func SetDivinity(bool val, object obj)
 	return true;
 }
 
+/**
+ * Moves the camera to an object or coordinates.
+ * @param vObjX Accepts an int or an object. Passing an object moves the camera to the coordinates of the object. Passing an integer moves the camera to this x-coordinate.
+ * @param iY [optional] If vObj is an int, then the camera moves to this y-coordinate.
+ * @param bInsta [optional] If true, then the camera teleports to the position, otherwise it moves to the position in a strait line from the current position.
+ * @note This also starts a cut scene if no cut scene is active.
+ */
 global func PosCam( vObjX, iY, bool bInsta) // iX, iY oder pObj
 {
 	if(!g_pCamera)
@@ -168,10 +208,14 @@ public func StopMe()
 	SetXDir(0); SetYDir(0);
 }
 
+/**
+ * Stops a cut scene.
+ * @return bool True, if a cut scene was active and it could be stopped.
+ */
 global func StopFilm()
 {
 	// Kein Film? Nichts machen
-	if(!g_pCamera) return;
+	if(!g_pCamera) return false;
 	// Kamera entfernen
 	RemoveObject(g_pCamera);
 	if(g_pFader) g_pFader->RemoveObject();
@@ -192,6 +236,8 @@ global func StopFilm()
 		}
 		SetCursor(GetPlayerByIndex(i, C4PT_User), GetHiRank(GetPlayerByIndex(i, C4PT_User)));
 	}
+	
+	return true;
 }
 
 public func AttachTargetLost()
@@ -206,7 +252,9 @@ public func AttachTargetLost()
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-
+/**
+ * Fades the screen to black immediately. Does not require a cut scene.
+ */
 global func FilmFadeDark()
 {
 	if(!g_pFader)
@@ -217,6 +265,9 @@ global func FilmFadeDark()
 	g_pFader->SetFade(0);
 }
 
+/**
+ * Slowly fades the screen to black. Does not require a cut scene.
+ */
 global func FilmFadeOut()
 {
 	if(!g_pFader)
@@ -227,6 +278,9 @@ global func FilmFadeOut()
 	g_pFader->DoFadeOut();
 }
 
+/**
+ * Slowly fades in the screen from black. Does not require a cut scene.
+ */
 global func FilmFadeIn()
 {
 	if(!g_pFader)
@@ -272,6 +326,10 @@ func DoFadeIn()
 		Schedule(Format("SetFade(%d)", i*255/g_iFadeTime), i);
 }
 
+/**
+ * Slowly reduces the view range of an object.
+ * @param pObj The view range of this object will be decreased.
+ */
 global func FadeViewOut(pObj,fFilm)
 {
 	if(!pObj) pObj = this;
@@ -283,6 +341,9 @@ global func FadeViewOut(pObj,fFilm)
 
 }
 
+/**
+ * No idea where this is used or what it does.
+ */
 global func FadeToZero(pObj)
 {
 	if(!pObj) pObj = this;
@@ -296,6 +357,10 @@ global func FadeToZero(pObj)
 	pCam->SetVisibility(VIS_Owner);
 }
 
+/**
+ * Slowly increases the view range of an object until it is at 100%
+ * @param pObj The view range of this object will be increased.
+ */
 global func FadeViewIn(pObj)
 {
 	if(!pObj) pObj = this;
@@ -310,6 +375,11 @@ global func FadeViewIn(pObj)
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+/**
+ * Forces an object to fly, even if it cannot.
+ * @param pTarget The object that should fly.
+ * @param iInterval The object oscillates in y-direction while flying. It changes its position every iInterval frames.
+ */
 global func ForceFlyStart( object pTarget, int iInterval )
 {
 	if( ForceFly( pTarget ) ) return;
@@ -317,17 +387,35 @@ global func ForceFlyStart( object pTarget, int iInterval )
 	fly->~SetForceFly( pTarget, iInterval);
 }
 
+/**
+ * Determines whether an object is forced to fly.
+ * @param pTarget The object in question.
+ * @return object Reference to an object that lets the object fly.
+ */
 global func ForceFly( object pTarget )
 {
 	return FindObject2( Find_ID(_CAM), Find_Action("Fly"), Find_ActionTarget(pTarget) );
 }
 
-global func ForceFlyStop( object pTarget )
+/**
+ * Stops the forced flight of an object
+ * @param pTarget the object that should stop flying.
+ * @note This can only stop flight that is caused by ForceFlyStart().
+ */
+global func ForceFlyStop( object pTarget)
 {
 	var fly;
 	while( fly = ForceFly(pTarget)) RemoveObject( fly );
 }
 
+/**
+ * Lets an object fly to coordinates.
+ * @param iX The object should fly to this x-coordinate.
+ * @param iY The object should fly to this y-coordinate.
+ * @param pTarget The object that should fly.
+ * @param iInterval [optional] Gets passed to ForceFlyStart() if the object is not force flying already.
+ * @param iMaxSpeed [optional] Limits the float speed of the flying object. Default is 30.
+ */
 global func ForceFlyTo( int iX, int iY, pTarget, int iInterval, int iMaxSpeed )
 {
 	var fly;

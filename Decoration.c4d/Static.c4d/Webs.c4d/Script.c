@@ -1,4 +1,8 @@
-/*-- Cobwebs --*/
+/*--
+Spooky decoration for caves.
+@title Cobwebs
+@author Unknown
+@version 0.1.0 --*/
 
 #strict 2
 
@@ -11,7 +15,11 @@ protected func Initialize()
 	SetClrModulation(RGBa(255, 255, 255, 55 + RandomX(-7, 12)));
 }
 
-public func Set(phase)
+/**
+ * Changes the appearance of the object.
+ * @param phase Gets passed to SetPhase(). The animation has 5 phases.
+ */
+public func Set(int phase)
 {
 	SetPhase(phase);
 }

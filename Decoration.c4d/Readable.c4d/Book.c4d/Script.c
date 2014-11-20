@@ -1,4 +1,12 @@
-/*-- Book --*/
+/*--
+An item, that looks like a book. Can have a dialogue.
+
+@note The item gets initialized with a standard dialogue.
+
+@title Book
+@version 0.1.0
+@author Sven2 (Graphics), Marky (Script)
+ --*/
 
 #strict 2
 
@@ -9,7 +17,12 @@ protected func Initialize()
 	SetColorDw(HSL(Random(256), 255, Random(128) + 128));
 	TestBook();
 }
-  
+ 
+/**
+ * Starts the dialogue.
+ *
+ * @param player The object that activated the book. The dialogue is displayed to this object.
+ */ 
 protected func Activate(object player)
 {
 	[$CtrlRead$]
@@ -18,7 +31,7 @@ protected func Activate(object player)
 	return 1;
 }
 
-public func TestBook()
+private func TestBook()
 {
 	SetDialogue
 	(
@@ -90,6 +103,5 @@ public func TestBook()
 
 public func GetDialogueColor()
 {
-	Log("Color!!");
 	return RGB(0, 255, 255);
 }

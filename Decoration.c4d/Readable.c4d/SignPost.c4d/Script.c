@@ -1,9 +1,20 @@
-/*-- Signpost --*/
+/*--
+A grabbable object that looks like a signpost. It can have a dialogue that is displayed upon pressing ControlUp.
+
+@title Signpost
+@author Sven2 (Graphics), Marky (SCript)
+@version 0.1.0
+--*/
 
 #strict 2
 
 #include LF_R // is readable
 
+/**
+ * Starts the dialogue.
+ *
+ * @param pPlayer The object that activated the book. The dialogue is displayed to this object.
+ */ 
 protected func ControlUp(object pPlayer)
 {
 	[$CtrlRead$]
@@ -65,6 +76,9 @@ protected func ControlUp(object pPlayer)
 	return 1;
 }
 
+/**
+ * Has a default color, override this method if you want a different color.
+ */
 public func GetDlgMsgColor()
 {
 	return 10778899;
