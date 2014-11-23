@@ -1,14 +1,13 @@
-/*-- Tageszeiten --*/
+/*-- Time --*/
 
 #strict 2
 #appendto TIME
-/*-- Tageszeiten --*/
 
 #strict 2
 
-/* Konstanten */
+/* Constants */
 
-// Die Gamme-Konstanten aus der Doku. Das sollte in System.c4g-Script!
+// Gamma-Constants from the developer documentation. Those should be in the System.c4g!
 
 static const GAMMA_Ramp_Global = 		0; // Szenarienglobaler Wert
 static const GAMMA_Ramp_Climate = 		1; // Klima/Jahreszeiten (Engineintern benutzt, wenn im Szenario aktiviert!)
@@ -20,7 +19,7 @@ static const GAMMA_Ramp_Effects = 		6; // Zaubereffekte
 static const GAMMA_Ramp_User3 =		 	7; // frei
 
 
-static const g_TIME_BaseSpeed_SecondsPerTick = 48; //8;
+static const g_TIME_BaseSpeed_SecondsPerTick = 48;
 
 static const g_TIME_Day_Seconds = 86400;
 static const g_TIME_Hour_Seconds = 3600;
@@ -28,34 +27,34 @@ static const g_TIME_Minute_Seconds = 60;
 
 static const g_TIME_TickInterval_Frames = 10;
 
-static const g_TIME_YearLength = 20; // so viele Tage dauert ein Jahr
+static const g_TIME_YearLength = 20; // One year has this many days
 
-/* Variablen */
+/* Variables */
 
 static time_years, time_days, time_hours, time_minutes;
 static time_hours_old;
 static time_object;
 
-static original_sky_dword; // So sah der Himmel vorher aus
-static original_sky_array; // und jetzt nochmal als Farb-Array [r,g,b,a]
-static original_skybg_dword; // So sah der Himmel vorher aus
+static original_sky_dword; // The sky looked like this before we added the time system
+static original_sky_array; // same info as array: [r,g,b,a]
+static original_skybg_dword; // The sky background looked like this before we added the time system
 
-static original_mat_dword; // So sah der Himmel vorher aus
+static original_mat_dword; // The materials looked like this before we added the time system
 
-static time_sky_dword; // So sieht der Himmel mit der aktuellen Farbmodulation des Zeit-Objekts aus
+static time_sky_dword; // This is what the sky looks like with the current configuration
 
-static time_altDarkness; // wenn false, dann wird die Dunkelheit über den Tag verteilt per Cosinus gesetzt
-						 // wenn true, dann wird sie tagsüber und nachts konstant gesetzt, im Übergang per Cosinus
+static time_altDarkness; // false: Color modulation is set by cosine, modulation happens over the 24 hour cycle
+						 // true: During day and night the modulation is constant, and modulation by cosine happens during dusk and dawn only.
 
 static daylight, daylight_override;
 
-local time; // Aktuelle Zeit, in Sekunden
-local advance_seconds_per_tick; // So viele Sekunden vergehen je Tick
+local time; // Current time, in seconds
+local advance_seconds_per_tick; //This many seconds pass per tick
 
 
 ////////////////////////////////////////////////////////////////////
 //
-// Engine Zeug und Organisatorisches
+// Engine stuff 
 
 protected func Initialize()
 {
@@ -172,17 +171,6 @@ private func DoSkyShade()
 	var sundown_start = GetDuskPeriod()[0];
 	var sundown_end = GetDuskPeriod()[1];
 
-//	if (!day)
-//	{
-//		// Darkness of night dependent on the moon-phase
-//		var satellite = FindObject(Find_ID(MOON));
-//		if(satellite)
-//		{
-//			var lightness = satellite->GetMoonLightness();
-//			nightcolour = [ 6 * lightness / 100, 8 + 25 * lightness / 100, 15 + 60 * lightness / 100 ];
-//		}
-//	}
-
 	// Sunrise
 	if (sunrise)
 	{
@@ -252,18 +240,6 @@ private func DoSkyShade()
 
 	SetGamma(0, RGB(gamma[0], gamma[1], gamma[2]), RGB(127+gamma[0], 127+gamma[1], 127+gamma[2]), GAMMA_Ramp_DayNight);
 
-//	if(!day && !night)
-//	{
-//		// Adjust celestial objects.
-//		for (var celestial in FindObjects(Find_Func("IsCelestial")))
-//			celestial->SetObjAlpha(255 - skyshade[3]);
-//
-//		// Adjust clouds
-//		for(var cloud in FindObjects(Find_ID(Cloud))){
-//			cloud->SetLightingShade(255 - skyshade[2]);
-//		}
-//	}
-
 	// Und zusätzlich Licht aus!
 
 	if (!darkness_object) // der macht das sowieso am Ende
@@ -328,9 +304,34 @@ private func GetLightIntensity(int iTime)
 //
 // Globale Funktionen
 
+/**
+ * The time of dawn.
+ * @return Array with two entries. The first entry defines the start time, the second entry defines the end time in the Time() format.
+ * @note By default this is the time between 4:00 and 7:00.
+ */
 global func GetDawnPeriod(){ return [Time(  4, 0, 0), Time(  7, 0, 0)]; }
+/**
+ * The time of dusk.
+ * @return Array with two entries. The first entry defines the start time, the second entry defines the end time in the Time() format.
+ * @note By default this is the time between 18:00 and 21:00.
+ */
 global func GetDuskPeriod(){ return [Time( 18, 0, 0), Time( 21, 0, 0)]; }
 
+/**
+ * Calculates a time value in seconds, so that it can be compared with the ingame time.
+ * @param hours time on the clock, in hours. Uses the 24 hour format, values greater that 24 will be converted to a value between 0 and 23 hours.
+ * @param minutes time on the clock, in minutes. Uses the 60 minute format, values greater that 60 will be converted to a value between 0 and 59 minutes.
+ * @param secondstime on the clock, in seconds. Uses the 60 second format, values greater that 60 will be converted to a value between 0 and 59 seconds.
+ * @return The time entered, in seconds
+ * @example {@code
+ * public func IsItTeaTime()
+ * {
+ *    var currentTime = GetTime();
+ *    return Time(15, 0, 0) < currentTime && currentTime < Time(17, 0, 0);
+ * }
+ * }
+ * Returns true between 15 o'clock and 17 o'clock.
+ */
 global func Time(int hours, int minutes, int seconds)
 {
 	hours	= hours % 24;
@@ -339,38 +340,98 @@ global func Time(int hours, int minutes, int seconds)
 	return hours * g_TIME_Hour_Seconds + minutes * g_TIME_Minute_Seconds + seconds;
 }
 
+/**
+ * Gets the ingame time.
+ * @return The time, in seconds.
+ */
 global func GetTime()
 {
 	if (!time_object) return Time(12, 0, 0);
 	return LocalN("time", time_object);
 }
 
+/**
+ * Sets the current ingame time.
+ * @param seconds The time value, in seconds.
+ * @example {@code
+ * SetSeconds(Time(12, 30, 5));
+ * }
+ * Sets the time to 12:30:05.
+ * @link SetTime()
+ */
 global func SetSeconds(int seconds)
 {
 	if (!time_object) return;
 	LocalN("time", time_object) = seconds;
 }
 
+/**
+ * Sets the current ingame time.
+ * @param days The new day.
+ * @param hours The new hour.
+ * @param minutes The new minute.
+ * @param seconds The new seconds.
+ * @link SetSeconds(), Time()
+ */
 global func SetTime(int days, int hours, int minutes, int seconds)
 {
 	if (!time_object) return;
 	LocalN("time", time_object) = g_TIME_Day_Seconds * days + Time(hours,minutes,seconds);
 }
 
+/**
+ * Tells how fast the game time advances.
+ * @return Every 10 frames, the game time advances this many seconds.
+ * @note The default speed is regulated by the following constants:
+ * {@code
+ * static const g_TIME_BaseSpeed_SecondsPerTick // default is 48
+ * static const g_TIME_TickInterval_Frames // default is 10
+ * }
+ */
 global func GetTimeSpeed()
 {
 	if(!time_object) return 0;
 	return LocalN("advance_seconds_per_tick", time_object);
 }
 
+/**
+ * Defines how fast the game time advances.
+ * @param speed Every 10 frames, the game time advances this many seconds.
+ * @return The new speed value.
+ * @note The default speed is regulated by the following constants:
+ * {@code
+ * static const g_TIME_BaseSpeed_SecondsPerTick // default is 48
+ * static const g_TIME_TickInterval_Frames // default is 10
+ * }
+ */
 global func SetTimeSpeed(int speed)
 {
 	if(!time_object) return 0;
 	return LocalN("advance_seconds_per_tick", time_object) = speed;
 }
 
+/**
+ * Is it dawn?
+ * @return true, if the time is dawn.
+ * @link GetDawnPeriod()
+ */
 global func IsDawn() { if(!time_object) return false; var curTime = GetTime(); return GetDawnPeriod()[0] <= curTime && curTime < GetDawnPeriod()[1]; }
+/**
+ * Is it day?
+ * @return true, if the time is after dawn and before dusk.
+ * @link GetDawnPeriod(), GetDuskPeriod()
+ */
 global func IsDay()  { if(!time_object) return true;  var curTime = GetTime(); return GetDawnPeriod()[1] <= curTime && curTime < GetDuskPeriod()[0]; }
+/**
+ * Is it dusk?
+ * @return true, if the time is dusk.
+ * @link GetDuskPeriod()
+ */
 global func IsDusk() { if(!time_object) return false; var curTime = GetTime(); return GetDuskPeriod()[0] <= curTime && curTime < GetDuskPeriod()[1]; }
+/**
+ * Is it night?
+ * @return true, if the time is after dusk and before dawn.
+ * @link GetDawnPeriod(), GetDuskPeriod()
+ */
 global func IsNight(){ if(!time_object) return false; var curTime = GetTime(); return GetDuskPeriod()[1] <= curTime || curTime < GetDawnPeriod()[0]; }
 

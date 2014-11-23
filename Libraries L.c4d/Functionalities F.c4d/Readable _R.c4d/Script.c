@@ -7,16 +7,6 @@
  It provides a powerful framework for text coloring, menu decoration and portraits.
 --*/
 
-/*
-
-bestes Beispiel wären Wallscripts, Bücher, Wegweiser, etc.
-
-insgesamt soll alles einheitllich sein
-
-Dialoge sind auch lesbar ;)
-
-*/
-
 #strict 2
 
 static const gDialogue_Object_Speaker = 0;

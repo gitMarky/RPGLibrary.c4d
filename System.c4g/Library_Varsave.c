@@ -1,14 +1,27 @@
-/*-- Variablenspeicher - lässt dynamisches Generieren von LocalN zu --*/
+/*-- Variable save that handles creating and accessing local variables. --*/
 
 #strict 2
 
-
+/**
+ * Creates a local variable in an object.
+ * @param szName The identifier for the new variable.
+ * @param pTarget The variable is stored in this object.
+ * @param vValue The value of the variable.
+ * @return A reference to the new variable.
+ * @link LocalN2()
+ */
 global func &CreateLocalN2(string szName , object pTarget, vValue)
 {
 	/*return*/ AddEffect("IntVarsave",pTarget,50,0,0,0, szName, vValue);
 	return LocalN2(szName, pTarget);
 }
 
+/**
+ * Acesses a local variable, that has been created with CreateLocalN2().
+ * @param szName The identifier of the variable.
+ * @param pTarget The variable is stored in this object.
+ * @return A reference to the new variable. 
+ */
 global func &LocalN2(string szName , object pTarget)
 {
 		var iEffectNr = GetEffect("IntVarsave",pTarget);

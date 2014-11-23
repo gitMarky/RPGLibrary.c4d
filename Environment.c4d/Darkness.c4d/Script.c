@@ -8,8 +8,6 @@ Controls the gamma fading at night.
 
 #strict 2
 
-// TODO: Translate to English
-
 static darkness_object;
 
 static const g_DARK_MaxDarkness = 1000;
@@ -17,7 +15,7 @@ static const g_DARK_Default_MaxDarkness = 55;
 
 ////////////////////////////////////////////////////////////////////
 //
-// Das Umweltobjekt mit Info-Menus
+// The environment object with info menus
 
 local darkness;
 
@@ -25,7 +23,7 @@ local darkness;
  * Darkness is an environment object, as such it has an info window. This funcion creates the info window.
  * @param iPlr The player number that requested the information window. Base is 0.
  */
-protected func Activate(/* The player number that requested the information window. Base is 0. */ int iPlr)
+protected func Activate(int iPlr)
 {
 	MessageWindow(GetDesc(), iPlr);
 }
@@ -37,7 +35,7 @@ public func Initialize()
 
 private func PostInitialize()
 {
-	// nur eine Dunkelheit!
+	// just one darkness!
 	var count = 1;
 	for (var d in FindObjects(Find_ID(GetID()), Find_Exclude(this))) 
 	{
@@ -45,21 +43,20 @@ private func PostInitialize()
 		RemoveObject(d);
 	}
 	
-	// einfach mal speichern
+	// save it
 	if (!darkness_object)
 		darkness_object = this;
 	
-	// originale Himmelsfarbe - wird auch im Zeit-Objekt gemacht, aber vllt hat man auch mal
-	// die D¸sternis ohne Zeit?
+	// save original sky color - this is done in the time object, but maybe there
+	// is a use case for darkness without time?
 	if (!original_sky_dword)
 		original_sky_dword = GetSkyAdjust(false);
 	if (!original_skybg_dword)
 		original_skybg_dword = GetSkyAdjust(true);
 	if (!original_mat_dword)
 		original_mat_dword = RGBa(255, 255, 255, 0);
-	
 
-	// sehr wichtig
+	// very important
 	if (!GetDarkness(g_DARK_MaxDarkness))
 		SetDarkness(count);
 }
@@ -68,7 +65,7 @@ private func PostInitialize()
  * Activates Fog of War for the player.
  * @param iPlr The player number. Base is 0.
  */
-public func InitializePlayer(/* The player number. Base is 0. */ int iPlr)
+public func InitializePlayer(int iPlr)
 {
 	SetFoW(true, iPlr);
 }
@@ -77,7 +74,7 @@ public func InitializePlayer(/* The player number. Base is 0. */ int iPlr)
  * Creates a light for the clonk.
  * @param pClonk The clonk in question. This is applied to all crew members of the player.
  */
-public func OnClonkRecruitment(/* The clonk in question. This is applied to all crew members of the player. */ object pClonk)
+public func OnClonkRecruitment(object pClonk)
 {
 	if (ObjectCount(GetID()) > 1)
 	{
@@ -87,14 +84,14 @@ public func OnClonkRecruitment(/* The clonk in question. This is applied to all 
 	SetPlrViewRange(CalcViewRange(), pClonk);
 	var tmp = AddLightAmbience(80, pClonk);
 	
-	tmp->ChangeColor(RGBa(255, 253, 135, 110)); // ein bisschen w‰rmer...
+	tmp->ChangeColor(RGBa(255, 253, 135, 110)); // a little bit warmer colors...
 	
 	SetVisibility(VIS_Owner, tmp);
 }
 
 ////////////////////////////////////////////////////////////////////
 //
-// Globale Funktionen zur Steuerung des Objekts
+// Global functions for controlling the object
 
 /**
  * Checks, whether a darkness object exists.
@@ -102,7 +99,7 @@ public func OnClonkRecruitment(/* The clonk in question. This is applied to all 
  */
 global func IsDark()
 {
-	//kein Dunkelheit-Objekt -> Keine Dunkelheit
+	//no darkness object -> no darkness
 	if (!darkness_object)
 		return false;
 	return darkness_object;
@@ -113,7 +110,7 @@ global func IsDark()
  * @param precision [optional] No value or 0 relates to a precision of 10. 
  * @return int Percentual value of darkness, multiplied by precision.
  */
-global func GetDarkness(/* [optional] No value or 0 relates to a precision of 10. */ int precision)
+global func GetDarkness(int precision)
 {
 	if (!darkness_object)
 		return 0;
@@ -138,7 +135,7 @@ global func GetDarkness(/* [optional] No value or 0 relates to a precision of 10
  *			SetDarkness(DarknessGradeRelative(50)); // sets darkness to 45%, if the miminum darkness is 20. 
  * }
  */
-global func DarknessGradeRelative(/* The desired relative darkness grade, percentual value from 0 to 100. */ int iGrade)
+global func DarknessGradeRelative(int iGrade)
 {
 	var iMin = GameCall("MinDarkness"), iMax = GameCall("MaxDarkness");
 	if (!iMax)
@@ -173,7 +170,7 @@ global func GetDarknessGradeRel()
  * @param iGrade The new level of darkness, percentual value from 0 to 100.
  * @return bool False, if there is no darkness in the scenario. Otherwise returns true. 
  */
-global func SetDarkness(/* The new level of darkness, percentual value from 0 to 100. */ int iGrade)
+global func SetDarkness(int iGrade)
 {
 	if (!darkness_object)
 		return false;
@@ -204,7 +201,7 @@ global func UpdateDarkness()
  * @note Additional info in the original developer documentation.
  * @ignore may be useful for developpers, but not for the average user.
  */
-global func SetSkyAdjust(/* Primary color modulation. */ int clr, /* dwBackClr Background color modulation. */ int backclr)
+global func SetSkyAdjust(int clr, int backclr)
 {
 	if (GetID() != DARK && GetID() != TIME)
 	{
@@ -271,13 +268,13 @@ global func SetVFromRGBa(int rgba, int newVal)
  * @param alphamod Modifier for the alpha channel of the light. The lighter, the more transparent.
  * @param sizemod Modifier for the size of the light. The darker, the larger.
  */
-global func CalcLight(/* Modifier for the alpha channel of the light. The lighter, the more transparent. */ int alphamod, /* Modifier for the size of the light. The darker, the larger. */ int sizemod)
+global func CalcLight(int &alphamod, int &sizemod)
 {
-	sizemod = 100 + GetDarkness(g_DARK_MaxDarkness) * 3 / 2 / 10; // bis zu 250% so groﬂ
-	alphamod = (g_DARK_MaxDarkness - GetDarkness(g_DARK_MaxDarkness)) / 50; // 0-20 alpha werden aufaddiert
+	sizemod = 100 + GetDarkness(g_DARK_MaxDarkness) * 3 / 2 / 10; // up to 250% of the size
+	alphamod = (g_DARK_MaxDarkness - GetDarkness(g_DARK_MaxDarkness)) / 50; // 0-20 alpha are being added
 	
-	// keine Dunkelheit: beinahe unsichtbar
-	// Genauso bei Dunkelheit = 0
+	// no darkness: nearly invisible
+	// the same at darkness = 0
 	if (!IsDark() || !GetDarkness(g_DARK_MaxDarkness))
 	{
 		alphamod = 30;
@@ -286,7 +283,7 @@ global func CalcLight(/* Modifier for the alpha channel of the light. The lighte
 
 ////////////////////////////////////////////////////////////////////
 //
-// Sonstiges
+// Other
 
 public func UpdateLights()
 {

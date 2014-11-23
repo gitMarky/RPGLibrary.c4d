@@ -34,7 +34,7 @@ public func IsShield()
  * @param szStyle Fighting style string, see TODO.
  * @return bool Default value: true.
  */
-public func CanSwing(/* Fighting style string, see TODO. */ string szStyle)
+public func CanSwing(string szStyle)
 {
 	return true;
 }
@@ -44,7 +44,7 @@ public func CanSwing(/* Fighting style string, see TODO. */ string szStyle)
  * @param szStyle Fighting style string, see TODO.
  * @return bool Default value: true.
  */
-public func CanThrust(/* Fighting style string, see TODO. */ string szStyle)
+public func CanThrust(string szStyle)
 {
 	return true;
 }
@@ -54,7 +54,7 @@ public func CanThrust(/* Fighting style string, see TODO. */ string szStyle)
  * @param szStyle Fighting style string, see TODO.
  * @return bool Default value: true.
  */
-public func CanStrike(/* Fighting style string, see TODO. */ string szStyle)
+public func CanStrike(string szStyle)
 {
 	return true;
 }
@@ -64,7 +64,7 @@ public func CanStrike(/* Fighting style string, see TODO. */ string szStyle)
  * @param szStyle Fighting style string, see TODO.
  * @return bool Default value: true.
  */
-public func CanLow(/* Fighting style string, see TODO. */ string szStyle)
+public func CanLow(string szStyle)
 {
 	return true;
 }
@@ -105,7 +105,7 @@ public func GetOverlayGraphics(object pObj)
  * @param fPrimary Pass true, if the weapon is the primary weapon.
  * @return The weapon attack animation name.
  */
-public func GetStrikeAction(/* The weapon fighting style, see TODO. */ string szStyle, /* Pass true, if the weapon is the primary weapon. */ bool fPrimary)
+public func GetStrikeAction(string szStyle,bool fPrimary)
 {
 	var szAct = "Cancel", szSuffix;
 	
@@ -155,12 +155,7 @@ public func GetStrikeAction(/* The weapon fighting style, see TODO. */ string sz
 public func GetBlockAction(string szStyle, bool fPrimary)
 {
 	var szAct = "Parry", szSuffix;
-	/*if( szStyle == "SwSh" )
-	{
-		if( !fPrimary ) return "Cancel"; // Schwert und Buckler, d.h. ich bin immer Primary
-		szAct = "ParrySw";
-	}*/
-	
+		
 	if (szStyle == "SpSh")
 	{
 		if (fPrimary)

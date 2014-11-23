@@ -1,4 +1,9 @@
 #strict 2
 #appendto IGLO
 
-private func Melt() {} // nicht schmelzen :)
+/**
+ * The igloo does not melt anymore.
+ */
+private func Melt()
+{
+} // nicht schmelzen :)

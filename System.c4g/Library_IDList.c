@@ -1,4 +1,10 @@
-/*-- ID List --*/
+/*--
+The ID list contains static constants that refer to IDs. Scripts should use constants from this list, but this is not done in every script 
+at the moment. The advantage is, that you can switch certain objects by overloading the constant, without having to overload the object.
+@title ID List
+@author Marky
+@version 0.1.0
+--*/
 
 #strict 2
 
