@@ -72,6 +72,20 @@ public func Text(text)
 }
 
 /**
+ * Specifies the conditions that have to be fulfilled for the option to be displayed in the dialogue.
+ * @param event The events. See TODO.
+ * @return object Returns the helper object, such that the dialogue option can be further modified.
+ */
+public func Conditions(event)
+{
+	var currentConditions = dialogue[gDialogue_ARRAYPOS_Conditions];
+
+	dialogue[gDialogue_ARRAYPOS_Conditions] = ExpandDialogueArray(currentConditions, event, C4V_String);
+
+	return this;
+}
+
+/**
  * Specifies the events that fire after selecting an option.
  * @param event The events. See TODO.
  * @return object Returns the helper object, such that the dialogue option can be further modified.

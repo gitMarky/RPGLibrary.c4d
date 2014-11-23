@@ -127,14 +127,15 @@ string/array aEvents:
  * @note This should be used in dialogues, obviously. It works outside of dialogues, too.
  * @example For scripting purposes the variable has the same parameter name, but it gets saved for different
  * objects individually.<br>
- * <code>for (var i = 0; i < GetLength(customers); i++)
+ * {@code
+ * for (var i = 0; i < GetLength(customers); i++)
  * {
  *    var customerName = GetName(customers[i]);
  *    var depositValue = DlgVar("Deposit", customers[i], bank);
  *
  *    Log("%s has %d gold pieces in his account", customerName, depositValue);
  * }
- * </code>
+ * }
  * Logs the value of deposits of each customer of this bank.
  */
 global func &DlgVar(string szVar, object pTarget, object pSpeaker)
@@ -155,20 +156,27 @@ local aDialogue, iStartDialogue, pLastSpeaker;
 // das Array manipulieren
 /**
  * Sets the dialogue contents.
- * @param aDlg The dialogue array. Explained in TODO.
+ * @param aDlg The final dialogue array or other data.@brIf no array is specified, then
+ * the function tries getting an array by calling:
+ * {@code
+ * Format("MsgDialogue%s", aDlg)
+ * }
+ * This method has to exist in either the story object (see TODO), or as a global function.
+ * Furthermore it has to contain a valid dialogue array. Then, ValidateDialoge() is called.
  */
 public func SetDialogue( aDlg)
 {
 	// Direkteingabe
 	if( GetType(aDlg) == C4V_Array )
 		aDialogue = aDlg;
+		
 	// oder per Szenario-Script / System.c4g
 	// sollte im Szenario-Script gesetzt werden, nicht im Editor, damit das Objekt
 	// den korrekten Dialog aus System.c4g erhält!
 	else if( aDlg )
 	{
-		var story = FindObject( _STY );
-		if( story )
+		var story = FindObject( _STY);
+		if (story)
 			aDialogue = ObjectCall( story, Format("MsgDialogue%s", aDlg));
 		else
 			aDialogue = GameCall(Format("MsgDialogue%s", aDlg));
@@ -360,7 +368,8 @@ protected func ProcessDialogue( object pTarget, int iDialogue, string szChoice/*
 		{
 
 			if(GetLength(aOption[gDialogue_ARRAYPOS_Parent]))
-			if(GetArrayItemPosition(iDialogue,aOption[gDialogue_ARRAYPOS_Parent])>-1)
+			if(GetArrayItemPosition(iDialogue,aOption[gDialogue_ARRAYPOS_Parent]) > -1
+			|| (GetArrayItemPosition(-1,aOption[gDialogue_ARRAYPOS_Parent])> -1 && aOption[gDialogue_ARRAYPOS_MenuOption]))
 			//if( GetArrayItemPosition( iIndex, aOption[gDialogue_ARRAYPOS_Parent] ) > -1 )
 			{
 				DebugLog("%d in %v",iIndex, aOption[gDialogue_ARRAYPOS_Parent]);
@@ -617,7 +626,7 @@ public func printEntries()
 {
 	for(var field in aDialogue)
 	{
-		DebugLog("%d, parents %v: %s  - %s", field[0],field[1],field[2],field[3]);
+		DebugLog("%d, parents %v: %s  - %v", field[0],field[1],field[2],field[3]);
 	}
 }
 

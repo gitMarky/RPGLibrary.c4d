@@ -19,27 +19,6 @@ An ingame script parser, which is used for dynamic scripts.
  */
 global func CheckConditions( aConditions, string szTarget, object pTarget, string szUser, object pUser)
 {
-//	// keine Bedingungen sind immer erfüllt
-//	if(!aConditions) return true;
-//	if( GetType(aConditions) == C4V_Array ) if(GetLength(aConditions) < 1) return true;
-//
-//	var fFulfilled = true; // im Zweifel für den Angeklagten
-//	var aCond;
-//
-//	if( GetType( aConditions ) == C4V_String )
-//		fFulfilled = CheckCondition( aConditions, szTarget, pTarget, szUser, pUser );
-//	else
-//	{
-//			for( aCond in aConditions )
-//				// die erste nicht-erfüllte Bedingung macht ihn schuldig ;)
-//				if(!CheckCondition( aCond, szTarget, pTarget, szUser, pUser ))
-//				{
-//					fFulfilled = false;
-//					break;
-//				}
-//	}
-//
-//	return fFulfilled;
 	return CheckConditionsDetailed( aConditions, szTarget, pTarget, szUser, pUser)[0];
 }
 
@@ -62,13 +41,13 @@ global func CheckConditions( aConditions, string szTarget, object pTarget, strin
 global func CheckConditionsDetailed( aConditions, string szTarget, object pTarget, string szUser, object pUser)
 {
 	var fFulfilled = [];
-	// keine Bedingungen sind immer erfüllt
+	// no condition is always fulfilled
 	if(!aConditions) return [true];
 	if( aConditions == "") return [true];
 	if( GetType(aConditions) == C4V_Array ) if(GetLength(aConditions) < 1) return [true];
 
-	var fFulfilled = true; // im Zweifel für den Angeklagten
-	var iFulfilled = 0;    // Anzahl der erfüllten Bedingungen
+	var fFulfilled = true; // in favor of the suspect
+	var iFulfilled = 0;    // number of fulfilled conditions
 	var aCond;
 
 	if( GetType( aConditions ) == C4V_String )
@@ -79,7 +58,7 @@ global func CheckConditionsDetailed( aConditions, string szTarget, object pTarge
 	else
 	{
 			for( aCond in aConditions )
-				// die erste nicht-erfüllte Bedingung macht ihn schuldig ;)
+				// a non-fulfilled condition? The suspect is found guilty! ;)
 				if(!CheckCondition( aCond, szTarget, pTarget, szUser, pUser ))
 				{
 					fFulfilled = false;
@@ -120,7 +99,7 @@ global func CheckConditionsDetailed( aConditions, string szTarget, object pTarge
  */
 global func CheckCondition( aCondition, string szTarget, object pTarget, string szUser, object pUser )
 {
-	// keine Bedingungen sind immer erfüllt
+	// no condition is always fulfilled
 	if(!aCondition) return true;
 	if( GetType(aCondition) != C4V_Array && GetType(aCondition) != C4V_String ) return true;
 
@@ -133,7 +112,7 @@ global func CheckCondition( aCondition, string szTarget, object pTarget, string 
 
 	var result = eval( szEval );
 	DebugLog("Evaluation: %v", result);
-	return result; //eval( szEval );
+	return result;
 }
 
 /**
@@ -150,8 +129,9 @@ global func CheckCondition( aCondition, string szTarget, object pTarget, string 
  */
 global func ProcessEvents( aEvents, string szTarget, object pTarget, string szUser, object pUser)
 {
-	// keine Bedingungen sind immer erfüllt
+	// no events? Evaluate nothing
 	if(!aEvents) return true;
+	
 	if( GetType(aEvents) == C4V_Array ) if(GetLength(aEvents) < 1) return true;
 
 	var aEv;

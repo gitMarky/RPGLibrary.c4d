@@ -5,15 +5,6 @@ Provides functionality for cyclic behavior per day.
 @author Marky
 @version 0.1.0
   --*/
-  
-/*--
-More specific docu test.
-
-@title Adding a day night cycle
-@category #Tutorials
-@file tutorialDayNightCycle.html
-@author Marky
---*/
 
 #strict 2
 

@@ -5,6 +5,11 @@
 #strict 2
 
 //2147483647
+/**
+ * Sets the dialogue cancel variable to the specified state.
+ * @param bState Set to false if you want to disable cancelling the dialogue.
+ * @return string A string that can be used in with ProcessEvents()
+ */ 
 global func StdDlgEventCancel(bool bState){ return Format("CreateDlgVar(\"Cancel\",pTarget,pSpeaker)=%v",bState);}
 global func StdDlgArrayExitAlways(){ return [2147483646,-1,"Abbrechen","",0,[MCMX,0,0,0,0,-1],-1,0,"StopDialogue(pTarget)"];}
 global func StdDlgArrayExitCancel(){ return [2147483646,-1,"Abbrechen","",0,[MCMX,0,0,0,0,-1],-1,"DlgVar(\"Cancel\",pTarget,pSpeaker)","StopDialogue(pTarget)"];}
