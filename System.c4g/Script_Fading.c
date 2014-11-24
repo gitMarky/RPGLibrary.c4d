@@ -1,4 +1,4 @@
-/*-- Fading --*/
+/* Fading */
 
 #strict 2
 

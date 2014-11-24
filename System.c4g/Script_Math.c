@@ -1,7 +1,7 @@
-/*-- Math libraries.
+/* Math libraries.
 @version 0.1.0
 @author Unknown
---*/
+*/
 
 #strict 2
 

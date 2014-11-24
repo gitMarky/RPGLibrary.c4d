@@ -1,4 +1,4 @@
-/*-- Variable save that handles creating and accessing local variables. --*/
+/* Variable save that handles creating and accessing local variables. */
 
 #strict 2
 

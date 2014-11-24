@@ -1,4 +1,4 @@
-/*-- Ausrüstungs-Overlays --*/
+/* Ausrüstungs-Overlays */
 
 #strict 2
 #appendto _CLN

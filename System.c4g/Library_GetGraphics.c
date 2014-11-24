@@ -1,4 +1,4 @@
-/*-- Neues Script --*/
+/* Neues Script */
 
 #strict 2
 

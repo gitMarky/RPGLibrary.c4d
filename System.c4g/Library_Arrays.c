@@ -1,7 +1,7 @@
-/*-- Contains helper functions for arrays.
+/* Contains helper functions for arrays.
 @version 0.1.0
 @author Original: forgot, Modified: Marky
---*/
+*/
 
 #strict 2
 

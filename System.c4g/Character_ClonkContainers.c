@@ -1,5 +1,5 @@
-/*-- Container-Script:
- * Clonk kann aus Containern Dinge holen, ohne anfassen --*/
+/* Container-Script:
+ * Clonk kann aus Containern Dinge holen, ohne anfassen */
 
 #strict 2
 #appendto _CLN

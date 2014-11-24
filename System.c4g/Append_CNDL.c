@@ -1,4 +1,4 @@
-/*-- Added the light system to the candle --*/
+/* Added the light system to the candle */
 
 #strict 2
 #appendto CNDL

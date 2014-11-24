@@ -1,4 +1,4 @@
-/*-- Helper functions from Story of Harkon@version 0.1.0@author Randrian --*/
+/* Helper functions from Story of Harkon@version 0.1.0@author Randrian*/
 #strict 2
 
 global func PoffClonk(pTarget)

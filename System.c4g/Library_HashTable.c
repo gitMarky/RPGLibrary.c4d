@@ -1,8 +1,3 @@
-/*-- Hash table functionality.
-@version 0.1.0
-@author Nicolas Hake
---*/
-
 /* HashTable.c
  * 
  * Copyright (c) 2008 Nicolas Hake
@@ -30,6 +25,8 @@
 
 /**
  * Creates an empty hash.
+ * @version 0.1.0
+ * @author Nicolas Hake
  */
 global func CreateHash()
 {
@@ -41,6 +38,8 @@ global func CreateHash()
  * @param key The key of the element.
  * @param val The value of the element.
  * @return An iterator pointing in front of the inserted element.
+ * @version 0.1.0
+ * @author Nicolas Hake
  */
 global func HashPut(&hash, key, val)
 {
@@ -70,6 +69,8 @@ global func HashPut(&hash, key, val)
  * @return An iterator pointing in front of the inserted element. If no element with the
  * given key exists, an iterator pointing behind the last element is returned.
  * @link HashIterHasNext()
+ * @version 0.1.0
+ * @author Nicolas Hake
  */
 global func HashFind(&hash, key)
 {
@@ -91,6 +92,8 @@ global func HashFind(&hash, key)
  * @param hash The hash to search
  * @param key The key to find
  * @return true if an element with the key exists, false otherwise.
+ * @version 0.1.0
+ * @author Nicolas Hake
  */
 global func HashContains(&hash, key)
 {
@@ -106,6 +109,8 @@ global func HashContains(&hash, key)
  * key, or 0 if no element is found. If returnSuccess is true, returns an array
  * which has the value as first element. The second element indicates whether a match was
  * found.
+ * @version 0.1.0
+ * @author Nicolas Hake
  */
 global func HashGet(&hash, key, bool returnSuccess)
 {
@@ -131,6 +136,8 @@ global func HashGet(&hash, key, bool returnSuccess)
  * @param hash The hash to modify
  * @param key The key of the element to be removed
  * @return true if an element was removed, false otherwise.
+ * @version 0.1.0
+ * @author Nicolas Hake
  */
 global func HashErase(&hash, key)
 {
@@ -159,6 +166,8 @@ global func HashErase(&hash, key)
 
 /**
  * Returns the number of elements in the hash.
+ * @version 0.1.0
+ * @author Nicolas Hake
  */
 global func HashSize(&hash)
 {
@@ -168,6 +177,8 @@ global func HashSize(&hash)
 /**
  * Create an iterator on a hash.
  * @param hash The hash to iterate over
+ * @version 0.1.0
+ * @author Nicolas Hake
  */
 global func HashIter(&hash)
 {
@@ -178,6 +189,8 @@ global func HashIter(&hash)
  * @param iter The iterator in question
  * @return true if there is at least one more element, false if iter points at the
  * back of the corresponding hash.
+ * @version 0.1.0
+ * @author Nicolas Hake
  */
 global func HashIterHasNext(&iter)
 {
@@ -195,6 +208,8 @@ global func HashIterHasNext(&iter)
  * @param iter The iterator to advance
  * @return An array of [key, value] of the element traversed, or 0 if iter pointed at
  * the back of the hash.
+ * @version 0.1.0
+ * @author Nicolas Hake
  */
 global func HashIterNext(&iter)
 {
@@ -218,6 +233,8 @@ global func HashIterNext(&iter)
  * @param iter The iterator in question
  * @return true if there is at least one element before the current one, false if 
  * iter points at the beginning of the hash.
+ * @version 0.1.0
+ * @author Nicolas Hake
  */
 global func HashIterHasPrev(&iter)
 {
@@ -236,6 +253,8 @@ global func HashIterHasPrev(&iter)
  * @param iter The iterator to move
  * @return An array of [key, value] of the element traversed, or 0 if iter pointed at
  * the beginning of the hash.
+ * @version 0.1.0
+ * @author Nicolas Hake
  */
 global func HashIterPrev(&iter)
 {
@@ -258,6 +277,8 @@ global func HashIterPrev(&iter)
 
 /**
  * Moves the iterator to the front of the hash.
+ * @version 0.1.0
+ * @author Nicolas Hake
  */
 global func &HashIterToFront(&iter)
 {
@@ -267,6 +288,8 @@ global func &HashIterToFront(&iter)
 
 /**
  * Moves the iterator to the back of the hash.
+ * @version 0.1.0
+ * @author Nicolas Hake
  */
 global func &HashIterToBack(&iter)
 {
@@ -274,11 +297,6 @@ global func &HashIterToBack(&iter)
 	iter[_HashIter_Node] = GetLength(iter[_HashIter_Hash][_Hash_Bucket][iter[_HashIter_Bucket]]);
 	return iter;
 }
-
-/*----        Implementation detail follows.         ----*
- *---- Function presence and/or semantics may change ----*
- *----   at any time. Do NOT rely on these to last.  ----*
- *----             YOU HAVE BEEN WARNED.             ----*/
 
 // Array indices
 static const _Hash_Size = 0;

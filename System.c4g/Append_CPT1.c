@@ -1,4 +1,4 @@
-/*-- Expanded the castle part staircase: It is now possible to set a target for ascending or descending the staircase. --*/
+/* Expanded the castle part staircase: It is now possible to set a target for ascending or descending the staircase. */
 
 #strict 2
 

@@ -1,10 +1,10 @@
-/*-- 
+/*
 An ingame script parser, which is used for dynamic scripts.
 
 @title Conditions and Events
 @author Marky
 @version 0.1.0
-  --*/
+*/
 
 #strict 2
 

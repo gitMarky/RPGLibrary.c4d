@@ -1,9 +1,9 @@
-/*-- 
+/*
 Implements the Hazard 2 damage system.
 @title Damage System
 @author Hazard Team
 @version 0.1.0
- --*/
+*/
 
 #strict 2
 

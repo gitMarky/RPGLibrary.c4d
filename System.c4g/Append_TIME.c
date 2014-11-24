@@ -1,4 +1,4 @@
-/*-- Time --*/
+/* Time */
 
 #strict 2
 #appendto TIME

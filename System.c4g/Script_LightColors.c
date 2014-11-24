@@ -1,4 +1,4 @@
-/*-- Contains default light colors --*/
+/* Contains default light colors */
 
 #strict 2
 

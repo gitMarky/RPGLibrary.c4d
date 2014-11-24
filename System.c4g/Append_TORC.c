@@ -1,4 +1,4 @@
-/*-- Added the light system to the torch --*/
+/* Added the light system to the torch */
 
 #strict 2
 #appendto TORC

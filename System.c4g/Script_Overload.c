@@ -1,8 +1,8 @@
-/*-- Overloaded functions --*/
+/* Overloaded functions */
 
 #strict
 
-/*-- Dinge mit verschoben erstellen, damit es mit den Häuser-Innenansichten kompatibel ist --*/
+/* Dinge mit verschoben erstellen, damit es mit den Häuser-Innenansichten kompatibel ist */
 // Partikel verschoben erzeugen
 global func CreateParticle (szName, int iX, int iY, int iXDir, int iYDir, int a, b, pObj, bool fBehind)
 {
@@ -87,7 +87,7 @@ global func Sound (string szSound, bool fGlobal, object pObj, int iVolume, int i
 	return _inherited(szSound, fGlobal, pObj, iVolume, iPlayer, iLoopCount, ...);
 }
 
-/*-- Ansicht verschieben, damit die auf die Häuser-Innenansicht so aussieht, als wäre sie an derselben Stelle wie das Haus --*/
+/* Ansicht verschieben, damit die auf die Häuser-Innenansicht so aussieht, als wäre sie an derselben Stelle wie das Haus */
 
 static const gScreenFader_EffectVar_RGBa_R = 1;
 static const gScreenFader_EffectVar_RGBa_G = 2;

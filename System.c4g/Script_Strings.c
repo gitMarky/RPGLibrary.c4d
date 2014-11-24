@@ -1,7 +1,3 @@
-/*-- String manipulation methods
-@author TqmTqm
-@version 0.1.0
---*/
 
 #strict 2
 
@@ -11,6 +7,8 @@
  * @param suchMuster  The string that should be replaced.
  * @param ersetzenDurch The string will be replaced by this string.
  * @return The manipulated string.
+ * @author TqmTqm
+ * @version 0.1.0
  */
 global func ReplaceAll(string zeichenkette, string suchMuster, string ersetzenDurch)
 {
@@ -31,6 +29,8 @@ global func ReplaceAll(string zeichenkette, string suchMuster, string ersetzenDu
  * @param suchMuster  The string that should be replaced.
  * @param ersetzenDurch The string will be replaced by this string.
  * @return The manipulated string.
+ * @author TqmTqm
+ * @version 0.1.0
  */
 global func ReplaceFirst(string zeichenkette,string suchMuster,string ersetzenDurch)
 {
@@ -55,6 +55,8 @@ global func ReplaceFirst(string zeichenkette,string suchMuster,string ersetzenDu
  *	Substring(1, "Clonk") -> "lonk"
  *	Substring(1, "Hamburger", 4) -> "amb"
  *}
+ * @author TqmTqm
+ * @version 0.1.0
  */
 global func Substring(int start, string zeichenkette, int ende)
 {
@@ -75,7 +77,9 @@ global func Substring(int start, string zeichenkette, int ende)
  * @param zeichenkette The string.
  * @param i The character at this position will be returned.
  * @return While GetChar() returns an integer, this function returns the actual character at the position.
-*/
+ * @author TqmTqm
+ * @version 0.1.0
+ */
 global func CharAt(string zeichenkette,int i)
 {
 	return (GetLetter(GetChar(zeichenkette,i)));

@@ -13,10 +13,10 @@ static g_StoryIndex;
 
 public func IsFulfilled()
 {
-	return g_StoryIndex < 0;
+	return(GameCall("IsGoalFulfilled"));
 }
 
 protected func Activate(iPlayer)
 {
-	return MessageWindow(GameCall("GoalText"), iPlayer);
+	return(MessageWindow(GameCall("GetGoalDesc"), iPlayer));
 }

@@ -1,8 +1,8 @@
-/*--
+/*
 Helper functions, probably from Story of Harkon
 @author Randrian
 @version 0.1.0
---*/
+*/
 
 #strict 2
 

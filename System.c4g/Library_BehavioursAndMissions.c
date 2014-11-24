@@ -1,4 +1,4 @@
-/*-- Behaviours and Missions --*/
+/* Behaviours and Missions */
 
 #strict 2
 

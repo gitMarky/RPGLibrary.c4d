@@ -1,8 +1,10 @@
-/*-- There is a new logging mechanism that standardizes the debug and error log messages.
+/* There is a new logging mechanism that standardizes the debug and error log messages.
 @title Logging Mechanism
 @author Marky
 @version 0.1.0
---*/
+@file indexLogging.html
+@category #Tutorials
+*/
 
 #strict 2
 
@@ -24,6 +26,8 @@ static g_DebugMode;
  * @param source This is a logging channel. This is defined by the log message, so you have to know exactly which channel you want to check.
  * Usually, this is the ID of the object that is writing the log message.
  * @return true, if the debug mode for this source is active, or if {@i g_DebugMode_ALL} is active.
+ * @author Marky
+ * @version 0.1.0
  */
 global func Debug(source)
 {
@@ -39,6 +43,8 @@ global func Debug(source)
  * @param switch Pass true, if you want to activate the debug mode for this source.
  * @param source This is a logging channel. This is defined by the log message, so you have to know exactly which channel you want to check.
  * Usually, this is the ID of the object that is writing the log message.
+ * @author Marky
+ * @version 0.1.0
  */
 global func DebugMode(bool switch, source)
 {
@@ -69,6 +75,8 @@ global func DebugMode(bool switch, source)
  * }
  * @param ignoreDebug The log level debug is only printed if the debug mode is active for the source, or if {@i ignoreDebug} is true.
  * @link DebugLog(), DebugLogAlways(), ErrorLog(), ErrorLogAlways(), DebugMessage()
+ * @author Marky
+ * @version 0.1.0
  */
 global func LogEx(string message, source, string logLevel, bool ignoreDebug)
 {
@@ -92,6 +100,8 @@ global func LogEx(string message, source, string logLevel, bool ignoreDebug)
  * is active for that source.
  * @param msg The message. Can be formatted with 9 additional parameters.
  * @link LogEx(), DebugLogAlways()
+ * @author Marky
+ * @version 0.1.0
  */
 global func DebugLog(string msg)
 {
@@ -103,6 +113,8 @@ global func DebugLog(string msg)
  * Logs a message to the debug log level. Logging source is the ID of the calling object. Is logged always.
  * @param msg The message. Can be formatted with 9 additional parameters.
  * @link LogEx(), DebugLog()
+ * @author Marky
+ * @version 0.1.0
  */
 global func DebugLogAlways(string msg)
 {
@@ -115,6 +127,8 @@ global func DebugLogAlways(string msg)
  * is active for that source.
  * @param msg The message. Can be formatted with 9 additional parameters.
  * @link LogEx(), ErrorLogAlways()
+ * @author Marky
+ * @version 0.1.0
  */
 global func ErrorLog(string msg)
 {
@@ -126,6 +140,8 @@ global func ErrorLog(string msg)
  * Logs a message to the error log level. Logging source is the ID of the calling object. Is logged always.
  * @param msg The message. Can be formatted with 9 additional parameters.
  * @link LogEx(), ErrorLog()
+ * @author Marky
+ * @version 0.1.0
  */
 global func ErrorLogAlways(string msg)
 {
@@ -137,6 +153,8 @@ global func ErrorLogAlways(string msg)
  * Displays a message above and object with Message().
  * @param msg The message. Can be formatted with 8 additional parameters.
  * @param source Is displayed only, if the debug mode is active for this source.
+ * @author Marky
+ * @version 0.1.0
  */
 global func DebugMessage(string msg, source)
 {

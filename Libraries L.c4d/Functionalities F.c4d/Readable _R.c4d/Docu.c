@@ -48,9 +48,8 @@ bc/
 	}
 @br
 	// information for the script goal object
-	public func IsFullfilled() { return false; }
-	public func FullfillText() { return "This scenario cannot be fulfilled until it has valid script goals"; }
-	public func GoalText() { return "Script Goal Title"; }
+	public func IsGoalFulfilled() { return false; }
+	public func GetGoalDesc() { return "This scenario cannot be fulfilled until it has valid script goals"; }
 }
 Set the landscape to be flat. Starting this scenario should already work, but you cannot do much.
 {@section Adding a NPC}
@@ -121,7 +120,7 @@ public func MsgDialogueMarvin()
 {
 	return [
 	DlgOption(0, -1)->Text("Hello stranger!"),
-	StdDlgArrayExitAlways()];
+	DlgOptionCancelAlways()];
 }
 }
 {@section Introducing variables, conditions and events}
@@ -137,23 +136,23 @@ public func MsgDialogueMarvin()
 	DlgOption(0, -1)->Text("Hello stranger!"),
 	DlgOption(2, -1, "Is this your tower?")->Text("Yes."), // this dialogue will be displayed after every choice
 	DlgOption(3, -1, "Can you make a rock with my name?")->Text("Sure.")
-	->Conditions(StdDlgVar("", asked_about_rock,"==false")) // is only displayed if you have not asked about the rock yet
-	->Events(StdDlgVar("Create", asked_about_rock, " = true")), // sets a variable in Marvin, that you have asked him about the rock 
+	->Conditions(DlgStdVar("", asked_about_rock,"==false")) // is only displayed if you have not asked about the rock yet
+	->Events(DlgStdVar("Create", asked_about_rock, " = true")), // sets a variable in Marvin, that you have asked him about the rock 
 	DlgOption(4, -1, "Please make a rock with my name on it!")->Text("Ok, here it is!")
-	->Conditions(StdDlgVar("", asked_about_rock, "== true")) // is only displayed if you have asked about the rock
-	->Conditions(StdDlgVar("", rock_with_name, "== 0")) // and if the rock has not been created
-	->Events(StdDlgVar("Create", rock_with_name, " = CreateObject(ROCK, 0, 0, NO_OWNER)")) // once we choose this option, the rock gets spawned
-	->Events(StdDlgVar("", rock_with_name, "->SetPosition(pSpeaker->GetX() + 20, pSpeaker->GetY())")) // we drop it right of Marvin
-	->Events(StdDlgVar("", rock_with_name, "->SetName(GetName(pTarget))")), // we give it the name of the guy who asked Marvin
+	->Conditions(DlgStdVar("", asked_about_rock, "== true")) // is only displayed if you have asked about the rock
+	->Conditions(DlgStdVar("", rock_with_name, "== 0")) // and if the rock has not been created
+	->Events(DlgStdVar("Create", rock_with_name, " = CreateObject(ROCK, 0, 0, NO_OWNER)")) // once we choose this option, the rock gets spawned
+	->Events(DlgStdVar("", rock_with_name, "->SetPosition(pSpeaker->GetX() + 20, pSpeaker->GetY())")) // we drop it right of Marvin
+	->Events(DlgStdVar("", rock_with_name, "->SetName(GetName(pTarget))")), // we give it the name of the guy who asked Marvin
 	DlgOption(5, -1, "Please make another rock with my name on it!")->Text("One rock is enough.")
-	->Conditions(StdDlgVar("", rock_with_name, "!= 0")), // alternate dialogue if the rock has been created
-	StdDlgArrayExitAlways()];
+	->Conditions(DlgStdVar("", rock_with_name, "!= 0")), // alternate dialogue if the rock has been created
+	DlgOptionCancelAlways()];
 }
 }
-This should be clear already. The StdDlgVar() syntax might be confusing. Please suggest better options in the forum!
-There are two comfortable ways for saving and accessing StdDlgVar() and DlgObjVar() is the object that the variable
+This should be clear already. The DlgStdVar() syntax might be confusing. Please suggest better options in the forum!
+There are two comfortable ways for saving and accessing DlgStdVar() and DlgObjVar() is the object that the variable
 is connected with:@br
-StdDlgVar() saves the information in the object that hosts the dialogue, so it can be accessed only there. DlgObjVar()
+DlgStdVar() saves the information in the object that hosts the dialogue, so it can be accessed only there. DlgObjVar()
 instead is stored in the object controlled by the player. That means it can transport information from one dialogue to
 another, examples will follow.@br
 In our example, the Clonk you control can ask about the rock only once. Add another Clonk to your crew and he will be able

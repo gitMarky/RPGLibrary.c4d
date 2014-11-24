@@ -481,9 +481,8 @@ bc/
 	}
 @br
 	// information for the script goal object
-	public func IsFullfilled() { return false; }
-	public func FullfillText() { return "This scenario cannot be fulfilled until it has valid script goals"; }
-	public func GoalText() { return "Script Goal Title"; }
+	public func IsGoalFulfilled() { return false; }
+	public func GetGoalDesc() { return "This scenario cannot be fulfilled until it has valid script goals"; }
 }
 {@b Alternative Architectures}
 Differing from this approach should pose no problem. In fact, calling {@code

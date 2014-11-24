@@ -63,13 +63,13 @@ public func MsgDialogueArthur() {
 	return [
 	DlgOption(0, -1)->Text("Greetings."),
 	DlgOption(1, -1, "Not much to say?")->Text("No, talk to the sorcerer first, he may have a 'quest' for a 'mighty adventurer' like you.")
-	->Conditions(StdDlgQuestStage("Get", marvins_quest, "== 0")),
+	->Conditions(DlgQuestStage("Get", marvins_quest, "== 0")),
 	DlgOption(2, -1, "I have your armor.")->Text("Ok, put it in the castle, please.")
 	->Conditions("FindContents(BRMR, pTarget)"),
 	DlgOption(3, -1, "Your armor is in the castle.")->Text("Thank you. Marvin may have a 'reward' for you.")
 	->Conditions("FindContents(BRMR, FindObject(CST2))")
-	->Conditions(StdDlgQuestStage("Get", marvins_quest, "> 0")), // quest is active
-	StdDlgArrayExitAlways()
+	->Conditions(DlgQuestStage("Get", marvins_quest, "> 0")), // quest is active
+	DlgOptionCancelAlways()
 	];
 }
 }
@@ -81,7 +81,7 @@ public func DscQuestArthursArmor(bool bStages)
 	if (bStages) return[
 	[1, "FindContents(BRMR, FindObject(CST2))", "pQuest->~SetStage(2, pActivePlayer, true)"], // this stage is activated by Marvin's dialogue. Once the armor is in the castle, it sets the quest stage to 2 for all players
 	[2], // this is just a dummy. The final stage is set in Marvin's dialogue
-	[3, 0, ["pQuest->~GiveReward(pActivePlayer,\"CreateContents(COKI,pActivePlayer)\")", Format("FinishQuest(\"%s\", pActivePlayer, true)", marvins_quest)]] // rewards the player with a cookie and successfully finishes the quest for all players
+	[3, 0, ["pQuest->~GiveReward(pActivePlayer,@qCreateContents(COKI,pActivePlayer)@q)", Format("FinishQuest(@q%s@q, pActivePlayer, true)", marvins_quest)]] // rewards the player with a cookie and successfully finishes the quest for all players
 	];
 @br
 	return [ "Armor Delivery" ];
@@ -90,44 +90,46 @@ public func DscQuestArthursArmor(bool bStages)
 As you see, the quest does not do much. Before talking to Marvin, it does nothing. Once we set the quest stage to 1 it checks whether the armor is in the castle every 36 frames, and if so it sets the stage to 2.
 Marvin's dialogue will get another option when the quest stage is 2. Confirming that option will set the stage to 3 and, since this condition is always true, it will immediately fire the events that give a cookie
 to the player and finish the quest.@br
-A simple quest like this could be done with StdDlgVar() and DlgObjVar(), too. This is a great exercise for practicing the use of variables. Modeling the quest with a quest framework has the advantage that it handles
+A simple quest like this could be done with DlgStdVar() and DlgObjVar(), too. This is a great exercise for practicing the use of variables. Modeling the quest with a quest framework has the advantage that it handles
 multiplayer quests better and tracks them in the quest log. The quest log is available in the {@i _CLN} Clonk, but you should be able to add a context menu for the normal Clonk as well.@br
 Finally, we need to expand Marvin's dialogue a bit:
 {@code
-public func MsgDialogueMarvin() {
+public func MsgDialogueMarvin()
+{
 	var asked_about_rock = "asked_about_rock";
 	var rock_with_name = "rock_with_name";
 	@br
     return [
 	DlgOption(0, -1)->Text("Hello stranger!")
-	->Events(StdDlgEventCancel(true)),
+	->Events(DlgEventSetCancel(true)),
 	DlgOption(2, [0, 3, 4, 5, 9], "Is this your tower?")->Text("Yes."),
 	DlgOption(3, [0, 2, 4, 5, 9], "Can you make a rock with my name?")->Text("Sure.")
-	->Conditions(StdDlgVar("", asked_about_rock,"==false"))
-	->Events(StdDlgVar("Create", asked_about_rock, " = true")),
+	->Conditions(DlgStdVar("", asked_about_rock,"==false"))
+	->Events(DlgStdVar("Create", asked_about_rock, " = true")),
 	DlgOption(4, [0, 2, 3, 9], "Please make a rock with my name on it!")->Text("Ok, here it is!")
-	->Conditions(StdDlgVar("", asked_about_rock, "== true"))
-	->Conditions(StdDlgVar("", rock_with_name, "== 0"))
-	->Events(StdDlgVar("Create", rock_with_name, " = CreateObject(ROCK, 0, 0, NO_OWNER)"))
-	->Events(StdDlgVar("", rock_with_name, "->SetPosition(pSpeaker->GetX() + 20, pSpeaker->GetY())"))
-	->Events(StdDlgVar("", rock_with_name, "->SetName(GetName(pTarget))")),
+	->Conditions(DlgStdVar("", asked_about_rock, "== true"))
+	->Conditions(DlgStdVar("", rock_with_name, "== 0"))
+	->Events(DlgStdVar("Create", rock_with_name, " = CreateObject(ROCK, 0, 0, NO_OWNER)"))
+	->Events(DlgStdVar("", rock_with_name, "->SetPosition(pSpeaker->GetX() + 20, pSpeaker->GetY())"))
+	->Events(DlgStdVar("", rock_with_name, "->SetName(GetName(pTarget))")),
 	DlgOption(5, [0, 2, 3, 9], "Please make another rock with my name on it!")->Text("One rock is enough.")
-	->Conditions(StdDlgVar("", rock_with_name, "!= 0")),
+	->Conditions(DlgStdVar("", rock_with_name, "!= 0")),
 	DlgOption(6, [0, 2, 3, 4, 5], "Can I do anything for you?")->Text("Actually, yes")
-	->Conditions(StdDlgQuestStage("Get", marvins_quest, "== 0"))
-	->Events(StdDlgEventCancel(false)),
+	->Conditions(DlgQuestStage("Get", marvins_quest, "== 0"))
+	->Events(DlgEventSetCancel(false)),
 	DlgOption(7, 6, "What is it?")->Text("I have a magic armor for Arthur, and it has yet to be delivered to him"),
 	DlgOption(8, [7], "Can't you deliver it yourself? He lives right behind your tower!")->Text("Oh, come on, what would be the fun in that?"),
 	DlgOption(9, [7, 8], "Ok, I'll bring it to him")->Text("Great. It is in my tower, just grab it from the shelf")
-	->Events(StdDlgEventCancel(true))
-	->Events(Format("ActivateQuest(\"%s\",pTarget)", marvins_quest))
+	->Events(DlgEventSetCancel(true))
+	->Events(Format("ActivateQuest(@q%s@q,pTarget)", marvins_quest))
 	->Events(SetQuestStage(marvins_quest, 1)) // so that the dialogue option for helping Marvin does not appear anymore 
 	->Events("CreateContents(BRMR, FindObject(WTWR))"),
 	DlgOption(10, -1, "Arthur has his armor")->Text("Thanks. Here, have a cookie!")
-	->Conditions(StdDlgQuestStage("Get", marvins_quest, "== 2"))
-	->Events(Format("SetQuestStage(\"%s\",3,pTarget,true)", marvins_quest)),
-	StdDlgArrayExitCancel()
-];}
+	->Conditions(DlgQuestStage("Get", marvins_quest, "== 2"))
+	->Events(Format("SetQuestStage(@q%s@q,3,pTarget,true)", marvins_quest)),
+	DlgOptionCancelToggle()
+];
+}
 }
 To avoid the dialogue options popping up everywhere, the parent nodes are properly set. Also, the player should not be able to cancel 
 the dialogue once he chooses option 7, so we changed the script in this regard. Congratulations, we finished our first quest.
@@ -149,15 +151,15 @@ public func MsgDialogueArthur() {
 	return [
 	DlgOption(0, -1)->Text("Greetings."),
 	DlgOption(1, -1, "Not much to say?")->Text("No, talk to the sorcerer first, he may have a 'quest' for a 'mighty adventurer' like you.")
-	->Conditions(StdDlgQuestStage("Get", marvins_quest, "== 0")),
+	->Conditions(DlgQuestStage("Get", marvins_quest, "== 0")),
 	DlgOption(2, -1, "I have your armor.")->Text("Ok, put it in the castle, please.")
 	->Conditions("FindContents(BRMR, pTarget)"),
 	DlgOption(3, -1, "Your armor is in the castle.")->Text("Thank you. Marvin may have a 'reward' for you.")
 	->Conditions("FindContents(BRMR, FindObject(CST2))")
-	->Conditions(StdDlgQuestStage("Get", marvins_quest, "== 8"))
+	->Conditions(DlgQuestStage("Get", marvins_quest, "== 8"))
 	->Events("StopDialogue(pTarget)") // we have to stop the dialogue or else the knight will not execute commands
-	->Events(Format("SetQuestStage(\"%s\",4,pTarget,true)", marvins_quest)), // this is the quest stage that does the cutscene stuff
-	StdDlgArrayExitAlways()
+	->Events(Format("SetQuestStage(@q%s@q,4,pTarget,true)", marvins_quest)), // this is the quest stage that does the cutscene stuff
+	DlgOptionCancelAlways()
 	];
 }
 }
@@ -168,11 +170,11 @@ public func DscQuestArthursArmor(bool bStages)
 	if (bStages) return[
 	[1, "FindContents(BRMR, FindObject(CST2))", "pQuest->~SetStage(8, pActivePlayer, true)"], // sets the quest stage to 8 for all players
 	[2], // this is just a dummy. The final stage is set in Marvin's dialogue
-	[3, 0, ["pQuest->~GiveReward(pActivePlayer,\"CreateContents(COKI,pActivePlayer)\")", Format("FinishQuest(\"%s\", pActivePlayer, true)", marvins_quest)]] ,
-	[4, 0, ["StartFilm()", "GetFilm()->PosCam(FindObject(KNIG),0,true)","SetCommand(FindObject(KNIG),\"Enter\", FindObject(CST2))", "pQuest->SetStage(5,0,true)"]],
-	[5, "FindContents(KNIG, FindObject(CST2))", ["Enter(FindObject(KNIG), FindObject(BRMR))", "SetCommand(FindObject(KNIG), \"MoveTo\", 0, 345, 390)", "pQuest->SetStage(6,0,true)"], 10],
+	[3, 0, ["pQuest->~GiveReward(pActivePlayer,@qCreateContents(COKI,pActivePlayer)@q)", Format("FinishQuest(@q%s@q, pActivePlayer, true)", marvins_quest)]] ,
+	[4, 0, ["StartFilm()", "GetFilm()->PosCam(FindObject(KNIG),0,true)","SetCommand(FindObject(KNIG),@qEnter@q, FindObject(CST2))", "pQuest->SetStage(5,0,true)"]],
+	[5, "FindContents(KNIG, FindObject(CST2))", ["Enter(FindObject(KNIG), FindObject(BRMR))", "SetCommand(FindObject(KNIG), @qMoveTo@q, 0, 345, 390)", "pQuest->SetStage(6,0,true)"], 10],
 	[6, "!GetCommand(FindObject(KNIG))", ["FindObject(BRMR)->Activate(FindObject(KNIG))", "pQuest->SetStage(7,0,true)"]],
-	[7, "GetAction(FindObject(KNIG)) == \"Walk\"", ["StopFilm()", "pQuest->SetStage(2,0,true)"]],
+	[7, "GetAction(FindObject(KNIG)) == @qWalk@q", ["StopFilm()", "pQuest->SetStage(2,0,true)"]],
 	[8]
 	];
 @br
