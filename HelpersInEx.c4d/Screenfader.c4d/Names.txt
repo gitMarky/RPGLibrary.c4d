@@ -1,2 +1,0 @@
-DE:Ausblendeffekt
-US:Fade-Effect

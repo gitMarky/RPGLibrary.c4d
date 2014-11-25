@@ -1,0 +1,24 @@
+[DefCore]
+id=TP69
+Name=Trampoline
+Version=4,9,5
+Category=3332
+MaxUserSelect=3
+Width=32
+Height=16
+Offset=-16,-8
+Value=15
+Mass=40
+Components=WOOD=3;
+Picture=0,0,32,16
+Vertices=4
+VertexX=-15,15,-15,15
+VertexY=7,7,-6,-6
+VertexCNAT=9,10,5,6
+VertexFriction=15,15,90,90
+Rebuy=1
+Grab=1
+UprightAttach=8
+BlastIncinerate=45
+# Sieht doch fast genauso aus, und wird eh nie verbrannt...
+BurnTo=CATB

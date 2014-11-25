@@ -1,8 +1,0 @@
-[DefCore]
-id=SFA_
-Name=Screenfader
-Category=1
-Width=1
-Height=1
-Offset=0,0
-Picture=0,0,1,1

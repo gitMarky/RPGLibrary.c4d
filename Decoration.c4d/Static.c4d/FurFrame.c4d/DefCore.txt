@@ -1,0 +1,17 @@
+[DefCore]
+id=_FUR
+Name=Fur
+Version=4,9,5
+Category=2
+MaxUserSelect=10
+Width=20
+Height=25
+Offset=-10,-12
+Value=10
+Mass=10
+Components=WOOD=1;
+Picture=0,0,20,25
+Vertices=2
+VertexX=-8,8
+VertexY=12,12
+VertexFriction=20,20
