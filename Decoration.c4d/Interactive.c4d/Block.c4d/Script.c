@@ -1,83 +1,134 @@
-/*-- Klotz --*/
+/*--
+A block than can move in all four directions. Usually the movement is started by a switch.
+
+@author Sven2
+@version 0.1.0
+--*/
 
 #strict 2
 
-local iXDir,iYDir;
-local iOldXDir, iOldYDir;
+local iXDir, iYDir;
 
-static const _BLK_MoveSound = "Elevator",
-             _BLK_HitSound  = "Discharge";
+static const gBlock_MoveSound = "Elevator",
+             gBlock_HitSound  = "Discharge";
 
 protected func Initialize()
-  {
-  SetAction("Block");
-  }
-
-public func SetStartPosition()
 {
-  iOldXDir = GetX(); iOldYDir = GetY();
+	SetAction("Block");
 }
 
+/**
+ * Starts upward movement.
+ *
+ * @param pController The object that ordered the command.
+ * @return int The new ComDir value of the block.
+ */
 public func ControlUp(object pController)
-  {
-  if(GetXDir())
-   return;
-  // 2do: sound
-  if (iYDir>=0) Sound(_BLK_MoveSound);
-  iYDir = -1;
-  iXDir=0;
-  return UpdateComDir();
-  }
+{
+	if (GetXDir())
+		return;
+	
+	if (iYDir >= 0)
+		Sound(gBlock_MoveSound);
+	
+	iYDir = -1;
+	iXDir = 0;
+	
+	return UpdateComDir();
+}
 
+/**
+ * Starts downward movement.
+ *
+ * @param pController The object that ordered the command.
+ * @return int The new ComDir value of the block.
+ */
 public func ControlDown(object pController)
-  {
-  if(GetXDir())
-   return;
-  // 2do: sound
-  if (iYDir<=0) Sound(_BLK_MoveSound);
-  iYDir = 1;
-  iXDir=0;
-  return UpdateComDir();
-  }
+{
+	if (GetXDir())
+		return;
+	
+	if (iYDir <= 0)
+		Sound(gBlock_MoveSound);
+	
+	iYDir = 1;
+	iXDir = 0;
+	
+	return UpdateComDir();
+}
 
+/**
+ * Starts leftward movement.
+ *
+ * @param pController The object that ordered the command.
+ * @return int The new ComDir value of the block.
+ */
 public func ControlLeft(object pController)
-  {
-  if(Abs(GetYDir())>2)
-   return;
-  // 2do: sound
-  if (iXDir>=0) Sound(_BLK_MoveSound);
-  SetYDir();
-  iXDir = -1;
-  iYDir=0;
-  return UpdateComDir();
-  }
+{
+	if (Abs(GetYDir()) > 2)
+		return;
+	
+	if (iXDir >= 0)
+		Sound(gBlock_MoveSound);
+	SetYDir();
+	
+	iXDir = -1;
+	iYDir = 0;
+	
+	return UpdateComDir();
+}
 
+/**
+ * Starts rightward movement.
+ *
+ * @param pController The object that ordered the command.
+ * @return int The new ComDir value of the block.
+ */
 public func ControlRight(object pController)
-  {
-  if(Abs(GetYDir())>2)
-   return;
-  // 2do: sound
-  if (iXDir<=0) Sound(_BLK_MoveSound);
-  SetYDir();
-  iXDir = 1;
-  iYDir=0;
-  return UpdateComDir();
-  }
+{
+	if (Abs(GetYDir()) > 2)
+		return;
+	
+	if (iXDir <= 0)
+		Sound(gBlock_MoveSound);
+	SetYDir();
+	
+	iXDir = 1;
+	iYDir = 0;
+	
+	return UpdateComDir();
+}
 
-protected func ContactLeft() { if (iXDir>=0) return; Sound(_BLK_HitSound); return iXDir=0; }
-protected func ContactRight() { if (iXDir<=0) return; Sound(_BLK_HitSound); return iXDir=0; }
-//protected func ContactBottom() { if (iYDir<=0) return(); Sound(_BLK_HitSound); return(iYDir=0); }
+protected func ContactLeft()
+{
+	if (iXDir >= 0)
+		return;
+		
+	Sound(gBlock_HitSound);
+	return iXDir = 0;
+}
+protected func ContactRight()
+{
+	if (iXDir <= 0)
+		return;
+		
+	Sound(gBlock_HitSound);
+	return iXDir = 0;
+}
 
 protected func Hit()
-  {
-  Sound(_BLK_HitSound);
-  // 2do: sound
-  SetXDir(); SetYDir();
-  iXDir=iYDir=0; SetComDir();
-  }
+{
+	Sound(gBlock_HitSound);
+	
+	SetXDir();
+	SetYDir();
+	
+	iXDir = iYDir = 0;
+	SetComDir();
+}
 
-private func UpdateComDir() // nur für iXDir|iYDir != 0
-  {
-  // Puzzling, isn't it?
-  return SetComDir(iXDir*(iYDir-2)+!iXDir*(iYDir-1)*2+5);
-  }
+private func UpdateComDir() // only for iXDir|iYDir != 0
+{
+	// Puzzling, isn't it?
+	return SetComDir(iXDir * (iYDir - 2) + !iXDir * (iYDir - 1) * 2 + 5);
+}

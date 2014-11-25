@@ -1,0 +1,2 @@
+DE:Dialog-Zusammensetzer
+US:Dialog composer

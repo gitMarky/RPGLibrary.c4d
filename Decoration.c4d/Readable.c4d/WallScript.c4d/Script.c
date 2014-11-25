@@ -1,14 +1,25 @@
-/*-- Wandnachricht --*/
+/*--
+A grabbable object that looks like a stone plate. Displays a dialogue when pressing ControlUp.
+
+@title Wall script
+@author Sven2 (Graphics), Marky (Script)
+@version 0.1.0
+--*/
 
 #strict 2
 
-#include LF_R // ist lesbar
+#include LF_R // is readable
 
 protected func Initialize()
 {
 	SetAction("Walling");
 }
 
+/**
+ * Starts the dialogue.
+ *
+ * @param pPlayer The object that activated the book. The dialogue is displayed to this object.
+ */ 
 protected func ControlUp(object pPlayer)
 {
 	[$CtrlRead$]
@@ -31,7 +42,12 @@ protected func ControlUp(object pPlayer)
 	return 1;
 }
 
+/**
+ * The font color for the message. Light color, matches the stone plate in tone.
+ */
 public func GetDialogueColor(){ return RGB(255,211,160); }
-public func GetDlgMsgColor(){ 	return RGB(72,60,45);
- }
+/**
+ * The background color for the message. Dark color, matches the stone plate in tone.
+ */
+public func GetDlgMsgColor(){ 	return RGB(72,60,45);}
 

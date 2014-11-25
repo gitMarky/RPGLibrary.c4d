@@ -191,7 +191,7 @@ func FxIntUpdateGraphicsTimer(object pTarget, int iNumber, int iTime)
 	var i = 1;
 	var newIndex = -1;
 	var pDummy = pTarget->LocalN("dummyObjectOutside");
-	if(!pDummy) { DebugLogEx("No dummy, removing effect"); return -1;}
+	if(!pDummy) { DebugLog("No dummy, removing effect"); return -1;}
 
 	// Alle Objekte innerhalb des Gebäudes beim Objekt selbst und beim Dummy anzeigen
 	for(var categoryIndex = 0; categoryIndex < GetLength(graphicsCategoryArrays); categoryIndex++)

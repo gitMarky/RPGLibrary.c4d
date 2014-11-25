@@ -1,5 +1,3 @@
-// CREDITZ!
-
 Hazard Team:
 - Dunkelheit- und Lasersystem, div. Effekte
 

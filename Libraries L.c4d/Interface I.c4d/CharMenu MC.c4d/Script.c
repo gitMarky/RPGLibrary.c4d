@@ -10,7 +10,7 @@ local iButtonBarIndex, iButtonIndex;
 
 /* -------------------- globale Funktionen -----------------------*/
 
-global func CreateCharMenu( obj )
+global func CreateCharMenu(object obj )
 {
 	if( !obj ) return( 0 );
 	if( !( obj->~CanUseCharMenu() ) ) return 0;

@@ -1,6 +1,14 @@
-/*-- Grundscript für alle Quests --*/
+/*--
+Basic script for quest functionality.
+
+@title Quest
+@author Marky
+@version 0.1.0
+--*/
 
 #strict 2
+
+// TODO: translate
 
 local aQuest,aProgress,aPlayers,aQuestLog;
 local aQuestStages;
@@ -306,7 +314,7 @@ public func GetStage( object pPlayer, bool bGlobal, string szFunc, vP1, vP2 )
 
 			if( bSet )
 			{
-				return aProgress[i];;
+				return aProgress[i];
 			}
 		}
 	}
@@ -447,7 +455,7 @@ protected func DoMonitorQuest(object pTarget, int iEffectNumber, int iEffectTime
 					//if( aProgress[iIndex] >= 0 ) bFinished = false;
 				}
 
-				if( bFinished ){ DebugLogEx("Quest finished"); return -1;} // fertig :)
+				if( bFinished ){ DebugLog("Quest finished"); return -1;} // fertig :)
 			}
 			// wenn eine Bedingung zu erfüllen ist
 			else if( aQuest[1])
@@ -532,7 +540,7 @@ protected func CheckCondition( aCondition, object pActivePlayer, bool bPlayer )
 	DebugLog("Evaluating Quest Condition \"%s\", %d",szEval, FrameCounter());
 
 	var result = eval( szEval );
-	DebugLogEx("Evaluation: %v", result);
+	DebugLog("Evaluation: %v", result);
 
 	return result;
 }

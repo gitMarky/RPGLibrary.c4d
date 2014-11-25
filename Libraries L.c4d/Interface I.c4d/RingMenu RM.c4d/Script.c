@@ -10,7 +10,7 @@ local select_call;
 
 /* -------------------- globale Funktionen -----------------------*/
 
-global func RingCreateMenu( obj )
+global func RingCreateMenu(object obj)
 {
 	if( !obj ) return( 0 );
 	if( !( obj->~CanUseRingMenu() ) ) return( 0 );
@@ -33,7 +33,7 @@ global func RingCreateMenu( obj )
 	return( 1 );
 }
 
-global func ComboCloseMenu( obj )
+global func ComboCloseMenu(object obj)
 {
 	if( !obj ) return( 0 );
 	if( !( obj->~CanUseRingMenu() ) ) return( 0 );
@@ -197,7 +197,7 @@ public func ComboInput( key )
 	if( key == "P" )
 	{
 		var command = Local(ring_selected)[1];
-		var p1,p2,p3,p4,p5;
+		var p1,p2,p3,p4;
 
 		p1 = Local(ring_selected)[2];
 		p2 = Local(ring_selected)[3];

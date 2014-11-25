@@ -1,7 +1,7 @@
-/*-- Buch --*/
+/*-- Quest log --*/
 
 #strict 2
-#include LF_R // ist lesbar, oh Wunder :)
+#include LF_R // this is readable as well :)
 
 local aQuestIndex;
 local aQuestOpen;
@@ -56,7 +56,7 @@ public func AddQuest(szName, bool bNoSound)
 
 public func UpdateQuest(string szName, bool bNoSound)
 {
-	Log("UpdateQuest called");
+	DebugLog("UpdateQuest called");
 	//if(!bNoSound) Sound("Ding",1,0,0,GetOwner()+1);
 	//DropArrayItem(szName,aQuestOpen);
 	//PushFront(szName,aQuestOpen);
@@ -110,12 +110,7 @@ public func ConstructDialogue( pPlayer )
 	var iMenuPages = Max((GetLength(aQuestOpen)+iEntriesPerPage-1)/iEntriesPerPage,1);
 	var iMenuPagesFail = Max((GetLength(aQuestFail)+iEntriesPerPage-1)/iEntriesPerPage,1);
 	var iMenuPagesDone = Max((GetLength(aQuestDone)+iEntriesPerPage-1)/iEntriesPerPage,1);
-	var iMenuPageParent = 0;
-	var iMenuPageParentOld = 0;
-	var iMenuPageParentOld2 = 0;
 
-	var aLayerButtons = [];
-	//var aPagesIndex = [0];
 
 	// alle offenen Quests anzeigen
 	var dlgOpenQuest = [0,-1,0,ColorizeString(Format("Offene Quests (%d/%d)",iMenuPage,iMenuPages),QuestColorMenu()),0,SCRG,QuestLogArray()];
@@ -199,7 +194,6 @@ protected func BuildQuestPages(int iPageIndex, object pPlayer, string szPageName
 		if( GetType(log) != C4V_Array ) continue;
 
 		var szName = log[0][1];
-		var iLines, bNew, iSigns, iIndexAdd;
 
 		// Dialogoption zusammenbauen
 		var iOldLen = aQuestDesc[qindex];
@@ -302,7 +296,6 @@ public func GetQuestDescArray( log )
 {
 	var aDescContent = [];
 	var iSigns, iLines;
-	var szName = log[0][1];
 
 
 	// der Eintrag mit dem Namen auf der Hauptseite

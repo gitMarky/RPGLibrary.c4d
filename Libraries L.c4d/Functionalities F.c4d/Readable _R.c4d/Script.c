@@ -1,19 +1,26 @@
-/*-- Grundscript für alle lesbaren Dinge --*/
-
-/*
-
-bestes Beispiel wären Wallscripts, Bücher, Wegweiser, etc.
-
-insgesamt soll alles einheitllich sein
-
-Dialoge sind auch lesbar ;)
-
-*/
+/*-- Basic script for all readable things, especially dialogues.
+@title Readable
+@author Marky
+@version 0.1.0
+@note This library should indeed be used for all readable
+ objects such as wall scripts, books, signposts and so on.
+ It provides a powerful framework for text coloring, menu decoration and portraits.
+--*/
 
 #strict 2
 
 static const gDialogue_Object_Speaker = 0;
 static const gDialogue_Object_Target = -1;
+
+static const gDialogue_ARRAYPOS_Index = 		0;
+static const gDialogue_ARRAYPOS_Parent = 		1;
+static const gDialogue_ARRAYPOS_MenuOption = 	2;
+static const gDialogue_ARRAYPOS_Text = 			3;
+static const gDialogue_ARRAYPOS_Object = 		4;
+static const gDialogue_ARRAYPOS_MenuStyle = 	5;
+static const gDialogue_ARRAYPOS_TextStyle =		6;
+static const gDialogue_ARRAYPOS_Conditions =	7;
+static const gDialogue_ARRAYPOS_Events = 		8;
 
 /* Format für lesbare Dinge: eine eigene kleine Scriptsprache
 
@@ -101,11 +108,32 @@ string/array aEvents:
 
 */
 
+/**
+ * Returns an a reference to an object variable. This reference can be read and written.
+ * @param szVar The variable name.
+ * @param pTarget The variable is saved for this object.
+ * @param pSpeaker The variable is saved in this object.
+ * @return Referemce to the local variable "DlgVar[Object number][Variable name]" in pSpeaker.
+ * @note This should be used in dialogues, obviously. It works outside of dialogues, too.
+ * @example For scripting purposes the variable has the same parameter name, but it gets saved for different
+ * objects individually.<br>
+ * {@code
+ * for (var i = 0; i < GetLength(customers); i++)
+ * {
+ *    var customerName = GetName(customers[i]);
+ *    var depositValue = DlgVar("Deposit", customers[i], bank);
+ *
+ *    Log("%s has %d gold pieces in his account", customerName, depositValue);
+ * }
+ * }
+ * Logs the value of deposits of each customer of this bank.
+ */
 global func &DlgVar(string szVar, object pTarget, object pSpeaker)
 {
 	return LocalN2(Format("DlgVar%d%s",ObjectNumber(pTarget),szVar),pSpeaker);
 }
 
+// TODO: Remove, handle everything in DlgVar!
 global func &CreateDlgVar(string szVar, object pTarget, object pSpeaker)
 {
 	var szName = Format("DlgVar%d%s",ObjectNumber(pTarget),szVar);
@@ -113,43 +141,38 @@ global func &CreateDlgVar(string szVar, object pTarget, object pSpeaker)
 	return LocalN2( szName,pSpeaker);
 }
 
-//2147483647
-global func StdDlgEventCancel(bool bState){ return Format("CreateDlgVar(\"Cancel\",pTarget,pSpeaker)=%v",bState);}
-global func StdDlgArrayExitAlways(){ return [2147483647,-1,"Abbrechen","",0,[MCMX,0,0,0,0,-1],-1,0,"StopDialogue(pTarget)"];}
-global func StdDlgArrayExitCancel(){ return [2147483647,-1,"Abbrechen","",0,[MCMX,0,0,0,0,-1],-1,"DlgVar(\"Cancel\",pTarget,pSpeaker)","StopDialogue(pTarget)"];}
-global func StdDlgVar(string prefix, string variable, string operation){ return Format("%sDlgVar(\"%s\",pTarget,pSpeaker)%s",prefix,variable,operation); }
-global func StdDlgVarSafeRemoveObject(string variable){ return Format("!DlgVar(\"%s\",pTarget,pSpeaker)||RemoveObject(DlgVar(\"%s\",pTarget,pSpeaker))", variable, variable);}
-
-global func DlgObjVar(string prefix, string variable, string operation){ return Format("%sLocalN2(\"%s\",pTarget)%s",prefix,variable,operation); }
-
-global func StdDlgIconContinue(){ return [LMM2,0,0,2,4]; }
-global func StdDlgIconReturn(){ return LMM2; }
-
-global func StdDlgQuestStage(string prefix, string quest, string operator)
-{
-	return Format("%sQuestStage(\"%s\",pTarget)%s",prefix, quest, operator);
-}
-
 local aDialogue, iStartDialogue, pLastSpeaker;
 
 // das Array manipulieren
-
-public func SetDialogue( aDlg )
+/**
+ * Sets the dialogue contents.
+ * @param aDlg The final dialogue array or other data.@brIf no array is specified, then
+ * the function tries getting an array by calling:
+ * {@code
+ * Format("MsgDialogue%s", aDlg)
+ * }
+ * This method has to exist in either the story object (see TODO), or as a global function.
+ * Furthermore it has to contain a valid dialogue array. Then, ValidateDialoge() is called.
+ */
+public func SetDialogue( aDlg)
 {
 	// Direkteingabe
 	if( GetType(aDlg) == C4V_Array )
 		aDialogue = aDlg;
+		
 	// oder per Szenario-Script / System.c4g
 	// sollte im Szenario-Script gesetzt werden, nicht im Editor, damit das Objekt
 	// den korrekten Dialog aus System.c4g erhält!
 	else if( aDlg )
 	{
-		var story = FindObject( _STY );
-		if( story )
+		var story = FindObject( _STY);
+		if (story)
 			aDialogue = ObjectCall( story, Format("MsgDialogue%s", aDlg));
 		else
 			aDialogue = GameCall(Format("MsgDialogue%s", aDlg));
 	}
+
+	ValidateDialogue();
 }
 
 public func SetStartDialogueEx( int iDlg )
@@ -157,17 +180,27 @@ public func SetStartDialogueEx( int iDlg )
 	iStartDialogue = iDlg;
 }
 
+/**
+ * Adds a dialogue to the end of the dialogue array.
+ * @param aOption The new dialogue option.
+ * @note Will proably be removed
+ */
 public func AddDialogue( aOption )
 {
 	if( GetType(aDialogue) == C4V_Array )
 		PushBack( aOption, aDialogue );
 }
 
+/**
+ * Finds the first dialogue index that is not used.
+ * @return int The first unused dialogue index.
+ * @note This may mess up the displayed dialoges, may be removed in the future.
+ */
 public func GetUnusedDlgIndex()
 {
 	var aIndices = [];
 	for( aOption in aDialogue )
-		PushBack( aOption[0], aIndices );
+		PushBack( aOption[gDialogue_ARRAYPOS_Index], aIndices );
 
 	var i=0;
 	for( i=0; i<= GetLength(aDialogue); i++)
@@ -179,7 +212,12 @@ public func GetUnusedDlgIndex()
 
 
 // Dialog aufbauen
-
+/**
+ * Opens the dialogue in an object.
+ * @param pTarget The object for which the dialogue should be displayed.
+ * @note The dialogue starts at dialogue index 0 per default. You can use SetStartDialogue()
+ * to change the starting index permanently.
+ */
 public func StartDialogue( object pTarget )
 {
 	if( GetType(aDialogue) != C4V_Array ) return;
@@ -191,12 +229,22 @@ public func StartDialogue( object pTarget )
 	ProcessDialogue( pTarget, iStartDialogue/*, bGlobal*/ );
 }
 
+/**
+ * Opens a specific dialogue in an object.
+ * @param pTarget The object for which the dialogue should be displayed.
+ * @param iDialogue The dialogue ID at which the dialogue starts.
+ * @note Contrary to StartDialogue() this is used for opening the dialogue at a specific index once.
+ */
 public func StartSpecificDialogue( object pTarget, int iDialogue )
 {
 	if( GetType(aDialogue) != C4V_Array ) return;
 	ProcessDialogue( pTarget, iDialogue );
 }
 
+/**
+ * Closes the dialogue menu in an object and performs all necessary cleanup operations.
+ * @param pTarget The object in which the dialogue is displayed. This is the pTarget from StartDialogue().
+ */
 public func StopDialogue( object pTarget )
 {
 	CloseMenu( pTarget );
@@ -215,20 +263,20 @@ protected func ProcessDialogue( object pTarget, int iDialogue, string szChoice/*
 	var aOption;
 	for( aOption in aDialogue )
 	{
-		if( aOption[0] == iDialogue ) break;
+		if( aOption[gDialogue_ARRAYPOS_Index] == iDialogue ) break;
 	}
 
 
 	// Daten aufbauen
-	var iIndex = aOption[0];
-	var iParentIndex = aOption[1];
-	var szMenuOption = aOption[2];
-	var szText = aOption[3];
-	var iObjectNr = aOption[4]; //
-	var aMenuStyle = aOption[5];
-	var aTextStyle = aOption[6]; //
-	var aConditions = aOption[7];
-	var aEvents = aOption[8];
+	var iIndex = 		aOption[gDialogue_ARRAYPOS_Index];
+	//var iParentIndex = 	aOption[gDialogue_ARRAYPOS_Parent];
+	//var szMenuOption = 	aOption[gDialogue_ARRAYPOS_MenuOption];
+	var szText = 		aOption[gDialogue_ARRAYPOS_Text];
+	var iObjectNr = 	aOption[gDialogue_ARRAYPOS_Object]; //
+	//var aMenuStyle = 	aOption[gDialogue_ARRAYPOS_MenuStyle];
+	var aTextStyle = 	aOption[gDialogue_ARRAYPOS_TextStyle]; //
+	//var aConditions = 	aOption[gDialogue_ARRAYPOS_Conditions];
+	var aEvents = 		aOption[gDialogue_ARRAYPOS_Events];
 
 	// Events passieren lassen
 	ProcessEvents( aEvents, GetTargetString(), pTarget, GetUserString(), GetSpeaker() );
@@ -264,7 +312,7 @@ protected func ProcessDialogue( object pTarget, int iDialogue, string szChoice/*
 	// als Nachricht statt als Box
 	var fAsMessage = false;
 	
-	if( GetType(aTextStyle) == C4V_Array ) fAsMessage = aTextStyle[4];
+	if( GetType(aTextStyle) == C4V_Array ) fAsMessage = aTextStyle[gDialogue_ARRAYPOS_Object];
 
 	// Sprecher raussuchen
 	var pSpeaker = GetSpeaker();//this;
@@ -306,37 +354,38 @@ protected func ProcessDialogue( object pTarget, int iDialogue, string szChoice/*
 	for( aOption in aDialogue )
 	{
 		var add = false;
-		if( GetType(aOption[1]) == C4V_Array )
+		if( GetType(aOption[gDialogue_ARRAYPOS_Parent]) == C4V_Array )
 		{
 
-			if(GetLength(aOption[1]))
-			if(GetArrayItemPosition(iDialogue,aOption[1])>-1)
-			//if( GetArrayItemPosition( iIndex, aOption[1] ) > -1 )
+			if(GetLength(aOption[gDialogue_ARRAYPOS_Parent]))
+			if(GetArrayItemPosition(iDialogue,aOption[gDialogue_ARRAYPOS_Parent]) > -1
+			|| (GetArrayItemPosition(-1,aOption[gDialogue_ARRAYPOS_Parent])> -1 && aOption[gDialogue_ARRAYPOS_MenuOption]))
+			//if( GetArrayItemPosition( iIndex, aOption[gDialogue_ARRAYPOS_Parent] ) > -1 )
 			{
-				Log("%d in %v",iIndex, aOption[1]);
+				DebugLog("%d in %v",iIndex, aOption[gDialogue_ARRAYPOS_Parent]);
 				add = true;
 			}
 		}
 		else
 		{
-			//if( aOption[1] == iIndex ) add = true;
-			if( aOption[1] == iDialogue ) add = true;
-			if( aOption[1] == -1 && aOption[2] ) add = true; // nur, wenn er eine Menu-Auswahl hat!
+			//if( aOption[gDialogue_ARRAYPOS_Parent] == iIndex ) add = true;
+			if( aOption[gDialogue_ARRAYPOS_Parent] == iDialogue ) add = true;
+			if( aOption[gDialogue_ARRAYPOS_Parent] == -1 && aOption[gDialogue_ARRAYPOS_MenuOption] ) add = true; // nur, wenn er eine Menu-Auswahl hat!
 
-			//if( aOption[1] == -1 && GetType(aOption[2]) == C4V_String && aOption[2] != "") add = true;
-			Log("check add %d: %d %d, %v", aOption[0], aOption[1], iDialogue, add);
+			//if( aOption[gDialogue_ARRAYPOS_Parent] == -1 && GetType(aOption[gDialogue_ARRAYPOS_MenuOption]) == C4V_String && aOption[gDialogue_ARRAYPOS_MenuOption] != "") add = true;
+			DebugLog("check add %d: %d %d, %v", aOption[gDialogue_ARRAYPOS_Index], aOption[gDialogue_ARRAYPOS_Parent], iDialogue, add);
 
 		}
 
-		//if(aOption[0] == 0) add = false;
-		if(aOption[2] == "" && aOption[3] == "") {add = false; Log("Cancel add 0");}
-		if( GetType(aOption[2]) != C4V_String && GetType(aOption[3]) != C4V_Array ) {add = false; Log("Cancel add 1");}
-		if( GetType(aOption[3]) != C4V_String && GetType(aOption[3]) != C4V_Array ) {add = false; Log("Cancel add 2");}
+		//if(aOption[gDialogue_ARRAYPOS_Index] == 0) add = false;
+		if(aOption[gDialogue_ARRAYPOS_MenuOption] == "" && aOption[gDialogue_ARRAYPOS_Text] == "") {add = false; DebugLog("Cancel add 0");}
+		if( GetType(aOption[gDialogue_ARRAYPOS_MenuOption]) != C4V_String && GetType(aOption[gDialogue_ARRAYPOS_Text]) != C4V_Array ) {add = false; DebugLog("Cancel add 1");}
+		if( GetType(aOption[gDialogue_ARRAYPOS_Text]) != C4V_String && GetType(aOption[gDialogue_ARRAYPOS_Text]) != C4V_Array ) {add = false; DebugLog("Cancel add 2");}
 
 		if( add )
 		{
-			//Log("Dialog Final: %d in %v: %s %s",iIndex, aOption[1] , aOption[2], aOption[3]);
-			ProcessDialogueOption( pTarget, aOption[0] );
+			//DebugLog("Dialog Final: %d in %v: %s %s",iIndex, aOption[gDialogue_ARRAYPOS_Parent] , aOption[gDialogue_ARRAYPOS_MenuOption], aOption[gDialogue_ARRAYPOS_Text]);
+			ProcessDialogueOption( pTarget, aOption[gDialogue_ARRAYPOS_Index] );
 		}
 	}
 
@@ -360,19 +409,19 @@ protected func ProcessDialogueOption( object pTarget, iDialogue )
 	var aOption;
 	for( aOption in aDialogue )
 	{
-		if( aOption[0] == iDialogue ) break;
+		if( aOption[gDialogue_ARRAYPOS_Index] == iDialogue ) break;
 	}
 
 	// Daten aufbauen
-	var iIndex = aOption[0];
-	var iParentIndex = aOption[1];
-	var szMenuOption = aOption[2];
-	var szText = aOption[3];
-	var iObjectNr = aOption[4];
-	var aMenuStyle = aOption[5];
-	var aTextStyle = aOption[6];
-	var aConditions = aOption[7];
-	var aEvents = aOption[8];
+	var iIndex = 		aOption[gDialogue_ARRAYPOS_Index];
+	//var iParentIndex = 	aOption[gDialogue_ARRAYPOS_Parent];
+	var szMenuOption = 	aOption[gDialogue_ARRAYPOS_MenuOption];
+	var szText = 		aOption[gDialogue_ARRAYPOS_Text];
+	//var iObjectNr = 	aOption[gDialogue_ARRAYPOS_Object];
+	var aMenuStyle = 	aOption[gDialogue_ARRAYPOS_MenuStyle];
+	//var aTextStyle = 	aOption[gDialogue_ARRAYPOS_TextStyle];
+	var aConditions = 	aOption[gDialogue_ARRAYPOS_Conditions];
+	//var aEvents = 		aOption[gDialogue_ARRAYPOS_Events];
 
 	// vorerst gibt es noch keine Conditions
 	var fAdd = false;
@@ -382,6 +431,11 @@ protected func ProcessDialogueOption( object pTarget, iDialogue )
 
 	fAdd = conditionInfo[0];
 	var iFulfilled = conditionInfo[1];
+
+	if (GetType(szText) == C4V_Array)
+	{
+		szText = szText[Random(GetLength(szText))];
+	}
 
 	if( szMenuOption == 0 || szMenuOption == "" )
 	{
@@ -433,10 +487,30 @@ protected func ProcessDialogueOption( object pTarget, iDialogue )
 
 }
 
+/**
+ * The object that the target speaks to in the dialogue. This is usually an NPC or the dialogue object itself.
+ * @return object An object, which is classified as the speaker. Default value: this.
+ * @note You do not need to change this.
+ */
 public func GetSpeaker(){ return this; }
+
+/**
+ * The script system replaces this string with a reference to the day-night-cycle object.
+ * @return String that is used in the script language: "pSpeaker".
+ */
 public func GetUserString(){ return "pSpeaker"; }
+
+/**
+ * The script system replaces this string with a reference to the target object.
+ * @return String that is used in the script language: "pTarget".
+ */
 public func GetTargetString(){ return "pTarget"; }
 
+/**
+ * Prints a dialogue tree in the log. This may be useful for debugging and finding places where a dialogue option should be displayed, but isn't.
+ * @note The log output is a debug log, enable debug mode first.
+ * TODO: reference debug mode
+ */
 public func printTree()
 {
 	local tree;
@@ -445,21 +519,21 @@ public func printTree()
 	tree = [];
 	mapping = [];
 	visited = [];
-	var treeindex = 0;
+	
 	for(var i=0; i<GetLength(aDialogue); i++)
 	{
-		mapping[i]=aDialogue[i][0];
+		mapping[i]=aDialogue[i][gDialogue_ARRAYPOS_Index];
 	}
 	for(var i=0; i<GetLength(aDialogue); i++)
 	{
-		var parentid = aDialogue[i][0];
+		var parentid = aDialogue[i][gDialogue_ARRAYPOS_Index];
 		var node = [i,[]]; // node, children
 
 		for(var j=0; j<GetLength(aDialogue); j++)
 		{
 			if(j == i) continue;
 
-			var parentIndex = aDialogue[j][1];
+			var parentIndex = aDialogue[j][gDialogue_ARRAYPOS_Parent];
 
 			if( GetType(parentIndex) == C4V_Array )
 			{
@@ -467,15 +541,15 @@ public func printTree()
 				{
 					if(parent == parentid || parent == -1)
 					{
-						PushBack(GetArrayItemPosition(aDialogue[j][0],mapping),node[1]);
+						PushBack(GetArrayItemPosition(aDialogue[j][gDialogue_ARRAYPOS_Index],mapping),node[1]);
 					}
 				}
 			}
 			else if(parentIndex == parentid || parentIndex == -1)
 			{
 				if(parentid == 1)
-					Log("XXX Adding quest: %d",j);
-				PushBack(GetArrayItemPosition(aDialogue[j][0],mapping),node[1]); // add j as child of node;
+					DebugLog("XXX Adding quest: %d",j);
+				PushBack(GetArrayItemPosition(aDialogue[j][gDialogue_ARRAYPOS_Index],mapping),node[1]); // add j as child of node;
 			}
 		}
 
@@ -513,15 +587,15 @@ public func printChildren(int parentid, int depth, array children)
 	}
 
 	var option, answer;
-	answer = aDialogue[node[0]][3];
-	option = aDialogue[node[0]][2];
+	answer = aDialogue[node[0]][gDialogue_ARRAYPOS_Text];
+	option = aDialogue[node[0]][gDialogue_ARRAYPOS_MenuOption];
 
 	if(GetType(answer) != C4V_String) answer = "(null)";
 	if(GetType(option) != C4V_String) option = "(null)";
 
 	message = Format("%s[%s]:%s",message,option,answer);
 
-	Log(message);
+	DebugLog(message);
 
 	if(visited[parentid] > 1) return;
 
@@ -542,6 +616,46 @@ public func printEntries()
 {
 	for(var field in aDialogue)
 	{
-		Log("%d, parents %v: %s  - %s", field[0],field[1],field[2],field[3]);
+		DebugLog("%d, parents %v: %s  - %v", field[0],field[1],field[2],field[3]);
+	}
+}
+
+/**
+ * Verifies, that the dialogue array is valid and creates entries built by TODO.
+ * @note You do not have to call this yourself, this function gets called by SetDialogue()
+ */
+public func ValidateDialogue()
+{
+	if (GetType(aDialogue) != C4V_Array) return 0;
+
+	var reasons = [];
+
+	for(var i=0; i < GetLength(aDialogue); i++)
+	{
+		var option = aDialogue[i];
+
+		if (!option)
+		{
+			var reason = Format("aDialogue[%d] is empty", i);
+			ErrorLogAlways(reason);
+			PushBack(reason, reasons);
+		}
+		else if (GetType(option) == C4V_C4Object && GetID(option) == ID_Helper_DialogueBuilder)
+		{
+			var actualDialogue = option->Create();
+			DebugLog(Format("Converted aDialogue[%d] from %i-object to actual dialogue", i, ID_Helper_DialogueBuilder));
+			aDialogue[i] = actualDialogue;
+		}
+		else if (GetType(option) != C4V_Array)
+		{
+			var reason = Format("No valid dialogue: %v", option);
+			ErrorLogAlways(reason);
+			PushBack(reason, reasons);
+		}
+	}
+
+	if (GetLength(reasons) > 0)
+	{
+		aDialogue = [[0, -1, 0, "Dialogue is not functional, see error log for details."]];
 	}
 }

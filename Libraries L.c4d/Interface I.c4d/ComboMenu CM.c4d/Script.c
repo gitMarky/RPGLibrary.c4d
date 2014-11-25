@@ -18,7 +18,7 @@ local sym_l,sym_r,sym_u,sym_d,sym_p,sym_s,sym_t,sym_q;
 
 /* -------------------- globale Funktionen -----------------------*/
 
-global func ComboCreateMenu( obj )
+global func ComboCreateMenu(object obj)
 {
 	if( !obj ) return;
 	if( !( obj->~CanUseComboMenu() ) ) return;

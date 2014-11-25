@@ -1,4 +1,9 @@
-/*-- Skill - System  --*/
+/*-- 
+Framework for handling stats, such as skills, in a RPG character.
+@title Skill system
+@author Marky
+@version 0.1.0
+  --*/
 
 #strict 2
 
@@ -9,6 +14,11 @@ static aListSkillAttributes, aListSkillSkills, aListSkillPerks;
 
 /* you can overload this in your own scenario in system.c4g - the rest happens automatically */
 
+/**
+ * The list of attributes that define a character.
+ * @return array An array of stats descriptions. See TODO.
+ * @note The default list includes the attributes "Strength", "Dexterity" and "Magic" which range from 0 to 20.
+ */
 global func RPGAttributeList()
 {
 	return [
@@ -19,6 +29,11 @@ global func RPGAttributeList()
 	];
 }
 
+/**
+ * The list of skills that define a character.
+ * @return array An array of stats descriptions. See TODO.
+ * @note The default list includes the skill "Blacksmith", which ranges from 0 to 20.
+ */
 global func RPGSkillList()
 {
 	return [
@@ -27,6 +42,11 @@ global func RPGSkillList()
 	];
 }
 
+/**
+ * The list of perks that define a character.
+ * @return array An array of perk descriptions. See TODO.
+ * @note The default list includes the perks "Perk1" and "Perk2".
+ */ 
 global func RPGPerkList()
 {
 		//	name,				string,				parent,		cost function,	availability function
@@ -42,7 +62,11 @@ global func RPGPerkList()
 //
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
+/**
+ * A list of the defined attributes.
+ * @return array An array of the names of the attributes that are defined by RPGAttributeList() // TODO.
+ * @note You can use the names as parameters in the related functions.
+ */
 global func RPGGetAttributeList()
 {
 	if(GetType(aListSkillAttributes) != C4V_Array)
@@ -57,11 +81,23 @@ global func RPGGetAttributeList()
 
 	return aListSkillAttributes;
 }
+
+/**
+ * Returns the index of an attribute in the attribute list.
+ * @param szAttribute The name of the attribute.
+ * @return int The index in RPGAttributeList(). Returns -1 if the attribute is not in the attribute list.
+ */
 global func RPGGetAttributeIndex( string szAttribute )
 {
 	return GetArrayItemPosition( szAttribute, RPGGetAttributeList() );
 }
 
+/**
+ * Gets the maximum or minimum value of an attribute.
+ * @param szAttribute The name of the attribute.
+ * @param fUpper Defines which bound to get: True means upper bound, false means lower bound.
+ * @return int The requested value.
+ */
 global func RPGGetAttributeBound( string szAttribute, bool fUpper )
 {
 	var index = RPGGetAttributeIndex( szAttribute );
@@ -73,6 +109,12 @@ global func RPGGetAttributeBound( string szAttribute, bool fUpper )
 		return RPGAttributeList()[index][2];
 }
 
+/**
+ * Reference to the attribute manager of an object.
+ * @param pObj The object that should receive the attributes.
+ * @return int The attribute manager is an effect. This returns its effect number.
+ * @note You do not need to use this method, it is used internally only.
+ */
 global func RPGAttributeSystem( object pObj )
 {
 	if(!pObj) return -1;
@@ -92,7 +134,13 @@ global func RPGAttributeSystem( object pObj )
 //
 // attribute manipulations
 
-
+/**
+ * Sets the value of an attribute, limited to the valid values of said attribute.
+ * @param szAttribute The name of the attribute.
+ * @param iAmount The new value of the attribute.
+ * @param pObj The object whos attribute value will be set.
+ * @return int The attribute value that was actually set.
+ */
 global func RPGSetAttribute( string szAttribute, int iAmount, object pObj )
 {
 	var iNum, iIndex;
@@ -105,11 +153,24 @@ global func RPGSetAttribute( string szAttribute, int iAmount, object pObj )
 	return EffectVar( iIndex, pObj, iNum ) = BoundBy( iAmount, RPGGetAttributeBound(szAttribute,false), RPGGetAttributeBound(szAttribute,true) );
 }
 
+/**
+ * Increases the attribute value by a specified amount, limited to the valid values of said attribute.
+ * @param szAttribute The name of the attribute.
+ * @param iAmount Increase the attribute by this amount. Negative values decrease the attribute.
+ * @param pObj The attribute of this object will be modified.
+ * @return The attribute value that was actually set.
+ */
 global func RPGAddAttribute( string szAttribute, int iAmount, object pObj )
 {
 	return RPGSetAttribute( szAttribute, RPGGetAttribute( szAttribute, pObj )+iAmount, pObj );
 }
 
+/**
+ * Gets the current value of an attribute.
+ * @param szAttribute The name of the attribute.
+ * @param pObj The object that has the attribute.
+ * @return The attribute value.
+ */
 global func RPGGetAttribute( string szAttribute, object pObj )
 {
 	var iNum, iIndex;

@@ -1,1 +1,0 @@
-Besitzerlose Clonks verfügen über eine Rudimentäre Kampf-KI.

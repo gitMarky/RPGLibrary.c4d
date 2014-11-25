@@ -1,0 +1,7 @@
+[Action]
+Name=Stand
+Procedure=NONE
+Directions=2
+FacetBase=0
+Facet=0,0,18,31
+NextAction=Hold
