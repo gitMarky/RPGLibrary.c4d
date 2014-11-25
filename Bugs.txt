@@ -1,5 +1,0 @@
-Häuser-Innenansicht:
-- ViewRange-Anpassung des Helfer-Sichtobjekts
-- Beim Umschalten zwischen mehreren Clonks ist das tatsächliche Innere noch sichtbar -> das sollte immer unsichtbar sein
-- Das Innere wird noch verdunkelt -> muss durch ein Overlay-Objekt geschehen mit Foreground + Vehicle oder sowas
-- Dummy-Objekte als Tim1?
