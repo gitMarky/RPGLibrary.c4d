@@ -1,0 +1,2 @@
+DE:Tagesablauf
+US:Day-Night-Cycle

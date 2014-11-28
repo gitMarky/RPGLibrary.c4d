@@ -1,6 +1,4 @@
-/*
- * Contains standard options for dialogues
- */
+/* Contains standard options for dialogues */
 
 #strict 2
 

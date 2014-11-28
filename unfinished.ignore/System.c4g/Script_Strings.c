@@ -1,56 +1,54 @@
+
 #strict 2
 
 /**
  * Replaces all occurrences of a substring with another.
- * @param input The string that is manipulated.
- * @param pattern  The string that should be replaced.
- * @param replacement The string will be replaced by this string.
+ * @param zeichenkette The string that is manipulated.
+ * @param suchMuster  The string that should be replaced.
+ * @param ersetzenDurch The string will be replaced by this string.
  * @return The manipulated string.
  * @author TqmTqm
  * @version 0.1.0
  */
-global func ReplaceAll(string input, string pattern, string replacement)
+global func ReplaceAll(string zeichenkette, string suchMuster, string ersetzenDurch)
 {
-	var replaced = input, i = 0, n = GetLength(input);
-	
-	while (replaced != input || i==0)
+	var ersetzt = zeichenkette, i=0, n = GetLength(zeichenkette);
+	while( ersetzt != zeichenkette || i==0 )
 	{
-		if (i > n) break; // das sollte sicher sein ;)
+		if(i > n ) break; // das sollte sicher sein ;)
 		i++;
-		input = replaced;
-		replaced = ReplaceFirst(input, pattern, replacement);
+		zeichenkette = ersetzt;
+		ersetzt = ReplaceFirst( zeichenkette, suchMuster, ersetzenDurch );
 	}
-	
-	return input;
+	return(zeichenkette);
 }
 
 /**
  * Replaces the first occurrence of a substring with another.
- * @param input The string that is manipulated.
- * @param pattern  The string that should be replaced.
- * @param replacement The string will be replaced by this string.
+ * @param zeichenkette The string that is manipulated.
+ * @param suchMuster  The string that should be replaced.
+ * @param ersetzenDurch The string will be replaced by this string.
  * @return The manipulated string.
  * @author TqmTqm
  * @version 0.1.0
  */
-global func ReplaceFirst(string input, string pattern, string replacement)
+global func ReplaceFirst(string zeichenkette,string suchMuster,string ersetzenDurch)
 {
-	for (var i = 0; i < GetLength(input); i++)
+	for (var i = 0;i<GetLength(zeichenkette);i++)
 	{
-		if (pattern == Substring(i, input, GetLength(pattern) + i))
+		if (suchMuster == Substring(i,zeichenkette,GetLength(suchMuster)+i))
 		{
-			input = Format("%s%s%s", Substring(0, input, i), replacement, Substring(GetLength(pattern) + i, input, GetLength(input)));	
-			return input;
+			zeichenkette = Format("%s%s%s",Substring(0,zeichenkette,i),ersetzenDurch,Substring(GetLength(suchMuster)+i,zeichenkette,GetLength(zeichenkette)));	
+			return(zeichenkette);
 		}
 	}
-	
-	return input;
+	return(zeichenkette);
 }
 
 /**
  * Creates a substring of a string.
  * @param start	Index where the substring starts, 0 based.
- * @param input The string.
+ * @param zeichenkette The string.
  * @param ende [optional] Index where the substring is cut off. No value or 0 means, that nothing is cut off at the end.
  * @example
  *{@code
@@ -60,33 +58,31 @@ global func ReplaceFirst(string input, string pattern, string replacement)
  * @author TqmTqm
  * @version 0.1.0
  */
-global func Substring(int start, string input, int end)
+global func Substring(int start, string zeichenkette, int ende)
 {
-	var substring = "";
-	
-	for (var i = 0; i < GetLength(input) && (i < end || end == 0); i++)
+	var neueZeichenkette = "";
+	for (var i = 0; i<GetLength(zeichenkette) && (i < ende || ende == 0); i++)
 	{
 		if (i >= start)
-				substring = Format("%s%s", substring, GetLetter(GetChar(input, i)));
+				neueZeichenkette = Format("%s%s",neueZeichenkette,GetLetter(GetChar(zeichenkette,i)));
 	}
-	
 	// Korrektur: Failsafe, damit ReplaceFirst funktioniert
-	if(!start && !end) substring = "";
+	if(!start && !ende) neueZeichenkette = "";
 
-	return substring;
+	return(neueZeichenkette);
 }
 
 /**
  * Gets the character in the string at a certain position.
- * @param input The string.
+ * @param zeichenkette The string.
  * @param i The character at this position will be returned.
  * @return While GetChar() returns an integer, this function returns the actual character at the position.
  * @author TqmTqm
  * @version 0.1.0
  */
-global func CharAt(string input, int i)
+global func CharAt(string zeichenkette,int i)
 {
-	return GetLetter(GetChar(input, i));
+	return (GetLetter(GetChar(zeichenkette,i)));
 }
 
 global func GetLetter(int zahl)
@@ -97,12 +93,11 @@ global func GetLetter(int zahl)
 
 global func GetLetterCount(string szL, string szString)
 {
-	var x = 0;
-	for ( var i = 0; i < GetLength(szString); i++)
+	var x=0;
+	for( var i=0; i<GetLength(szString); i++)
 	{
-		if (szL == CharAt(szString, i)) x++;
+		if(szL == CharAt(szString,i)) x++;
 	}
-	
 	return x;
 }
 
@@ -112,7 +107,7 @@ global func TestGetCharGetLetter()
 	                 "°","!","\"","§","$","%","&","/","(",")","=","?","`","Q","W","E","R","T","Z","U","I","O","P","Ü","*","A","S","D","F","G","H","J","K","L","Ö","Ä","'",">","Y","X","C","V","B","N","M",";",":","_",
 	                 "²","³","{","[","]","}","\\","€","~","|","µ"," "];
 
-	for (var text in textArray)
+	for(var text in textArray)
 	{
 		Log("%s == %s : %v", text, GetLetter(GetChar(text)), text == GetLetter(GetChar(text)));
 	}
@@ -126,8 +121,7 @@ global func LogTheAsciiCharArray()
 
 	var maxChar = 0;
 	var charArray = [];
-	
-	for (var i = 0; i < GetLength(textArray); i++)
+	for(var i = 0; i < GetLength(textArray); i++)
 	{
 		charArray[i] = GetChar(textArray[i]);
 
@@ -138,10 +132,10 @@ global func LogTheAsciiCharArray()
 	var sortedTextArray = [];
 	var sortedCharArray = [];
 
-	for (var char = 0; char <= maxChar; char++)
+	for(var char = 0; char <= maxChar; char++)
 	{
 		var position = -1;
-		for (var index = 0; index < GetLength(charArray); index++)
+		for(var index = 0; index < GetLength(charArray); index++)
 		{
 			if (charArray[index] == char)
 			{
