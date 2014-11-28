@@ -1,0 +1,2 @@
+DE:Statisch
+US:Static
