@@ -19,8 +19,8 @@ public func MenuQueryCancel()
  * This is the preferred method for linking an NPC with a dialogue.
  * Creates a helper object with an entrance, that attaches to an object. 
  * Entering the helper object starts the dialogue.
- * @param pTarget The helper object attaches to this object.
- * @param vDlg Can be any dialogue. TODO.
+ * @par pTarget The helper object attaches to this object.
+ * @par vDlg Can be any dialogue. TODO.
  */
 global func AttachDialogue(object pTarget, vDlg)
 {

@@ -19,11 +19,11 @@ static const DMG_Bio        = 6;
  * Inflicts damage to an object. DoDmg replaces DoEnergy und DoDamage. 
  * It can damage objects (DoDamage) and living beings (DoEnergy). Whenever damage should be inflicted (and not healed/repaired),
  * use DoDmg, since this also provides the damage type. Various objects may be resistant to certain kinds of damage.
- * @param iDmg The amount of damage.
- * @param iType. The damage type. 
- * @param pTarget. [optional] Object that is to be damaged. 0 in local call.
- * @param iPrecision [opt] Precision. No value or 0 defaults to 10.
- * @param [opt] Player that caused the damage, base is 1. Passing 0 means, that no player damaged the object.
+ * @par iDmg The amount of damage.
+ * @par iType. The damage type. 
+ * @par pTarget. [optional] Object that is to be damaged. 0 in local call.
+ * @par iPrecision [opt] Precision. No value or 0 defaults to 10.
+ * @par [opt] Player that caused the damage, base is 1. Passing 0 means, that no player damaged the object.
  * @note Calls
  * {@code
  * public int OnDmg(int iDmg, int iType)

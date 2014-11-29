@@ -19,12 +19,12 @@ public func Initialize()
 
 /**
  * Initializes a default dialogue option.
- * @param index The dialogue index. This has to be a unique integer for the specific dialogue.
- * @param parent The option will be displayed as a child of this dialogue index. Passing a single
+ * @par index The dialogue index. This has to be a unique integer for the specific dialogue.
+ * @par parent The option will be displayed as a child of this dialogue index. Passing a single
  *        int makes this option available only under one option. Passing an array of int makes
  *        the option available under all the specified options. Parent -1 means, that the option will
  *        be displayed under every option in the dialogue, except itself.
- * @param option The dialogue option is usually a menu item in a menu. This is the caption of the menu item.
+ * @par option The dialogue option is usually a menu item in a menu. This is the caption of the menu item.
  * @return object Returns the helper object, such that the dialogue option can be further modified.
  */
 global func DlgOption(int index, parent, string option)
@@ -59,7 +59,7 @@ public func Parent(parent)
 
 /**
  * Specifies the text that will be displayed after selecting an option.
- * @param text The message text. Accepts a string or an array. If you input an array, then one of 
+ * @par text The message text. Accepts a string or an array. If you input an array, then one of 
  * the options will be displayed randomly. Calling the method several times in a row works has the
  * same effect as passing an array.
  * @return object Returns the helper object, such that the dialogue option can be further modified.
@@ -73,7 +73,7 @@ public func Text(text)
 
 /**
  * Specifies the conditions that have to be fulfilled for the option to be displayed in the dialogue.
- * @param event The events. See TODO.
+ * @par event The events. See TODO.
  * @return object Returns the helper object, such that the dialogue option can be further modified.
  */
 public func Conditions(event)
@@ -87,7 +87,7 @@ public func Conditions(event)
 
 /**
  * Specifies the events that fire after selecting an option.
- * @param event The events. See TODO.
+ * @par event The events. See TODO.
  * @return object Returns the helper object, such that the dialogue option can be further modified.
  */
 public func Events(event)

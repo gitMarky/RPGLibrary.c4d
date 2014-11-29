@@ -13,7 +13,7 @@ A grabbable object that looks like a signpost. It can have a dialogue that is di
 /**
  * Starts the dialogue.
  *
- * @param pPlayer The object that activated the book. The dialogue is displayed to this object.
+ * @par pPlayer The object that activated the book. The dialogue is displayed to this object.
  */ 
 protected func ControlUp(object pPlayer)
 {

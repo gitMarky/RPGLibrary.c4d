@@ -34,9 +34,9 @@ global func CreateHash()
 }
 
 /** Inserts a value into a hash.
- * @param  hash The hash to modify.
- * @param key The key of the element.
- * @param val The value of the element.
+ * @par  hash The hash to modify.
+ * @par key The key of the element.
+ * @par val The value of the element.
  * @return An iterator pointing in front of the inserted element.
  * @version 0.1.0
  * @author Nicolas Hake
@@ -64,8 +64,8 @@ global func HashPut(&hash, key, val)
 }
 
 /** Find a value in a hash.
- * @param hash The haystack
- * @param key The needle
+ * @par hash The haystack
+ * @par key The needle
  * @return An iterator pointing in front of the inserted element. If no element with the
  * given key exists, an iterator pointing behind the last element is returned.
  * @link HashIterHasNext()
@@ -89,8 +89,8 @@ global func HashFind(&hash, key)
 }
 
 /** Checks for the existence of an element with a given key.
- * @param hash The hash to search
- * @param key The key to find
+ * @par hash The hash to search
+ * @par key The key to find
  * @return true if an element with the key exists, false otherwise.
  * @version 0.1.0
  * @author Nicolas Hake
@@ -102,9 +102,9 @@ global func HashContains(&hash, key)
 }
 
 /** Get a value from a hash.
- * @param hash The hash to search in
- * @param key The key of the wanted element
- * @param returnSuccess Whether to indicate success with the return value
+ * @par hash The hash to search in
+ * @par key The key of the wanted element
+ * @par returnSuccess Whether to indicate success with the return value
  * @return If returnSuccess is false, returns the value of the element with the given
  * key, or 0 if no element is found. If returnSuccess is true, returns an array
  * which has the value as first element. The second element indicates whether a match was
@@ -133,8 +133,8 @@ global func HashGet(&hash, key, bool returnSuccess)
 }
 
 /** Remove an element from a hash.
- * @param hash The hash to modify
- * @param key The key of the element to be removed
+ * @par hash The hash to modify
+ * @par key The key of the element to be removed
  * @return true if an element was removed, false otherwise.
  * @version 0.1.0
  * @author Nicolas Hake
@@ -176,7 +176,7 @@ global func HashSize(&hash)
 
 /**
  * Create an iterator on a hash.
- * @param hash The hash to iterate over
+ * @par hash The hash to iterate over
  * @version 0.1.0
  * @author Nicolas Hake
  */
@@ -186,7 +186,7 @@ global func HashIter(&hash)
 }
 
 /** Checks whether the iterator can advance.
- * @param iter The iterator in question
+ * @par iter The iterator in question
  * @return true if there is at least one more element, false if iter points at the
  * back of the corresponding hash.
  * @version 0.1.0
@@ -205,7 +205,7 @@ global func HashIterHasNext(&iter)
 }
 
 /** Advances the iterator.
- * @param iter The iterator to advance
+ * @par iter The iterator to advance
  * @return An array of [key, value] of the element traversed, or 0 if iter pointed at
  * the back of the hash.
  * @version 0.1.0
@@ -230,7 +230,7 @@ global func HashIterNext(&iter)
 }
 
 /** Checks whether the iterator can step back.
- * @param iter The iterator in question
+ * @par iter The iterator in question
  * @return true if there is at least one element before the current one, false if 
  * iter points at the beginning of the hash.
  * @version 0.1.0
@@ -250,7 +250,7 @@ global func HashIterHasPrev(&iter)
 
 /**
  * Moves the iterator backwards.
- * @param iter The iterator to move
+ * @par iter The iterator to move
  * @return An array of [key, value] of the element traversed, or 0 if iter pointed at
  * the beginning of the hash.
  * @version 0.1.0

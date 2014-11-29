@@ -11,7 +11,7 @@ local pTargetDown;
 
 /**
  * Overrides the target when descending the staircase.
- * @param target The target.
+ * @par target The target.
  */
 public func SetTargetDown(object target)
 {
@@ -20,7 +20,7 @@ public func SetTargetDown(object target)
 
 /**
  * Overrides the target when ascending the staircase.
- * @param target The target.
+ * @par target The target.
  */
 public func SetTargetUp(object target)
 {

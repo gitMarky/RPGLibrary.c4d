@@ -17,7 +17,7 @@ global func DlgOptionCancelToggle(){ return [2147483646,-1,"Abbrechen","",0,[MCM
 
 /**
  * Sets the dialogue cancel variable to the specified state.
- * @param bState Set to false if you want to disable cancelling the dialogue.
+ * @par bState Set to false if you want to disable cancelling the dialogue.
  * @return string A string that can be used in with ProcessEvents()
  */ 
 global func DlgEventSetCancel(bool bState){ return Format("CreateDlgVar(\"Cancel\",pTarget,pSpeaker)=%v",bState);}
@@ -26,9 +26,9 @@ global func DlgEventSafeRemoveObject(object obj){ var variable = ObjectNumber(ob
 
 /**
  * Method for creating events or conditions with a DlgVar() in the dialogue object. 
- * @param prefix The string that is added before the DlgVar() command.
- * @param variable The DlgVar() identifier.
- * @param operation The string that is added after the DlgVar() command.
+ * @par prefix The string that is added before the DlgVar() command.
+ * @par variable The DlgVar() identifier.
+ * @par operation The string that is added after the DlgVar() command.
  * @example
  * {@code
  *  DlgStdVar("Create", "Dummy", " = 2")
@@ -39,9 +39,9 @@ global func DlgEventSafeRemoveObject(object obj){ var variable = ObjectNumber(ob
 global func DlgStdVar(string prefix, string variable, string operation){ return Format("%sDlgVar(\"%s\",pTarget,pSpeaker)%s",prefix,variable,operation); }
 /**
  * Method for creating events or conditions with a LocalN2() in the user controlled object, such as the crew member. 
- * @param prefix The string that is added before the LocalN2() command.
- * @param variable The LocalN2() identifier.
- * @param operation The string that is added after the LocalN2() command.
+ * @par prefix The string that is added before the LocalN2() command.
+ * @par variable The LocalN2() identifier.
+ * @par operation The string that is added after the LocalN2() command.
  * @example
  * {@code
  *  DlgObjVar("Create", "Dummy", " = 2")
@@ -70,9 +70,9 @@ global func DlgTextStyleTrackQuest(string quest, bool bNoLogChoice)
  */
 /**
  * Method for creating events or conditions with a QuestStage(). 
- * @param prefix The string that is added before the QuestStage() command.
- * @param variable The quest identifier.
- * @param operation The string that is added after the QuestStage() command.
+ * @par prefix The string that is added before the QuestStage() command.
+ * @par variable The quest identifier.
+ * @par operation The string that is added after the QuestStage() command.
  * @example
  * {@code
  *  DlgQuestStage("Get", "Dummy", " == 2")

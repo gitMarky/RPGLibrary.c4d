@@ -21,7 +21,7 @@ protected func Initialize()
 /**
  * Starts the dialogue.
  *
- * @param player The object that activated the book. The dialogue is displayed to this object.
+ * @par player The object that activated the book. The dialogue is displayed to this object.
  */ 
 protected func Activate(object player)
 {

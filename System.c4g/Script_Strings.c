@@ -2,9 +2,9 @@
 
 /**
  * Replaces all occurrences of a substring with another.
- * @param input The string that is manipulated.
- * @param pattern  The string that should be replaced.
- * @param replacement The string will be replaced by this string.
+ * @par input The string that is manipulated.
+ * @par pattern  The string that should be replaced.
+ * @par replacement The string will be replaced by this string.
  * @return The manipulated string.
  * @author TqmTqm
  * @version 0.1.0
@@ -26,9 +26,9 @@ global func ReplaceAll(string input, string pattern, string replacement)
 
 /**
  * Replaces the first occurrence of a substring with another.
- * @param input The string that is manipulated.
- * @param pattern  The string that should be replaced.
- * @param replacement The string will be replaced by this string.
+ * @par input The string that is manipulated.
+ * @par pattern  The string that should be replaced.
+ * @par replacement The string will be replaced by this string.
  * @return The manipulated string.
  * @author TqmTqm
  * @version 0.1.0
@@ -49,9 +49,9 @@ global func ReplaceFirst(string input, string pattern, string replacement)
 
 /**
  * Creates a substring of a string.
- * @param start	Index where the substring starts, 0 based.
- * @param input The string.
- * @param ende [optional] Index where the substring is cut off. No value or 0 means, that nothing is cut off at the end.
+ * @par start	Index where the substring starts, 0 based.
+ * @par input The string.
+ * @par ende [optional] Index where the substring is cut off. No value or 0 means, that nothing is cut off at the end.
  * @example
  *{@code
  *	Substring(1, "Clonk") -> "lonk"
@@ -78,8 +78,8 @@ global func Substring(int start, string input, int end)
 
 /**
  * Gets the character in the string at a certain position.
- * @param input The string.
- * @param i The character at this position will be returned.
+ * @par input The string.
+ * @par i The character at this position will be returned.
  * @return While GetChar() returns an integer, this function returns the actual character at the position.
  * @author TqmTqm
  * @version 0.1.0

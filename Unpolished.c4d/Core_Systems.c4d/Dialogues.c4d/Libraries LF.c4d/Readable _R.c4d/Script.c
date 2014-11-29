@@ -110,9 +110,9 @@ string/array aEvents:
 
 /**
  * Returns an a reference to an object variable. This reference can be read and written.
- * @param szVar The variable name.
- * @param pTarget The variable is saved for this object.
- * @param pSpeaker The variable is saved in this object.
+ * @par szVar The variable name.
+ * @par pTarget The variable is saved for this object.
+ * @par pSpeaker The variable is saved in this object.
  * @return Referemce to the local variable "DlgVar[Object number][Variable name]" in pSpeaker.
  * @note This should be used in dialogues, obviously. It works outside of dialogues, too.
  * @example For scripting purposes the variable has the same parameter name, but it gets saved for different
@@ -146,7 +146,7 @@ local aDialogue, iStartDialogue, pLastSpeaker;
 // das Array manipulieren
 /**
  * Sets the dialogue contents.
- * @param aDlg The final dialogue array or other data.@brIf no array is specified, then
+ * @par aDlg The final dialogue array or other data.@brIf no array is specified, then
  * the function tries getting an array by calling:
  * {@code
  * Format("MsgDialogue%s", aDlg)
@@ -182,7 +182,7 @@ public func SetStartDialogueEx( int iDlg )
 
 /**
  * Adds a dialogue to the end of the dialogue array.
- * @param aOption The new dialogue option.
+ * @par aOption The new dialogue option.
  * @note Will proably be removed
  */
 public func AddDialogue( aOption )
@@ -214,7 +214,7 @@ public func GetUnusedDlgIndex()
 // Dialog aufbauen
 /**
  * Opens the dialogue in an object.
- * @param pTarget The object for which the dialogue should be displayed.
+ * @par pTarget The object for which the dialogue should be displayed.
  * @note The dialogue starts at dialogue index 0 per default. You can use SetStartDialogue()
  * to change the starting index permanently.
  */
@@ -231,8 +231,8 @@ public func StartDialogue( object pTarget )
 
 /**
  * Opens a specific dialogue in an object.
- * @param pTarget The object for which the dialogue should be displayed.
- * @param iDialogue The dialogue ID at which the dialogue starts.
+ * @par pTarget The object for which the dialogue should be displayed.
+ * @par iDialogue The dialogue ID at which the dialogue starts.
  * @note Contrary to StartDialogue() this is used for opening the dialogue at a specific index once.
  */
 public func StartSpecificDialogue( object pTarget, int iDialogue )
@@ -243,7 +243,7 @@ public func StartSpecificDialogue( object pTarget, int iDialogue )
 
 /**
  * Closes the dialogue menu in an object and performs all necessary cleanup operations.
- * @param pTarget The object in which the dialogue is displayed. This is the pTarget from StartDialogue().
+ * @par pTarget The object in which the dialogue is displayed. This is the pTarget from StartDialogue().
  */
 public func StopDialogue( object pTarget )
 {

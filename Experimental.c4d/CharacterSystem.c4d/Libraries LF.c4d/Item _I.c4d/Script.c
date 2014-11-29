@@ -52,10 +52,10 @@ public func ContentsVolume()
 // Basic info text in Menus
 /**
  * This is used to build the info text for this object.
- * @param pObj TODO
- * @param iLine A line parameter used by the object that parses the info text. 
- * @param pComp An object that this item will be compared to.
- * @param fSkipDesc Defines whether the item description should be skipped.
+ * @par pObj TODO
+ * @par iLine A line parameter used by the object that parses the info text. 
+ * @par pComp An object that this item will be compared to.
+ * @par fSkipDesc Defines whether the item description should be skipped.
  * @return string As long as this function returns values other than 0 the parser will keep parsing. Verify, that there are no infinite loops caused by your code!
  */
 public func GetInfoText( object pObj, int iLine, object pComp, bool fSkipDesc )

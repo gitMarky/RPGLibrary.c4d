@@ -31,7 +31,7 @@ public func IsShield()
 
 /**
  * Set to true, if the weapon has a horizontal swing animation.
- * @param szStyle Fighting style string, see TODO.
+ * @par szStyle Fighting style string, see TODO.
  * @return bool Default value: true.
  */
 public func CanSwing(string szStyle)
@@ -41,7 +41,7 @@ public func CanSwing(string szStyle)
 
 /**
  * Set to true, if the weapon has a thrust animation.
- * @param szStyle Fighting style string, see TODO.
+ * @par szStyle Fighting style string, see TODO.
  * @return bool Default value: true.
  */
 public func CanThrust(string szStyle)
@@ -51,7 +51,7 @@ public func CanThrust(string szStyle)
 
 /**
  * Set to true, if the weapon has a vertical strike animation.
- * @param szStyle Fighting style string, see TODO.
+ * @par szStyle Fighting style string, see TODO.
  * @return bool Default value: true.
  */
 public func CanStrike(string szStyle)
@@ -61,7 +61,7 @@ public func CanStrike(string szStyle)
 
 /**
  * Set to true, if the weapon has a low swing animation.
- * @param szStyle Fighting style string, see TODO.
+ * @par szStyle Fighting style string, see TODO.
  * @return bool Default value: true.
  */
 public func CanLow(string szStyle)
@@ -101,8 +101,8 @@ public func GetOverlayGraphics(object pObj)
 /**
  * This tells the character which animation to use when attacking.
  * @note You do not have to overwrite this function, but it may be useful if you design a weapon with only one attack.
- * @param szStyle The weapon fighting style, see TODO.
- * @param fPrimary Pass true, if the weapon is the primary weapon.
+ * @par szStyle The weapon fighting style, see TODO.
+ * @par fPrimary Pass true, if the weapon is the primary weapon.
  * @return The weapon attack animation name.
  */
 public func GetStrikeAction(string szStyle,bool fPrimary)

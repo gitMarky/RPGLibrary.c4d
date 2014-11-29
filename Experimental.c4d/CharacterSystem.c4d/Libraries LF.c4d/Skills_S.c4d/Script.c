@@ -84,7 +84,7 @@ global func RPGGetAttributeList()
 
 /**
  * Returns the index of an attribute in the attribute list.
- * @param szAttribute The name of the attribute.
+ * @par szAttribute The name of the attribute.
  * @return int The index in RPGAttributeList(). Returns -1 if the attribute is not in the attribute list.
  */
 global func RPGGetAttributeIndex( string szAttribute )
@@ -94,8 +94,8 @@ global func RPGGetAttributeIndex( string szAttribute )
 
 /**
  * Gets the maximum or minimum value of an attribute.
- * @param szAttribute The name of the attribute.
- * @param fUpper Defines which bound to get: True means upper bound, false means lower bound.
+ * @par szAttribute The name of the attribute.
+ * @par fUpper Defines which bound to get: True means upper bound, false means lower bound.
  * @return int The requested value.
  */
 global func RPGGetAttributeBound( string szAttribute, bool fUpper )
@@ -111,7 +111,7 @@ global func RPGGetAttributeBound( string szAttribute, bool fUpper )
 
 /**
  * Reference to the attribute manager of an object.
- * @param pObj The object that should receive the attributes.
+ * @par pObj The object that should receive the attributes.
  * @return int The attribute manager is an effect. This returns its effect number.
  * @note You do not need to use this method, it is used internally only.
  */
@@ -136,9 +136,9 @@ global func RPGAttributeSystem( object pObj )
 
 /**
  * Sets the value of an attribute, limited to the valid values of said attribute.
- * @param szAttribute The name of the attribute.
- * @param iAmount The new value of the attribute.
- * @param pObj The object whos attribute value will be set.
+ * @par szAttribute The name of the attribute.
+ * @par iAmount The new value of the attribute.
+ * @par pObj The object whos attribute value will be set.
  * @return int The attribute value that was actually set.
  */
 global func RPGSetAttribute( string szAttribute, int iAmount, object pObj )
@@ -155,9 +155,9 @@ global func RPGSetAttribute( string szAttribute, int iAmount, object pObj )
 
 /**
  * Increases the attribute value by a specified amount, limited to the valid values of said attribute.
- * @param szAttribute The name of the attribute.
- * @param iAmount Increase the attribute by this amount. Negative values decrease the attribute.
- * @param pObj The attribute of this object will be modified.
+ * @par szAttribute The name of the attribute.
+ * @par iAmount Increase the attribute by this amount. Negative values decrease the attribute.
+ * @par pObj The attribute of this object will be modified.
  * @return The attribute value that was actually set.
  */
 global func RPGAddAttribute( string szAttribute, int iAmount, object pObj )
@@ -167,8 +167,8 @@ global func RPGAddAttribute( string szAttribute, int iAmount, object pObj )
 
 /**
  * Gets the current value of an attribute.
- * @param szAttribute The name of the attribute.
- * @param pObj The object that has the attribute.
+ * @par szAttribute The name of the attribute.
+ * @par pObj The object that has the attribute.
  * @return The attribute value.
  */
 global func RPGGetAttribute( string szAttribute, object pObj )

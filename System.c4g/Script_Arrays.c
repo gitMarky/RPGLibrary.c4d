@@ -7,8 +7,8 @@
 
 /**
  * Deletes an index from an array.
- * @param iNumber The index to delete.
- * @param aArray The array to delete the item from
+ * @par iNumber The index to delete.
+ * @par aArray The array to delete the item from
  * @return Returns aArray, with the item deleted.
  */
 global func DeleteArrayItem(int iNumber, &aArray)

@@ -3,11 +3,11 @@
 #include CPT1 // Staircase
 /* Staircase */
 local pTargetUp;
-local pTargetDown;/** * Connects the staircase to an object.  * * @param target The user exits at this object upon pressing ControlDown. */
+local pTargetDown;/** * Connects the staircase to an object.  * * @par target The user exits at this object upon pressing ControlDown. */
 public func SetTargetDown(object target)
 {
 	pTargetDown = target;
-}/** * Connects the staircase to an object.  * * @param target The user exits at this object upon pressing ControlUp. */
+}/** * Connects the staircase to an object.  * * @par target The user exits at this object upon pressing ControlUp. */
 public func SetTargetUp(object target)
 {
 	pTargetUp = target;

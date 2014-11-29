@@ -97,8 +97,8 @@ protected func Timer10()
 
 /**
  * Adds a target to the switch. When the switch is at its bottom most position the target receives a function call.
- * @param pTarget The object that will receive the command.
- * @param iDir [optional] The switch calls ControlDown() in the target if iDir is 1, and ControlUp() if iDir is -1. If no parameter is passed, then ControlDown() is the default call.
+ * @par pTarget The object that will receive the command.
+ * @par iDir [optional] The switch calls ControlDown() in the target if iDir is 1, and ControlUp() if iDir is -1. If no parameter is passed, then ControlDown() is the default call.
  */
 public func AddTarget(object pTarget, int iDir)
 {
@@ -123,7 +123,7 @@ public func IsSwitch()
 
 /**
  * Determines, how far the plate is pushed into the ground when the full weight is placed on it.
- * @param iYDistance The plate moves downwards this many pixels. The default distance is 4 pixels.
+ * @par iYDistance The plate moves downwards this many pixels. The default distance is 4 pixels.
  */
 public func SetMoveDistance(int iYDistance)
 {
@@ -132,7 +132,7 @@ public func SetMoveDistance(int iYDistance)
 
 /**
  * Sets the weight value that is needed for the floor switch to go off.
- * @param iWeight The total weight value of objects that lie on top of the switch. The default weight is 20.
+ * @par iWeight The total weight value of objects that lie on top of the switch. The default weight is 20.
  */
 public func SetNeededWeight(int iWeight)
 {
@@ -141,7 +141,7 @@ public func SetNeededWeight(int iWeight)
 
 /**
  * Limits the weight detection to objects of a certain ID.
- * @param definition Only objects with this ID count towards the weight limit. 0 resets the specific ID.
+ * @par definition Only objects with this ID count towards the weight limit. 0 resets the specific ID.
  */
 public func SetSpecificID(id definition)
 {
@@ -150,7 +150,7 @@ public func SetSpecificID(id definition)
 
 /**
  * Sets a master ID for the switch.
- * @param definition Triggers the switch if at least one object of that ID is on the plate. 0 removes the master ID.
+ * @par definition Triggers the switch if at least one object of that ID is on the plate. 0 removes the master ID.
  */
 public func SetMasterID(id definition)
 {

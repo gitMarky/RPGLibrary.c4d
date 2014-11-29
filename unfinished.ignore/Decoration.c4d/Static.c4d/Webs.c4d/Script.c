@@ -17,7 +17,7 @@ protected func Initialize()
 
 /**
  * Changes the appearance of the object.
- * @param phase Gets passed to SetPhase(). The animation has 5 phases.
+ * @par phase Gets passed to SetPhase(). The animation has 5 phases.
  */
 public func Set(int phase)
 {

@@ -20,7 +20,7 @@ protected func Initialize()
 /**
  * Starts upward movement.
  *
- * @param pController The object that ordered the command.
+ * @par pController The object that ordered the command.
  * @return int The new ComDir value of the block.
  */
 public func ControlUp(object pController)
@@ -40,7 +40,7 @@ public func ControlUp(object pController)
 /**
  * Starts downward movement.
  *
- * @param pController The object that ordered the command.
+ * @par pController The object that ordered the command.
  * @return int The new ComDir value of the block.
  */
 public func ControlDown(object pController)
@@ -60,7 +60,7 @@ public func ControlDown(object pController)
 /**
  * Starts leftward movement.
  *
- * @param pController The object that ordered the command.
+ * @par pController The object that ordered the command.
  * @return int The new ComDir value of the block.
  */
 public func ControlLeft(object pController)
@@ -81,7 +81,7 @@ public func ControlLeft(object pController)
 /**
  * Starts rightward movement.
  *
- * @param pController The object that ordered the command.
+ * @par pController The object that ordered the command.
  * @return int The new ComDir value of the block.
  */
 public func ControlRight(object pController)

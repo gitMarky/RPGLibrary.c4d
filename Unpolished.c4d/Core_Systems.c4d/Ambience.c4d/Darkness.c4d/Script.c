@@ -21,7 +21,7 @@ local darkness;
 
 /**
  * Darkness is an environment object, as such it has an info window. This funcion creates the info window.
- * @param iPlr The player number that requested the information window. Base is 0.
+ * @par iPlr The player number that requested the information window. Base is 0.
  */
 protected func Activate(int iPlr)
 {
@@ -63,7 +63,7 @@ private func PostInitialize()
 
 /**
  * Activates Fog of War for the player.
- * @param iPlr The player number. Base is 0.
+ * @par iPlr The player number. Base is 0.
  */
 public func InitializePlayer(int iPlr)
 {
@@ -72,7 +72,7 @@ public func InitializePlayer(int iPlr)
 
 /**
  * Creates a light for the clonk.
- * @param pClonk The clonk in question. This is applied to all crew members of the player.
+ * @par pClonk The clonk in question. This is applied to all crew members of the player.
  */
 public func OnClonkRecruitment(object pClonk)
 {
@@ -107,7 +107,7 @@ global func IsDark()
 
 /**
  * Returns the current level of darkness.
- * @param precision [optional] No value or 0 relates to a precision of 10. 
+ * @par precision [optional] No value or 0 relates to a precision of 10. 
  * @return int Percentual value of darkness, multiplied by precision.
  */
 global func GetDarkness(int precision)
@@ -128,7 +128,7 @@ global func GetDarkness(int precision)
 
 /**
  * Returns a darkness value relative to the maximal and minimal darkness.
- * @param iGrade The desired relative darkness grade, percentual value from 0 to 100.
+ * @par iGrade The desired relative darkness grade, percentual value from 0 to 100.
  * @return int A darkness value relative to the maximal and minimal darkness. Can be used with SetDarkness()
  * @example {@code
  *			SetDarkness(50); // sets darkness to 50%, regardless of current darkness 
@@ -167,7 +167,7 @@ global func GetDarknessGradeRel()
 
 /**
  * Adjusts the current level of darkness.
- * @param iGrade The new level of darkness, percentual value from 0 to 100.
+ * @par iGrade The new level of darkness, percentual value from 0 to 100.
  * @return bool False, if there is no darkness in the scenario. Otherwise returns true. 
  */
 global func SetDarkness(int iGrade)
@@ -196,8 +196,8 @@ global func UpdateDarkness()
 
 /**
  * Overrides the engine function. This override is necessary such that a custom initial color modulation is saved. 
- * @param clr Primary color modulation.
- * @param backclr dwBackClr Background color modulation.
+ * @par clr Primary color modulation.
+ * @par backclr dwBackClr Background color modulation.
  * @note Additional info in the original developer documentation.
  * @ignore may be useful for developpers, but not for the average user.
  */
@@ -225,7 +225,7 @@ global func SetMatAdjust(int clr)
 
 /**
  * Paints the sky, material and sets gamma ramps for a certain level of darkness.
- * @param iGrade The new level of darkness, percentual value from 0 to 100.
+ * @par iGrade The new level of darkness, percentual value from 0 to 100.
  * @note Uses the gamma ramp GAMMA_Ramp_User1 = 2.
  */
 global func DarknessApplyGrade(int grade)
@@ -265,8 +265,8 @@ global func SetVFromRGBa(int rgba, int newVal)
 
 /**
  * Tells light objects how transparent they should be.
- * @param alphamod Modifier for the alpha channel of the light. The lighter, the more transparent.
- * @param sizemod Modifier for the size of the light. The darker, the larger.
+ * @par alphamod Modifier for the alpha channel of the light. The lighter, the more transparent.
+ * @par sizemod Modifier for the size of the light. The darker, the larger.
  */
 global func CalcLight(int &alphamod, int &sizemod)
 {

@@ -2,7 +2,7 @@
 
 /**
  * Generates true or false, base on the given probability.
- * @param chance Value between 0 and 99. A value >= 100 always returns true.
+ * @par chance Value between 0 and 99. A value >= 100 always returns true.
  * @return true, if Random(100) < chance.
  */
 global func Chance(int chance)

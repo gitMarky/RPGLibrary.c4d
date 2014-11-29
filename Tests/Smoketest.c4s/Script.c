@@ -17,10 +17,10 @@ func DoStartSzen()
 	AttachDialogue(sorcerer, "Marvin");
 	
 	// create Marvin's tower
-	var tower = CreateObject(WTWR, 215, 400, NO_OWNER);
+	CreateObject(WTWR, 215, 400, NO_OWNER);
 	
 	// create the castle
-	var castle = CreateObject(CST2, 310, 400, NO_OWNER);
+	CreateObject(CST2, 310, 400, NO_OWNER);
 	
 	// create Arthur the knight
 	var knight = CreateObject(KNIG, 345, 390, NO_OWNER);
@@ -42,6 +42,6 @@ protected func InitializePlayer(int player, int tx, int ty, object pBase, int iT
 	DoInitPlayer(player);
 }
 
-	// information for the script goal object
-	public func IsGoalFulfilled() { return false; }
-	public func GetGoalDesc() { return "This scenario cannot be fulfilled until it has valid script goals"; }
+// information for the script goal object
+public func IsGoalFulfilled() { return false; }
+public func GetGoalDesc() { return "This scenario cannot be fulfilled until it has valid script goals"; }

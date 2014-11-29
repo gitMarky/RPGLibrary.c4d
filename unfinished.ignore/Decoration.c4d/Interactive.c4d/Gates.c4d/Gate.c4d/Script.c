@@ -23,7 +23,7 @@ public func ControlLeft(object pController)
 /**
  * Starts upward movement.
  *
- * @param pController The object that ordered the command. Only switches can switch gates.
+ * @par pController The object that ordered the command. Only switches can switch gates.
  * @return int The new ComDir value of the block.
  */
 public func ControlUp(object pController)
@@ -42,7 +42,7 @@ public func ControlRight(object pController)
 /**
  * Starts downward movement.
  *
- * @param pController The object that ordered the command. Only switches can switch gates.
+ * @par pController The object that ordered the command. Only switches can switch gates.
  * @return int The new ComDir value of the block.
  */
 public func ControlDown(object pController)
@@ -59,7 +59,7 @@ protected func Hit()
 
 /**
  * Inverts the current direction of movement.
- * @param pController The object that ordered the command. Only switches can switch gates.
+ * @par pController The object that ordered the command. Only switches can switch gates.
  */
 public func Activate(object pController)
 {

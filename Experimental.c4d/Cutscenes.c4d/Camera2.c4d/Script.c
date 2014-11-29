@@ -86,8 +86,8 @@ global func FxDivinityEffect(string szNewEffect)
 
 /**
  * Makes an object invulnerable or removes the invulnerability.
- *@param val True for invulnerability, false for no invulnerability.
- *@param obj A reference to the object that is affected.
+ *@par val True for invulnerability, false for no invulnerability.
+ *@par obj A reference to the object that is affected.
  *@return True, if the operation was successful.
  */
 global func SetDivinity(bool val, object obj)
@@ -106,9 +106,9 @@ global func SetDivinity(bool val, object obj)
 
 /**
  * Moves the camera to an object or coordinates.
- * @param vObjX Accepts an int or an object. Passing an object moves the camera to the coordinates of the object. Passing an integer moves the camera to this x-coordinate.
- * @param iY [optional] If vObj is an int, then the camera moves to this y-coordinate.
- * @param bInsta [optional] If true, then the camera teleports to the position, otherwise it moves to the position in a strait line from the current position.
+ * @par vObjX Accepts an int or an object. Passing an object moves the camera to the coordinates of the object. Passing an integer moves the camera to this x-coordinate.
+ * @par iY [optional] If vObj is an int, then the camera moves to this y-coordinate.
+ * @par bInsta [optional] If true, then the camera teleports to the position, otherwise it moves to the position in a strait line from the current position.
  * @note This also starts a cut scene if no cut scene is active.
  */
 global func PosCam( vObjX, iY, bool bInsta) // iX, iY oder pObj
@@ -328,7 +328,7 @@ func DoFadeIn()
 
 /**
  * Slowly reduces the view range of an object.
- * @param pObj The view range of this object will be decreased.
+ * @par pObj The view range of this object will be decreased.
  */
 global func FadeViewOut(pObj,fFilm)
 {
@@ -359,7 +359,7 @@ global func FadeToZero(pObj)
 
 /**
  * Slowly increases the view range of an object until it is at 100%
- * @param pObj The view range of this object will be increased.
+ * @par pObj The view range of this object will be increased.
  */
 global func FadeViewIn(pObj)
 {
@@ -377,8 +377,8 @@ global func FadeViewIn(pObj)
 
 /**
  * Forces an object to fly, even if it cannot.
- * @param pTarget The object that should fly.
- * @param iInterval The object oscillates in y-direction while flying. It changes its position every iInterval frames.
+ * @par pTarget The object that should fly.
+ * @par iInterval The object oscillates in y-direction while flying. It changes its position every iInterval frames.
  */
 global func ForceFlyStart( object pTarget, int iInterval )
 {
@@ -389,7 +389,7 @@ global func ForceFlyStart( object pTarget, int iInterval )
 
 /**
  * Determines whether an object is forced to fly.
- * @param pTarget The object in question.
+ * @par pTarget The object in question.
  * @return object Reference to an object that lets the object fly.
  */
 global func ForceFly( object pTarget )
@@ -399,7 +399,7 @@ global func ForceFly( object pTarget )
 
 /**
  * Stops the forced flight of an object
- * @param pTarget the object that should stop flying.
+ * @par pTarget the object that should stop flying.
  * @note This can only stop flight that is caused by ForceFlyStart().
  */
 global func ForceFlyStop( object pTarget)
@@ -410,11 +410,11 @@ global func ForceFlyStop( object pTarget)
 
 /**
  * Lets an object fly to coordinates.
- * @param iX The object should fly to this x-coordinate.
- * @param iY The object should fly to this y-coordinate.
- * @param pTarget The object that should fly.
- * @param iInterval [optional] Gets passed to ForceFlyStart() if the object is not force flying already.
- * @param iMaxSpeed [optional] Limits the float speed of the flying object. Default is 30.
+ * @par iX The object should fly to this x-coordinate.
+ * @par iY The object should fly to this y-coordinate.
+ * @par pTarget The object that should fly.
+ * @par iInterval [optional] Gets passed to ForceFlyStart() if the object is not force flying already.
+ * @par iMaxSpeed [optional] Limits the float speed of the flying object. Default is 30.
  */
 global func ForceFlyTo( int iX, int iY, pTarget, int iInterval, int iMaxSpeed )
 {

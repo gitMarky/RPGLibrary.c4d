@@ -20,7 +20,7 @@ protected func Initialize()
 /**
  * Starts upward movement.
  *
- * @param pController The object that ordered the command.
+ * @par pController The object that ordered the command.
  *        Input from switches moves the object permanently.
  *        Input from other objects moves the object for a
  *        certain time, then reverts the movement.
@@ -36,7 +36,7 @@ public func ControlUp(object pController)
 /**
  * Starts downward movement.
  *
- * @param pController The object that ordered the command.
+ * @par pController The object that ordered the command.
  *        Input from switches moves the object permanently.
  *        Input from other objects moves the object for a
  *        certain time, then reverts the movement.
@@ -52,7 +52,7 @@ public func ControlDown(object pController)
 /**
  * Starts leftward movement.
  *
- * @param pController The object that ordered the command.
+ * @par pController The object that ordered the command.
  *        Input from switches moves the object permanently.
  *        Input from other objects moves the object for a
  *        certain time, then reverts the movement.
@@ -68,7 +68,7 @@ public func ControlLeft(object pController)
 /**
  * Starts rightward movement.
  *
- * @param pController The object that ordered the command.
+ * @par pController The object that ordered the command.
  *        Input from switches moves the object permanently.
  *        Input from other objects moves the object for a
  *        certain time, then reverts the movement.

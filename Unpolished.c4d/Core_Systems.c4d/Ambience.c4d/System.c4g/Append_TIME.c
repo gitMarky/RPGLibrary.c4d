@@ -319,9 +319,9 @@ global func GetDuskPeriod(){ return [Time( 18, 0, 0), Time( 21, 0, 0)]; }
 
 /**
  * Calculates a time value in seconds, so that it can be compared with the ingame time.
- * @param hours time on the clock, in hours. Uses the 24 hour format, values greater that 24 will be converted to a value between 0 and 23 hours.
- * @param minutes time on the clock, in minutes. Uses the 60 minute format, values greater that 60 will be converted to a value between 0 and 59 minutes.
- * @param secondstime on the clock, in seconds. Uses the 60 second format, values greater that 60 will be converted to a value between 0 and 59 seconds.
+ * @par hours time on the clock, in hours. Uses the 24 hour format, values greater that 24 will be converted to a value between 0 and 23 hours.
+ * @par minutes time on the clock, in minutes. Uses the 60 minute format, values greater that 60 will be converted to a value between 0 and 59 minutes.
+ * @par secondstime on the clock, in seconds. Uses the 60 second format, values greater that 60 will be converted to a value between 0 and 59 seconds.
  * @return The time entered, in seconds
  * @example {@code
  * public func IsItTeaTime()
@@ -352,7 +352,7 @@ global func GetTime()
 
 /**
  * Sets the current ingame time.
- * @param seconds The time value, in seconds.
+ * @par seconds The time value, in seconds.
  * @example {@code
  * SetSeconds(Time(12, 30, 5));
  * }
@@ -367,10 +367,10 @@ global func SetSeconds(int seconds)
 
 /**
  * Sets the current ingame time.
- * @param days The new day.
- * @param hours The new hour.
- * @param minutes The new minute.
- * @param seconds The new seconds.
+ * @par days The new day.
+ * @par hours The new hour.
+ * @par minutes The new minute.
+ * @par seconds The new seconds.
  * @link SetSeconds(), Time()
  */
 global func SetTime(int days, int hours, int minutes, int seconds)
@@ -396,7 +396,7 @@ global func GetTimeSpeed()
 
 /**
  * Defines how fast the game time advances.
- * @param speed Every 10 frames, the game time advances this many seconds.
+ * @par speed Every 10 frames, the game time advances this many seconds.
  * @return The new speed value.
  * @note The default speed is regulated by the following constants:
  * {@code

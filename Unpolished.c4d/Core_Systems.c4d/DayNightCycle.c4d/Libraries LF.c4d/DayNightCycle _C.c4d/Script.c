@@ -44,8 +44,8 @@ local pTarget;
 
 /** Gets called by the time object when the hour variable changes.
  *
- * @param hoursNew the current time
- * @param hoursOld the time before the change.
+ * @par hoursNew the current time
+ * @par hoursOld the time before the change.
  */
 public func UpdateTime(int hoursNew, int hoursOld)
 {
@@ -74,7 +74,7 @@ public func UpdateTime(int hoursNew, int hoursOld)
 
 /**
  * Goes through the cycle array and decides which behavior to execute.
- * @param ihourToCheck The current hour
+ * @par ihourToCheck The current hour
  * @ignore Useful for understanding this object only.
  */
 protected func EvaluateCyclePhase(int hourToCheck)
@@ -104,7 +104,7 @@ protected func EvaluateCyclePhase(int hourToCheck)
 /**
  * Assigns a new day-night-cycle-array.
  *
- * @param aCycle this can either be<br>
+ * @par aCycle this can either be<br>
  *        - an array in the right format,<br>
  *        - a string. A function "DayNightCycle" + "aCycle" has to exist<br>
  *          in the story object or as a global function
@@ -127,7 +127,7 @@ public func SetDayNightCycle(aCycle)
 /**
  * Adds an option to the end of the day-night-cycle-array.
  *
- * @param aOption the new option.
+ * @par aOption the new option.
  */
 public func AddDayNightCyclePhase(aOption)
 {

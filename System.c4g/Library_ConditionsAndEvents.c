@@ -10,11 +10,11 @@ An ingame script parser, which is used for dynamic scripts.
 
 /**
  * Calls CheckConditionsDetailed() with the given parameters and returns true, if all conditions are fulfilled.
- * @param aConditions Passed on.
- * @param szTarget Passed on.
- * @param pTarget Passed on.
- * @param szUser Passed on.
- * @param pUser Passed on.
+ * @par aConditions Passed on.
+ * @par szTarget Passed on.
+ * @par pTarget Passed on.
+ * @par szUser Passed on.
+ * @par pUser Passed on.
  * @return true, if all conditions are fulfilled@brfalse, if at least one of the conditions is not fulfilled.
  */
 global func CheckConditions( aConditions, string szTarget, object pTarget, string szUser, object pUser)
@@ -25,13 +25,13 @@ global func CheckConditions( aConditions, string szTarget, object pTarget, strin
 /**
  * Evaluates an array of conditions and returns if all of them are fulfilled and how many of them are fulfilled.
  * The function evaluates the conditions by calling CheckConditions()
- * @param aConditions Accepts a string or an array of strings. Passed to CheckCondition().
- * @param szTarget String identifier for an object. All occurrences of szTarget will be replaced with a reference
+ * @par aConditions Accepts a string or an array of strings. Passed to CheckCondition().
+ * @par szTarget String identifier for an object. All occurrences of szTarget will be replaced with a reference
  * to pTarget.
- * @param pTarget Replaces the szTarget string.
- * @param szUser String identifier for an object. All occurrences of szUser will be replaced with a reference
+ * @par pTarget Replaces the szTarget string.
+ * @par szUser String identifier for an object. All occurrences of szUser will be replaced with a reference
  * to pUser.
- * @param pUser Replaces the szUser string.
+ * @par pUser Replaces the szUser string.
  * @return array Position [0] contains a boolean value, which is true if all conditions are fulfilled.@br
  *               Position [1] contains an integer value, which counts the amount of fulfilled conditions.@br
  *               If position [i] = x, then the first x conditions are fulfilled.
@@ -78,14 +78,14 @@ global func CheckConditionsDetailed( aConditions, string szTarget, object pTarge
  * Evaluates a single condition and returns whether it is fulfilled.@br
  * The function has two string placeholders that can be replaced with object references: szTarget and szUser.
  * 
- * @param aConditions The condition. This has to consist of valid C4Script commands as any other object script, as 
+ * @par aConditions The condition. This has to consist of valid C4Script commands as any other object script, as 
  * this string will be passed to the eval()-function. Passing no string is allowed, and counts as always fulfilled.
- * @param szTarget String identifier for an object. All occurrences of szTarget will be replaced with a reference
+ * @par szTarget String identifier for an object. All occurrences of szTarget will be replaced with a reference
  * to pTarget before evaluating the script.
- * @param pTarget Replaces the szTarget string.
- * @param szUser String identifier for an object. All occurrences of szUser will be replaced with a reference
+ * @par pTarget Replaces the szTarget string.
+ * @par szUser String identifier for an object. All occurrences of szUser will be replaced with a reference
  * to pUser before evaluating the script.
- * @param pUser Replaces the szUser string. 
+ * @par pUser Replaces the szUser string. 
  * @return bool the return value of the eval()-function.
  * @note This is intended for conditions, but it can be used for generic scripts in other ways, too. Be careful
  * with the input:
@@ -117,13 +117,13 @@ global func CheckCondition( aCondition, string szTarget, object pTarget, string 
 
 /**
  * Evaluates an array of events by calling CheckCondition() on each event string.
- * @param aConditions Accepts a string or an array of strings. Passed to CheckCondition().
- * @param szTarget String identifier for an object. All occurrences of szTarget will be replaced with a reference
+ * @par aConditions Accepts a string or an array of strings. Passed to CheckCondition().
+ * @par szTarget String identifier for an object. All occurrences of szTarget will be replaced with a reference
  * to pTarget.
- * @param pTarget Replaces the szTarget string.
- * @param szUser String identifier for an object. All occurrences of szUser will be replaced with a reference
+ * @par pTarget Replaces the szTarget string.
+ * @par szUser String identifier for an object. All occurrences of szUser will be replaced with a reference
  * to pUser.
- * @param pUser Replaces the szUser string.
+ * @par pUser Replaces the szUser string.
  * @note This is essentially the same as CheckConditionsDetailed(), but it evaluates all scripts in the array
  * and does not stop if one of the scripts returns false.
  */
