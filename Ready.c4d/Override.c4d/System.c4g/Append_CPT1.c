@@ -2,41 +2,43 @@
 
 #strict 2
 
-#appendto CPT1 // Treppenhaus
+#appendto CPT1
 
 /* Staircase */
 
-local pTargetUp;
-local pTargetDown;
+local target_ascend;
+local target_descend;
 
 /**
- * Overrides the target when descending the staircase.
- * @par target The target.
+Overrides the target when descending the staircase.
+@par target The target.
  */
 public func SetTargetDown(object target)
 {
-	pTargetDown = target;
+	target_descend = target;
 }
 
 /**
- * Overrides the target when ascending the staircase.
- * @par target The target.
+Overrides the target when ascending the staircase.
+@par target The target.
  */
 public func SetTargetUp(object target)
 {
-	pTargetUp = target;
+	target_ascend = target;
 }
 
 private func FindStaircaseAbove()
 {
-	if (pTargetUp)
-		return pTargetUp;
+	if (target_ascend)
+		return target_ascend;
+		
 	return _inherited();
 }
 
 private func FindStaircaseBelow()
 {
-	if (pTargetDown)
-		return pTargetDown;
+	if (target_descend)
+		return target_descend;
+		
 	return _inherited();
 }

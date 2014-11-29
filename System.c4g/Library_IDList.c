@@ -38,8 +38,15 @@ static const ID_Func_Readable = LF_R;
 static const ID_Func_Overlay = LF_O;
 static const ID_QuestHandler = LF_Q;
 
+// Libraries
+
+static const ID_Library_DayNightCycle = LF_C;
+
 // Hilfsobjekte
+static const ID_Helper_Story = _STY;
 static const ID_Helper_DialogueBuilder = _DLB;
 
 static const ID_Helper_ScreenFader = _SCF;
+
+static const ID_Helper_DayNightCycleController = DNCC;
 

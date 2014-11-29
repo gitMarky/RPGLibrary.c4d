@@ -28,6 +28,7 @@ static const g_TIME_Minute_Seconds = 60;
 static const g_TIME_TickInterval_Frames = 10;
 
 static const g_TIME_YearLength = 20; // One year has this many days
+static const g_TIME_Hours_per_Day = 24;
 
 /* Variables */
 
