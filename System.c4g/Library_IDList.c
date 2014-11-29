@@ -21,10 +21,11 @@ static const ID_Menu_Equipment = LIES;
 static const ID_Menu_Combo = LICM;
 static const ID_Menu_ComboSymbol = LICS;
 
-static const ID_Menu_StandardButton = LIGH;
+static const ID_MenuIcon_StandardButton = LIGH;
+static const ID_MenuIcon_MouseCursor = MCCR;
 
 // Menu Decos
-static const ID_MenoDeco_Wood = MD69;
+static const ID_MenuDeco_Wood = MD69;
 static const ID_MenuDeco_Temple = MD70;
 
 // Ringmenu
@@ -40,9 +41,5 @@ static const ID_QuestHandler = LF_Q;
 // Hilfsobjekte
 static const ID_Helper_DialogueBuilder = _DLB;
 
+static const ID_Helper_ScreenFader = _SCF;
 
-/* Effektliste mit Beschreibung / Funktionen
- *
- * AddSpawnEffect( pTarget, RGBa1, [ szParticle, RGBa2, iSize = 5, -1/0/1 ]) ein Strudeleffekt, aus Hazard
- *
- */

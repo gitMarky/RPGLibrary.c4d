@@ -56,7 +56,7 @@ protected func CreateButtons( object pHUD )
 		if( 10 <= i && i < 15) { x = 150 +(i-10)*44; y = 110; }
 		if( 15 <= i && i < 20) { x = 150 +(i-15)*44; y = 160; }
 
-		aButtons[i]->~AttachToHUD( pHUD, iPosX + x, iPosY +y, ID_Menu_StandardButton );
+		aButtons[i]->~AttachToHUD( pHUD, iPosX + x, iPosY +y, ID_MenuIcon_StandardButton );
 	}
 
 	pAvatar = CreateObject( ID_Menu_Avatar,0,0,-1 );

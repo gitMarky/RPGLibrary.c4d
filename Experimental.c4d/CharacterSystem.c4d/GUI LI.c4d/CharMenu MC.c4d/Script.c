@@ -365,7 +365,7 @@ protected func UpdateInventoryButtons()
 	{
 		for( var j=0; j<5; j++ )
 		{
-			(aBars[i]->~GetButton(j))->~SetButton( ID_Menu_StandardButton, "", pCommandObj );
+			(aBars[i]->~GetButton(j))->~SetButton( ID_MenuIcon_StandardButton, "", pCommandObj );
 		}
 	}
 

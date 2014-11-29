@@ -131,7 +131,7 @@ public func AddToInterior(object pObj)
 	{
 		SetObjectViewOffset(pObj,GetX(dummyObjectOutside)-GetX(), GetY(dummyObjectOutside)-GetY(), true);
 
-		SetObjScreenModulation(pObj, RGBa(0,0,0,180), 0, gScreenModulation_RampBuilding, 0);
+		SetObjScreenModulation(pObj, RGBa(0,0,0,180), 0, gScreenModulation_Ramp_Building, 0);
 
 	    isVisibleForPlayer[GetOwner(pObj)]++;
 	    UpdateVisibilityForPlayers();
@@ -176,7 +176,7 @@ public func RemoveObjectFromInterior(pObj)
 	{
 		SetObjectViewOffset(pObj, 0, 0, true);
 
-		SetObjScreenModulation(pObj, RGBa(0,0,0,255), 0, gScreenModulation_RampBuilding, 0);
+		SetObjScreenModulation(pObj, RGBa(0,0,0,255), 0, gScreenModulation_Ramp_Building, 0);
 
 	    isVisibleForPlayer[GetOwner(pObj)]--;
 	    UpdateVisibilityForPlayers();

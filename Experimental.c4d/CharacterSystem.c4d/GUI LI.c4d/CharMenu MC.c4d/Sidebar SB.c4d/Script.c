@@ -54,7 +54,7 @@ protected func CreateButtons(object pHUD)
 	for (var i = 0; i <= 4; i++)
 	{
 		aButtons[i] = CreateObject(ID_Menu_CharButton, 0, 0, -1);
-		aButtons[i]->~AttachToHUD(pHUD, iPosX + 20 + 44 * i, iPosY, ID_Menu_StandardButton);
+		aButtons[i]->~AttachToHUD(pHUD, iPosX + 20 + 44 * i, iPosY, ID_MenuIcon_StandardButton);
 	}
 }
 
