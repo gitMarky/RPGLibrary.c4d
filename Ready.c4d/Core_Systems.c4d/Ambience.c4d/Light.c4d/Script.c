@@ -1,4 +1,10 @@
-/*-- Light --*/
+/*--
+Light objects for ambience.
+
+@title Light
+@author Hazard Team (original), Marky (modified)
+@version 0.1.0
+ --*/
 
 #strict 2
 
