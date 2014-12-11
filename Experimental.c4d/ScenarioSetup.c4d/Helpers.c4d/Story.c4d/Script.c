@@ -49,7 +49,11 @@ public func SetNext(next, frames)
 	FramesLeft = frames;
 }
 
+/**
+ Gets the story object.
+ @return The story object, or 0 if it does not exist.
+ */
 global func GetStory()
 {
-	return FindObject(_STY);
+	return FindObject(ID_Helper_Story);
 }

@@ -59,13 +59,18 @@ static const gBehaviour_Operator_gteq = +10 ;//: greater than or equal
  */
 global func AddBehaviour(object target, string name, int interval, array data, int priority)
 {
-	if (!target) if(!(target = this)) { ErrorLog("Cannot add behaviour %s because no target was specified: %v", name, target); return;}
-
-	var behaviour = Format("IntBehaviour%s",name);
+	if (!target)
+		if (!(target = this))
+		{
+			ErrorLog("Cannot add behaviour %s because no target was specified: %v", name, target);
+			return;
+		}
+	
+	var behaviour = Format("IntBehaviour%s", name);
 	//RemoveAllEffects(pTarget, behaviour);
 	RemoveBehaviour(target, name, priority); // replace current behaviour in this priority
-
-	return AddEffect (behaviour, target, 100, interval, 0, 0, data, priority);
+	
+	return AddEffect(behaviour, target, 100, interval, 0, 0, data, priority);
 }
 
 /**
@@ -84,22 +89,27 @@ Removes all behaviours from the object with a certain name and priority.
 */
 global func RemoveBehaviour(object target, string name, int priority, int operator)
 {
-	if (!target) if(!(target = this)) { ErrorLog("Cannot remove behaviour %s because no target was specified: %v", name, target); return;}
-
+	if (!target)
+		if (!(target = this))
+		{
+			ErrorLog("Cannot remove behaviour %s because no target was specified: %v", name, target);
+			return;
+		}
+	
 	var behaviours = GetBehaviours(target, priority, operator);
 	//RemoveAllEffects(pTarget, behaviour);
-
+	
 	DebugLog("--> Remove Behaviour %s %v - array: %v", name, target, behaviours);
-
+	
 	var effect_number;
 	var i = GetEffectCount(0, target);
 	while (i--)
-	if (effect_number = GetEffect(Format("IntBehaviour%s", name), target, i))
-	{
-		DebugLog("--> Remove Behaviour - Check effect %d", effect_number);
-		if (GetArrayItemPosition(effect_number, behaviours) > -1)
-		      RemoveEffect(0, target, effect_number);
-	}
+		if (effect_number = GetEffect(Format("IntBehaviour%s", name), target, i))
+		{
+			DebugLog("--> Remove Behaviour - Check effect %d", effect_number);
+			if (GetArrayItemPosition(effect_number, behaviours) > -1)
+				RemoveEffect(0, target, effect_number);
+		}
 }
 
 /**
@@ -110,7 +120,7 @@ global func RemoveBehaviour(object target, string name, int priority, int operat
  */
 global func RemoveAllBehaviours(object target, string name)
 {
-	var behaviour = Format("IntBehaviour%s",name);
+	var behaviour = Format("IntBehaviour%s", name);
 	RemoveAllEffects(target, behaviour);
 }
 
@@ -133,29 +143,27 @@ global func GetBehaviours(object target, int priority, int operator)
 {
 	var effects = [];
 	var effect_number;
-
+	
 	// count down, because the effects are being removed
 	var i = GetEffectCount(0, target);
 	while (i--)
-	if (effect_number = GetEffect("IntBehaviour*", target, i))
-	{
-		if (   (EffectVar(gBehaviour_EffectVar_Priority, target, effect_number) == priority
-		        || priority == gBehaviour_Priority_All)
-		    && (operator%10 == 0))
+		if (effect_number = GetEffect("IntBehaviour*", target, i))
 		{
-			PushBack(effect_number, effects);
+			if ((EffectVar(gBehaviour_EffectVar_Priority, target, effect_number) == priority || priority == gBehaviour_Priority_All) && (operator % 10 == 0))
+			{
+				PushBack(effect_number, effects);
+			}
+			
+			if (operator < 0 && EffectVar(gBehaviour_EffectVar_Priority, target, effect_number) < priority)
+			{
+				PushBack(effect_number, effects);
+			}
+			
+			if (operator > 0 && EffectVar(gBehaviour_EffectVar_Priority, target, effect_number) > priority)
+			{
+				PushBack(effect_number, effects);
+			}
 		}
-
-		if (operator < 0 && EffectVar(gBehaviour_EffectVar_Priority, target, effect_number) < priority)
-		{
-			PushBack(effect_number, effects);
-		}
-
-		if (operator > 0 && EffectVar(gBehaviour_EffectVar_Priority, target, effect_number) > priority)
-		{
-			PushBack(effect_number, effects);
-		}
-	}
 	return effects;
 }
 
@@ -199,7 +207,7 @@ global func BehaviourWanderArea(int x_left, int x_right, int min_pause, int max_
  @par max_pause The object waits a random amount of time after walking a 
       short distance. It waits at most this many frames.
  @par speed_percent The object walks at this many percent of its maximum speed. 100 is full speed.
- */]
+ */
 global func BehaviourWanderPoint(int x, int y, int radius, int min_pause, int max_pause, int speed_percent)
 {
 	var data = [];
@@ -223,42 +231,46 @@ global func BehaviourWanderPoint(int x, int y, int radius, int min_pause, int ma
 
 global func FxIntBehaviourWanderAreaStart(object target, int effect_number, int temp, data, int priority)
 {
-	if (temp) return;
-
+	if (temp)
+		return;
+	
 	EffectVar(gBehaviour_EffectVar_Data, target, effect_number) = data;
 	EffectVar(gBehaviour_EffectVar_Priority, target, effect_number) = priority;
 }
 
 global func FxIntBehaviourWanderAreaTimer(object target, int effect_number, int time)
 {
-	if (!target) return -1;
-	if (GetCommand(target)) return;
-
+	if (!target)
+		return -1;
+	if (GetCommand(target))
+		return;
+	
 	var behaviours = GetBehaviours(target, EffectVar(gBehaviour_EffectVar_Priority, target, effect_number), +1);
 	if (GetLength(behaviours) > 0)
 	{
 		FxIntBehaviourWanderSpeed(target, effect_number, -1);
 		return;
 	}
-
+	
 
 	var data = EffectVar(gBehaviour_EffectVar_Data, target, effect_number);
-	var x_left  = Max(data[gBehaviour_Wander_Index_xLeft],  target->GetX() -50);
-	var x_right = Min(data[gBehaviour_Wander_Index_xRight], target->GetX() +50);
+	var x_left = Max(data[gBehaviour_Wander_Index_xLeft], target->GetX() - 50);
+	var x_right = Min(data[gBehaviour_Wander_Index_xRight], target->GetX() + 50);
 	var min_pause = data[gBehaviour_Wander_Index_minPause];
 	var max_pause = data[gBehaviour_Wander_Index_maxPause];
 	var speed = data[gBehaviour_Wander_Index_Speed];
-
+	
 	FxIntBehaviourWanderSpeed(target, effect_number, speed);
-
+	
 	AddCommand(target, "MoveTo", 0, RandomX(x_left, x_right), GetY(target), 0, 500, 0, 1, C4CMD_SilentBase);
 	AppendCommand(target, "Wait", 0, 0, 0, 0, 0, RandomX(1 + min_pause, max_pause), 1, C4CMD_SilentBase);
 }
 
 global func FxIntBehaviourWanderAreaStop(object target, int effect_number, int reason, bool temp)
 {
-	if (temp) return;
-
+	if (temp)
+		return;
+	
 	FxIntBehaviourWanderSpeed(target, effect_number, -1);
 }
 
@@ -269,47 +281,63 @@ global func FxIntBehaviourWanderAreaStop(object target, int effect_number, int r
 
 global func FxIntBehaviourWanderPointStart(object target, int effect_number, int temp, data, int priority)
 {
-	if (temp) return;
-
+	if (temp)
+		return;
+	
 	EffectVar(gBehaviour_EffectVar_Data, target, effect_number) = data;
 	EffectVar(gBehaviour_EffectVar_Priority, target, effect_number) = priority;
 }
 
 global func FxIntBehaviourWanderPointTimer(object target, int effect_number, int time)
 {
-	if (!target) return -1;
-	if (GetCommand(target)) return;
-
+	if (!target)
+		return -1;
+	if (GetCommand(target))
+		return;
+	
 	var behaviours = GetBehaviours(target, EffectVar(gBehaviour_EffectVar_Priority, target, effect_number), +1);
 	if (GetLength(behaviours) > 0)
 	{
 		FxIntBehaviourWanderSpeed(target, effect_number, -1);
 		return;
 	}
-
+	
 
 	var data = EffectVar(gBehaviour_EffectVar_Data, target, effect_number);
-	var point  = data[gBehaviour_Wander_Index_Point];
+	var point = data[gBehaviour_Wander_Index_Point];
 	var radius = data[gBehaviour_Wander_Index_Radius];
 	var speed = data[gBehaviour_Wander_Index_Speed];
-
+	
 	FxIntBehaviourWanderSpeed(target, effect_number, speed);
-
-	if (Distance(point[0],point[1],target->GetX(), target->GetY()) > radius)
+	
+	if (Distance(point[0], point[1], target->GetX(), target->GetY()) > radius)
 	{
 		AddCommand(target, "MoveTo", 0, point[0], point[1], 0, 500, 0, 1, C4CMD_SilentBase);
 	}
 	else
 	{
-		AddCommand(target, "MoveTo", 0, RandomX(GetX(target)-radius/3, GetX(target)+radius/3), GetY(target), 0, 500, 0, 1, C4CMD_SilentBase);
+		AddCommand
+		(
+			target,
+			"MoveTo",
+			0,
+			RandomX(GetX(target) - radius / 3, GetX(target) + radius / 3),
+			GetY(target),
+			0,
+			500,
+			0,
+			1,
+			C4CMD_SilentBase
+		);
 		//AppendCommand(obj, "Wait", 0, 0, 0, 0, 0, RandomX(1 + minPause, maxPause), 1, C4CMD_SilentBase);
 	}
 }
 
 global func FxIntBehaviourWanderPointStop(object target, int effect_number, int reason, bool temp)
 {
-	if (temp) return;
-
+	if (temp)
+		return;
+	
 	FxIntBehaviourWanderSpeed(target, effect_number, -1);
 }
 
@@ -317,27 +345,28 @@ global func FxIntBehaviourWanderPointStop(object target, int effect_number, int 
 global func FxIntBehaviourWanderSpeed(object target, int effect_number, int speed)
 {
 	//var speed = iSpeed;
-	if (speed <= 0) speed = 100;
-
+	if (speed <= 0)
+		speed = 100;
+	
 	if (speed == 100)
-    {
-		if (EffectVar(gBehaviour_EffectVar_Data,target,effect_number)[gBehaviour_Wander_Index_PhysMod] == true)
+	{
+		if (EffectVar(gBehaviour_EffectVar_Data, target, effect_number)[gBehaviour_Wander_Index_PhysMod] == true)
 		{
-			ResetPhysical(target,"Walk");
-			ResetPhysical(target,"Jump");
-
-			EffectVar(gBehaviour_EffectVar_Data,target,effect_number)[gBehaviour_Wander_Index_PhysMod] = false;
+			ResetPhysical(target, "Walk");
+			ResetPhysical(target, "Jump");
+			
+			EffectVar(gBehaviour_EffectVar_Data, target, effect_number)[gBehaviour_Wander_Index_PhysMod] = false;
 		}
-    }
+	}
 	else
 	{
-		if (!EffectVar(gBehaviour_EffectVar_Data,target,effect_number)[gBehaviour_Wander_Index_PhysMod])
+		if (!EffectVar(gBehaviour_EffectVar_Data, target, effect_number)[gBehaviour_Wander_Index_PhysMod])
 		{
-			EffectVar(gBehaviour_EffectVar_Data,target,effect_number)[gBehaviour_Wander_Index_PhysMod] = true;
-
-			var physicalWalk = speed * GetPhysical("Walk",PHYS_Current,target) / 100;
-			var physicalJump = speed * GetPhysical("Jump",PHYS_Current,target) / 100;
-
+			EffectVar(gBehaviour_EffectVar_Data, target, effect_number)[gBehaviour_Wander_Index_PhysMod] = true;
+			
+			var physicalWalk = speed * GetPhysical("Walk", PHYS_Current, target) / 100;
+			var physicalJump = speed * GetPhysical("Jump", PHYS_Current, target) / 100;
+			
 			DebugLog("Adjusted physicals: %d %d", physicalWalk, physicalJump);
 			SetPhysical("Walk", physicalJump, PHYS_StackTemporary, target);
 			SetPhysical("Jump", physicalJump, PHYS_StackTemporary, target);
@@ -351,18 +380,21 @@ global func FxIntBehaviourWanderSpeed(object target, int effect_number, int spee
 
 global func FxIntBehaviourStopStart(object target, int effect_number, int temp, data, int priority)
 {
-	if (temp) return;
-
+	if (temp)
+		return;
+	
 	EffectVar(gBehaviour_EffectVar_Priority, target, effect_number) = priority;
 }
 
 global func FxIntBehaviourStopTimer(object target, int effect_number, int time)
 {
-	if (!target) return -1;
-
+	if (!target)
+		return -1;
+	
 	var behaviours = GetBehaviours(target, EffectVar(gBehaviour_EffectVar_Priority, target, effect_number), +1);
-	if (GetLength(behaviours) > 0) return;
-
+	if (GetLength(behaviours) > 0)
+		return;
+	
 	SetCommand(target, "None");
 	SetComDir(COMD_Stop, target);
 }

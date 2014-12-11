@@ -101,7 +101,7 @@ public func Activate(object pPlayer)
 public func ConstructDialogue( pPlayer )
 {
 	// bisherigen Dialog löschen
-	aDialogue = [];
+	dialogue_definition = [];
 
 	local iIndex;
 	iIndex = 1;
@@ -134,28 +134,28 @@ public func ConstructDialogue( pPlayer )
 	var dlgFailQuest = [ g_iQuestFailed, aPagesIndex,"Gescheiterte Quests",ColorizeString(Format("Gescheiterte Quests (%d/%d)",iMenuPage,iMenuPagesFail),QuestColorMenu()),0,[QuestIconFail(),QuestColorMenu()],QuestLogArray()];
 
 	// Dialoge in der richtigen Reihenfolge anhängen:
-	PushBack(dlgOpenQuest,aDialogue);
+	PushBack(dlgOpenQuest,dialogue_definition);
 
 	for(var dlg in aDlgQuestOpen)
-		PushBack(dlg,aDialogue);
+		PushBack(dlg,dialogue_definition);
 
-	PushBack(dlgDoneQuest,aDialogue);
+	PushBack(dlgDoneQuest,dialogue_definition);
 	for(var dlg in aDlgQuestDone)
-		PushBack(dlg,aDialogue);
+		PushBack(dlg,dialogue_definition);
 
-	PushBack(dlgFailQuest,aDialogue);
+	PushBack(dlgFailQuest,dialogue_definition);
 	for(var dlg in aDlgQuestFail)
-		PushBack(dlg,aDialogue);
+		PushBack(dlg,dialogue_definition);
 
 
 	for(var dlg in aDlgQuestPages)
-		PushBack(dlg,aDialogue);
+		PushBack(dlg,dialogue_definition);
 
 	for(var dlg in aDlgDesc)
-		PushBack(dlg,aDialogue);
+		PushBack(dlg,dialogue_definition);
 
 	for(var dlg in aDlgDescPages)
-		PushBack(dlg,aDialogue);
+		PushBack(dlg,dialogue_definition);
 }
 
 protected func BuildQuestPages(int iPageIndex, object pPlayer, string szPageName, int iEntriesPerPage, array aQuestQueue, array &aDlgQuest, array &aDlgPages, array &aDlgDesc, array &aDlgDescPages)

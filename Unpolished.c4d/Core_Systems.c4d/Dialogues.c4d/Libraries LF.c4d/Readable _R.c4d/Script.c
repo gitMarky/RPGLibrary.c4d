@@ -18,9 +18,36 @@ static const gDialogue_ARRAYPOS_MenuOption = 	2;
 static const gDialogue_ARRAYPOS_Text = 			3;
 static const gDialogue_ARRAYPOS_Object = 		4;
 static const gDialogue_ARRAYPOS_MenuStyle = 	5;
-static const gDialogue_ARRAYPOS_TextStyle =		6;
-static const gDialogue_ARRAYPOS_Conditions =	7;
+static const gDialogue_ARRAYPOS_TextStyle  = 	6;
+static const gDialogue_ARRAYPOS_Conditions  = 	7;
 static const gDialogue_ARRAYPOS_Events = 		8;
+
+
+static const gMenuStyle_ARRAYPOS_Icon  = 		0; // ID des Menusymbols
+static const gMenuStyle_ARRAYPOS_Color = 		1; // Farbe, in welcher der Text angegeben werden soll
+static const gMenuStyle_ARRAYPOS_Conditions = 	2; // Anzahl der Bedingungen, die erfüllt werden müssen:
+static const gMenuStyle_ARRAYPOS_Extra = 		3; // siehe AddMenuItem
+static const gMenuStyle_ARRAYPOS_XPar1  = 		4; // siehe AddMenuItem
+static const gMenuStyle_ARRAYPOS_Index = 		5; // springt zum angegebenen Dialogindex, anstatt die eigene Nachricht auszuwählen
+// zu Conditions:
+//	    0 - wird immer ausgeblendet, wenn nicht alle Voraussetzungen erfüllt sind
+//	    x - wird ausgeblendet, solange die ersten x Voraussetzungen nicht erfüllt sind.
+//	        Wird rot eingeblendet, wenn die ersten x Voraussetzungen, aber nicht alle Voraussetzungen erfüllt sind.
+
+static const gTextStyle_INVALID = 				-1; // does not use text style
+
+static const gTextStyle_ARRAYPOS_Name = 		0; // soll der Name des Sprechers in dessen Farbe angezeigt werden? Standardmäßig ja
+static const gTextStyle_ARRAYPOS_Color = 		1; // Farbe, in welcher der Rest des Texts angezeigt werden soll
+static const gTextStyle_ARRAYPOS_Instant = 		2; // soll der Text sofort angezeigt werden?
+static const gTextStyle_ARRAYPOS_Portrait = 	3; // gibt ein spezielles Portrait an
+static const gTextStyle_ARRAYPOS_Message  = 	4; // gibt die Nachricht als CustomMessage aus
+static const gTextStyle_ARRAYPOS_MenuDeco = 	5; // setzt eine neue MenuDecoration. Überschreibt auch die Definition aus GetDlgMsgDeco();
+static const gTextStyle_ARRAYPOS_MenuCaption = 	6; // gibt dem Menu einen Titel
+static const gTextStyle_ARRAYPOS_Quest = 		7; // string oder array von Quest-Namen (Engine-Name), zu denen die Nachricht hinzugefügt werden soll
+static const gTextStyle_ARRAYPOS_LogOption = 	8; // gibt an, ob die Auswahl gelogt werden soll, oder nicht. Standard: wird gelogt.
+
+local dialogue_definition, dialogue_start_index, last_speaker;
+
 
 /* Format für lesbare Dinge: eine eigene kleine Scriptsprache
 
@@ -90,426 +117,361 @@ array aTextStyle:
 		gibt an, ob die Auswahl gelogt werden soll, oder nicht. Standard: wird gelogt.
 
 	wird anstatt eines Arrays -1 angegeben, dann wird kein neues Menu geöffnet
-
-string/array aConditions:
-	ist ein String aus einer Bedingung, oder ein Array aus mehreren Bedingungen
-	die Bedingungen werden als String eingegeben. Dabei kann mit "pTarget" das ansprechende Objekt referenziert werden, und mit "pSpeaker" das angesprochene Objekt
-	Beispiele:
-	"GetName(pTarget)==\"Peter\"" ist true, wenn der Ansprechende "Peter" heißt
-	"FindContents(ROCK,pSpeaker)" ist true, wenn der Angesprochene einen Stein hat
-	Die Bedingungen werden mit eval() ausgeführt, man sollte also mit objekterstellenden "Bedingungen" vorsichtig sein, kann aber auch ein bisschen tricksen ;)
-
-
-string/array aEvents:
-	siehe aConditions. Die Befehle werden ausgeführt, wenn der Dialog ausgewählt wird
-	da für eval kein "if" erlaubt ist, muss man eine Funktion im Objekt aufrufen oder ein wenig tricksen:
-	"!FindContents(FLNT,pTarget) || RemoveObject(FindContents(FLNT,pTarget));" löscht einen Flint aus dem Objekt - falls kein Flint vorhanden wird aber das Objekt nicht gelöscht (der Parser erkennt || schon als wahr nachdem der Flint nicht vorhanden ist und führt das Löschen nicht aus)
-
-
 */
 
 /**
- * Returns an a reference to an object variable. This reference can be read and written.
- * @par szVar The variable name.
- * @par pTarget The variable is saved for this object.
- * @par pSpeaker The variable is saved in this object.
- * @return Referemce to the local variable "DlgVar[Object number][Variable name]" in pSpeaker.
- * @note This should be used in dialogues, obviously. It works outside of dialogues, too.
- * @example For scripting purposes the variable has the same parameter name, but it gets saved for different
- * objects individually.<br>
- * {@code
- * for (var i = 0; i < GetLength(customers); i++)
- * {
- *    var customerName = GetName(customers[i]);
- *    var depositValue = DlgVar("Deposit", customers[i], bank);
- *
- *    Log("%s has %d gold pieces in his account", customerName, depositValue);
- * }
- * }
- * Logs the value of deposits of each customer of this bank.
+ Returns an a reference to an object variable. This reference can be read and written.
+ @par name The variable name.
+ @par target The variable is saved for this object.
+ @par speaker The variable is saved in this object.
+ @return Reference to the local variable "DlgVar[Object number][Variable name]" in pSpeaker.
+ @note This should be used in dialogues, obviously. It works outside of dialogues, too.
+ @example For scripting purposes the variable has the same parameter name, but it gets saved for different
+ objects individually.<br>
+ {@code
+ for (var i = 0; i < GetLength(customers); i++)
+ {
+    var customerName = GetName(customers[i]);
+    var depositValue = DlgVar("Deposit", customers[i], bank);
+ 
+    Log("%s has %d gold pieces in his account", customerName, depositValue);
+ }
+ }
+ Logs the value of deposits of each customer of this bank.
  */
-global func &DlgVar(string szVar, object pTarget, object pSpeaker)
+global func &DlgVar(string name, object target, object speaker)
 {
-	return LocalN2(Format("DlgVar%d%s",ObjectNumber(pTarget),szVar),pSpeaker);
+	return LocalN2(Format("DlgVar%d%s", ObjectNumber(target), name), speaker);
 }
 
 // TODO: Remove, handle everything in DlgVar!
-global func &CreateDlgVar(string szVar, object pTarget, object pSpeaker)
+global func &CreateDlgVar(string name, object target, object speaker)
 {
-	var szName = Format("DlgVar%d%s",ObjectNumber(pTarget),szVar);
-	CreateLocalN2( szName,pSpeaker);
-	return LocalN2( szName,pSpeaker);
+	var var_name = Format("DlgVar%d%s", ObjectNumber(target), name);
+	CreateLocalN2(var_name, speaker);
+	return LocalN2(var_name, speaker);
 }
 
-local aDialogue, iStartDialogue, pLastSpeaker;
-
-// das Array manipulieren
 /**
- * Sets the dialogue contents.
- * @par aDlg The final dialogue array or other data.@brIf no array is specified, then
- * the function tries getting an array by calling:
- * {@code
- * Format("MsgDialogue%s", aDlg)
- * }
- * This method has to exist in either the story object (see TODO), or as a global function.
- * Furthermore it has to contain a valid dialogue array. Then, ValidateDialoge() is called.
+ Sets the dialogue contents.
+ @par definition The final dialogue array or other data.@brIf no array is specified, then
+ the function tries getting an array by calling:
+ {@code
+ Format("MsgDialogue%s", aDlg)
+ }
+ This method has to exist in either the story object (see GetStory()), or as a global function.
+ Furthermore it has to contain a valid dialogue array. Then, ValidateDialoge() is called.
  */
-public func SetDialogue( aDlg)
+public func SetDialogue(definition)
 {
-	// Direkteingabe
-	if( GetType(aDlg) == C4V_Array )
-		aDialogue = aDlg;
+	// direct input
+	if (GetType(definition) == C4V_Array)
+		dialogue_definition = definition;
 		
-	// oder per Szenario-Script / System.c4g
-	// sollte im Szenario-Script gesetzt werden, nicht im Editor, damit das Objekt
-	// den korrekten Dialog aus System.c4g erhält!
-	else if( aDlg )
+	// optionally via scenario-script / System.c4g
+	// should not be set in the editor, such that the
+	// object receives the correct dialogue from System.c4g
+	else if (definition)
 	{
-		var story = FindObject( _STY);
+		var story = GetStory();
 		if (story)
-			aDialogue = ObjectCall( story, Format("MsgDialogue%s", aDlg));
+			dialogue_definition = ObjectCall(story, Format("MsgDialogue%s", definition));
 		else
-			aDialogue = GameCall(Format("MsgDialogue%s", aDlg));
+			dialogue_definition = GameCall(Format("MsgDialogue%s", definition));
 	}
 
 	ValidateDialogue();
 }
 
-public func SetStartDialogueEx( int iDlg )
+public func SetStartDialogueEx(int index)
 {
-	iStartDialogue = iDlg;
+	dialogue_start_index = index;
 }
 
 /**
- * Adds a dialogue to the end of the dialogue array.
- * @par aOption The new dialogue option.
- * @note Will proably be removed
+ Adds a dialogue to the end of the dialogue array.
+ @par option The new dialogue option.
+ @note Will proably be removed
  */
-public func AddDialogue( aOption )
+public func AddDialogue(option)
 {
-	if( GetType(aDialogue) == C4V_Array )
-		PushBack( aOption, aDialogue );
+	if (GetType(dialogue_definition) == C4V_Array)
+		PushBack(option, dialogue_definition);
 }
 
 /**
- * Finds the first dialogue index that is not used.
- * @return int The first unused dialogue index.
- * @note This may mess up the displayed dialoges, may be removed in the future.
+ Opens the dialogue in an object.
+ @par target The object for which the dialogue should be displayed.
+ @note The dialogue starts at dialogue index 0 per default. You can use SetStartDialogue()
+ to change the starting index permanently.
  */
-public func GetUnusedDlgIndex()
+public func StartDialogue(object target)
 {
-	var aIndices = [];
-	for( aOption in aDialogue )
-		PushBack( aOption[gDialogue_ARRAYPOS_Index], aIndices );
+	if (GetType(dialogue_definition) != C4V_Array) return;
 
-	var i=0;
-	for( i=0; i<= GetLength(aDialogue); i++)
-		if(GetArrayItemPosition(i,aIndices)==-1)
-			break;
-
-	return i;
-}
-
-
-// Dialog aufbauen
-/**
- * Opens the dialogue in an object.
- * @par pTarget The object for which the dialogue should be displayed.
- * @note The dialogue starts at dialogue index 0 per default. You can use SetStartDialogue()
- * to change the starting index permanently.
- */
-public func StartDialogue( object pTarget )
-{
-	if( GetType(aDialogue) != C4V_Array ) return;
-
-	// bei Filmen wird der Dialog global angezeigt
+	// in cutscenes the dialogue is displayed globally
 	//var bGlobal = false;
-	//if(IsCutscene()) bCutscene = true;
-	// Begrüßung heraussuchen
-	ProcessDialogue( pTarget, iStartDialogue/*, bGlobal*/ );
+	//if (IsCutscene()) bCutscene = true;
+	// look up greeting
+	ProcessDialogue(target, dialogue_start_index);
 }
 
 /**
- * Opens a specific dialogue in an object.
- * @par pTarget The object for which the dialogue should be displayed.
- * @par iDialogue The dialogue ID at which the dialogue starts.
- * @note Contrary to StartDialogue() this is used for opening the dialogue at a specific index once.
+ Opens a specific dialogue in an object.
+ @par target The object for which the dialogue should be displayed.
+ @par index The dialogue ID at which the dialogue starts.
+ @note Contrary to StartDialogue() this is used for opening the dialogue at a specific index once.
  */
-public func StartSpecificDialogue( object pTarget, int iDialogue )
+public func StartSpecificDialogue(object target, int index)
 {
-	if( GetType(aDialogue) != C4V_Array ) return;
-	ProcessDialogue( pTarget, iDialogue );
+	if (GetType(dialogue_definition) != C4V_Array) return;
+	ProcessDialogue(target, index);
 }
 
 /**
- * Closes the dialogue menu in an object and performs all necessary cleanup operations.
- * @par pTarget The object in which the dialogue is displayed. This is the pTarget from StartDialogue().
+ Closes the dialogue menu in an object and performs all necessary cleanup operations.
+ @par target The object in which the dialogue is displayed. This is the pTarget from StartDialogue().
  */
-public func StopDialogue( object pTarget )
+public func StopDialogue(object target)
 {
-	CloseMenu( pTarget );
-
-	// bei globalen Nachrichten muss wieder der Cursor hergestellt werden
-	/*if(IsCutscene())
-		for( var i=0; i < GetPlayerCount(); i++ )
-		{
-			var iPlr = GetPlayerByIndex(i);
-			SetCursor (iPlr, GetHiRank(i), true, true);
-		}*/
+	CloseMenu(target);
 }
 
-protected func ProcessDialogue( object pTarget, int iDialogue, string szChoice/*, bool bCutscene*/ )
+protected func ProcessDialogue(object target, int index, string szChoice)
 {
-	var aOption;
-	for( aOption in aDialogue )
+	var option;
+	for (option in dialogue_definition)
 	{
-		if( aOption[gDialogue_ARRAYPOS_Index] == iDialogue ) break;
+		if (option[gDialogue_ARRAYPOS_Index] == index) break;
 	}
 
 
-	// Daten aufbauen
-	var iIndex = 		aOption[gDialogue_ARRAYPOS_Index];
-	//var iParentIndex = 	aOption[gDialogue_ARRAYPOS_Parent];
-	//var szMenuOption = 	aOption[gDialogue_ARRAYPOS_MenuOption];
-	var szText = 		aOption[gDialogue_ARRAYPOS_Text];
-	var iObjectNr = 	aOption[gDialogue_ARRAYPOS_Object]; //
-	//var aMenuStyle = 	aOption[gDialogue_ARRAYPOS_MenuStyle];
-	var aTextStyle = 	aOption[gDialogue_ARRAYPOS_TextStyle]; //
-	//var aConditions = 	aOption[gDialogue_ARRAYPOS_Conditions];
-	var aEvents = 		aOption[gDialogue_ARRAYPOS_Events];
+	// Initialize data
+	//var iIndex = 		option[gDialogue_ARRAYPOS_Index]; those are the same anyway
+	//var iParentIndex = 	option[gDialogue_ARRAYPOS_Parent];
+	//var szMenuOption = 	option[gDialogue_ARRAYPOS_MenuOption];
+	var message_text = 		option[gDialogue_ARRAYPOS_Text];
+	var object_nr = 	option[gDialogue_ARRAYPOS_Object]; //
+	//var aMenuStyle = 	option[gDialogue_ARRAYPOS_MenuStyle];
+	var text_style = 	option[gDialogue_ARRAYPOS_TextStyle]; //
+	//var aConditions = 	option[gDialogue_ARRAYPOS_Conditions];
+	var events = 		option[gDialogue_ARRAYPOS_Events];
 
-	// Events passieren lassen
-	ProcessEvents( aEvents, GetTargetString(), pTarget, GetUserString(), GetSpeaker() );
+	// fire all events for that dialogue
+	ProcessEvents(events, GetTargetString(), target, GetUserString(), GetSpeaker());
 
-	if( GetType(aTextStyle) == C4V_Int )
-		if( aTextStyle == -1)
+	if (GetType(text_style) == C4V_Int && text_style == gTextStyle_INVALID)
 			return;
 
-	// Farbe überschreiben
+	// override color
 	var dwClrOvrd = this->~GetDialogueColor();
-	//if( dwClrOvrd )
-	//{
-
-	// Textstil behandeln
-	var bNoLogChoice, szQuestToLog;
-		if( GetType(aTextStyle) == C4V_Array )
-		{
-			aTextStyle[1]=dwClrOvrd; // dwColor
-			bNoLogChoice = aTextStyle[8];
-			szQuestToLog = aTextStyle[7];
-		}
-		else
-		{
-			aTextStyle = [];
-			aTextStyle[0]=true; // fName
-			aTextStyle[1]=dwClrOvrd; // dwColor
-			bNoLogChoice = false;
-		}
-	//}
 
 
-
-	// als Nachricht statt als Box
-	var fAsMessage = false;
+	// handle text style
+	var quest_log_skip_option, quest_log_quest_name;
 	
-	if( GetType(aTextStyle) == C4V_Array ) fAsMessage = aTextStyle[gDialogue_ARRAYPOS_Object];
-
-	// Sprecher raussuchen
-	var pSpeaker = GetSpeaker();//this;
-	if( iObjectNr == -1 ) pSpeaker = pTarget;
-	if( GetType( iObjectNr ) == C4V_Int) if( iObjectNr > 0) pSpeaker = Object(iObjectNr);
-	if( GetType( iObjectNr ) == C4V_String )
+	if (GetType(text_style) == C4V_Array)
 	{
-		if( GlobalN( iObjectNr ) ) pSpeaker = GlobalN( iObjectNr );
-		if( iObjectNr == "pTarget" ) pSpeaker = pTarget;
+		text_style[gTextStyle_ARRAYPOS_Color] = dwClrOvrd; // dwColor
+		quest_log_skip_option = text_style[gTextStyle_ARRAYPOS_LogOption];
+		quest_log_quest_name = text_style[gTextStyle_ARRAYPOS_Quest];
+	}
+	else
+	{
+		text_style = [];
+		text_style[gTextStyle_ARRAYPOS_Name] = true; // fName
+		text_style[gTextStyle_ARRAYPOS_Color] = dwClrOvrd; // dwColor
+		quest_log_skip_option = false;
 	}
 
-	// Anschauen
-	SetDirTo(pSpeaker,pLastSpeaker);
-	pLastSpeaker = pSpeaker;
 
-	// Zufallsauswahl
-	if( GetType(szText) == C4V_Array )
+
+	// message instead of text box?
+	var display_as_message = false;
+	
+	if (GetType(text_style) == C4V_Array) display_as_message = text_style[gTextStyle_ARRAYPOS_Message];
+
+	// get the speaker
+	var current_speaker = GetSpeaker();
+	if (object_nr == gDialogue_Object_Target) current_speaker = target;
+	if (GetType(object_nr) == C4V_Int) if (object_nr > 0) current_speaker = Object(object_nr);
+	if (GetType(object_nr) == C4V_String)
 	{
-		szText = szText[Random(GetLength(szText))];
+		if (GlobalN(object_nr)) current_speaker = GlobalN(object_nr);
+		if (object_nr == "pTarget") current_speaker = target;
 	}
 
-	// Namen einsetzen, falls möglich
-	if(szText) szText = Format(szText,GetName(pSpeaker));
+	// look at each other
+	SetDirTo(current_speaker, last_speaker);
+	last_speaker = current_speaker;
 
-	MsgBox( pTarget, szText, pSpeaker , /* szPortrait*/ 0,  fAsMessage, true, aTextStyle );
-
-	// bei Zwischensequenzen den Cursor auf den Sprecher setzen
-	/*if( bCutscene )
+	// random text choice
+	if (GetType(message_text) == C4V_Array)
 	{
-		for( var i=0; i < GetPlayerCount(); i++ )
-		{
-			var iPlr = GetPlayerByIndex(i);
-			SetCursor (iPlr, pTarget, true, true);
-		}
-	}*/
+		message_text = message_text[Random(GetLength(message_text))];
+	}
 
-	// Auswahl hinzufügen
-	if(!fAsMessage)
-	for( aOption in aDialogue )
+	// insert names if possible
+	if (message_text) message_text = Format(message_text, GetName(current_speaker));
+
+	MsgBox(target, message_text, current_speaker , /* szPortrait*/ 0, display_as_message, true, text_style);
+
+	// add dialogue options
+	if (!display_as_message)
+	for (option in dialogue_definition)
 	{
 		var add = false;
-		if( GetType(aOption[gDialogue_ARRAYPOS_Parent]) == C4V_Array )
+		if (GetType(option[gDialogue_ARRAYPOS_Parent]) == C4V_Array)
 		{
 
-			if(GetLength(aOption[gDialogue_ARRAYPOS_Parent]))
-			if(GetArrayItemPosition(iDialogue,aOption[gDialogue_ARRAYPOS_Parent]) > -1
-			|| (GetArrayItemPosition(-1,aOption[gDialogue_ARRAYPOS_Parent])> -1 && aOption[gDialogue_ARRAYPOS_MenuOption]))
-			//if( GetArrayItemPosition( iIndex, aOption[gDialogue_ARRAYPOS_Parent] ) > -1 )
+			if (GetLength(option[gDialogue_ARRAYPOS_Parent]))
+			if (GetArrayItemPosition(index, option[gDialogue_ARRAYPOS_Parent]) > -1
+		    || (GetArrayItemPosition(-1, option[gDialogue_ARRAYPOS_Parent])> -1 && option[gDialogue_ARRAYPOS_MenuOption]))
+			//if (GetArrayItemPosition(iIndex, aOption[gDialogue_ARRAYPOS_Parent]) > -1)
 			{
-				DebugLog("%d in %v",iIndex, aOption[gDialogue_ARRAYPOS_Parent]);
+				DebugLog("%d in %v", index, option[gDialogue_ARRAYPOS_Parent]);
 				add = true;
 			}
 		}
 		else
 		{
-			//if( aOption[gDialogue_ARRAYPOS_Parent] == iIndex ) add = true;
-			if( aOption[gDialogue_ARRAYPOS_Parent] == iDialogue ) add = true;
-			if( aOption[gDialogue_ARRAYPOS_Parent] == -1 && aOption[gDialogue_ARRAYPOS_MenuOption] ) add = true; // nur, wenn er eine Menu-Auswahl hat!
+			//if (aOption[gDialogue_ARRAYPOS_Parent] == iIndex) add = true;
+			if (option[gDialogue_ARRAYPOS_Parent] == index) add = true;
+			if (option[gDialogue_ARRAYPOS_Parent] == -1 && option[gDialogue_ARRAYPOS_MenuOption]) add = true; // nur, wenn er eine Menu-Auswahl hat!
 
-			//if( aOption[gDialogue_ARRAYPOS_Parent] == -1 && GetType(aOption[gDialogue_ARRAYPOS_MenuOption]) == C4V_String && aOption[gDialogue_ARRAYPOS_MenuOption] != "") add = true;
-			DebugLog("check add %d: %d %d, %v", aOption[gDialogue_ARRAYPOS_Index], aOption[gDialogue_ARRAYPOS_Parent], iDialogue, add);
+			//if (aOption[gDialogue_ARRAYPOS_Parent] == -1 && GetType(aOption[gDialogue_ARRAYPOS_MenuOption]) == C4V_String && aOption[gDialogue_ARRAYPOS_MenuOption] != "") add = true;
+			DebugLog("check add %d: %d %d, %v", option[gDialogue_ARRAYPOS_Index], option[gDialogue_ARRAYPOS_Parent], index, add);
 
 		}
 
-		//if(aOption[gDialogue_ARRAYPOS_Index] == 0) add = false;
-		if(aOption[gDialogue_ARRAYPOS_MenuOption] == "" && aOption[gDialogue_ARRAYPOS_Text] == "") {add = false; DebugLog("Cancel add 0");}
-		if( GetType(aOption[gDialogue_ARRAYPOS_MenuOption]) != C4V_String && GetType(aOption[gDialogue_ARRAYPOS_Text]) != C4V_Array ) {add = false; DebugLog("Cancel add 1");}
-		if( GetType(aOption[gDialogue_ARRAYPOS_Text]) != C4V_String && GetType(aOption[gDialogue_ARRAYPOS_Text]) != C4V_Array ) {add = false; DebugLog("Cancel add 2");}
+		//if (aOption[gDialogue_ARRAYPOS_Index] == 0) add = false;
+		if (option[gDialogue_ARRAYPOS_MenuOption] == "" && option[gDialogue_ARRAYPOS_Text] == "") {add = false; DebugLog("Cancel add 0");}
+		if (GetType(option[gDialogue_ARRAYPOS_MenuOption]) != C4V_String && GetType(option[gDialogue_ARRAYPOS_Text]) != C4V_Array) {add = false; DebugLog("Cancel add 1");}
+		if (GetType(option[gDialogue_ARRAYPOS_Text]) != C4V_String && GetType(option[gDialogue_ARRAYPOS_Text]) != C4V_Array) {add = false; DebugLog("Cancel add 2");}
 
-		if( add )
+		if (add)
 		{
-			//DebugLog("Dialog Final: %d in %v: %s %s",iIndex, aOption[gDialogue_ARRAYPOS_Parent] , aOption[gDialogue_ARRAYPOS_MenuOption], aOption[gDialogue_ARRAYPOS_Text]);
-			ProcessDialogueOption( pTarget, aOption[gDialogue_ARRAYPOS_Index] );
+			//DebugLog("Dialog Final: %d in %v: %s %s", iIndex, aOption[gDialogue_ARRAYPOS_Parent] , aOption[gDialogue_ARRAYPOS_MenuOption], aOption[gDialogue_ARRAYPOS_Text]);
+			ProcessDialogueOption(target, option[gDialogue_ARRAYPOS_Index]);
 		}
 	}
 
 
-	// Eintrag ins Questlog
-	if(szQuestToLog)
+	// quest log entry
+	if (quest_log_quest_name)
 	{
-		var bGlobal = false;
-		if( pTarget == GetFilm()) bGlobal = true;
+		var quest_log_global = false;
+		if (target == GetFilm()) quest_log_global = true;
 
-		if(!bNoLogChoice)
-			AddQuestLog(szQuestToLog,[Format("<c %x>%s:</c>", GetColorDlg(pTarget), GetName(pTarget)),szChoice],pTarget,bGlobal);
+		if (!quest_log_skip_option)
+			AddQuestLog(quest_log_quest_name, [Format("<c %x>%s:</c>", GetColorDlg(target), GetName(target)), szChoice], target, quest_log_global);
 
-		AddQuestLog(szQuestToLog,[Format("<c %x>%s:</c>", GetColorDlg(pSpeaker), GetName(pSpeaker)),szText],pTarget,bGlobal);
+		AddQuestLog(quest_log_quest_name, [Format("<c %x>%s:</c>", GetColorDlg(current_speaker), GetName(current_speaker)), message_text], target, quest_log_global);
 	}
-
 }
 
-protected func ProcessDialogueOption( object pTarget, iDialogue )
+protected func ProcessDialogueOption(object target, index)
 {
-	var aOption;
-	for( aOption in aDialogue )
+	var option;
+	for(option in dialogue_definition)
 	{
-		if( aOption[gDialogue_ARRAYPOS_Index] == iDialogue ) break;
+		if (option[gDialogue_ARRAYPOS_Index] == index) break;
 	}
 
 	// Daten aufbauen
-	var iIndex = 		aOption[gDialogue_ARRAYPOS_Index];
+	//var iIndex = 		aOption[gDialogue_ARRAYPOS_Index];
 	//var iParentIndex = 	aOption[gDialogue_ARRAYPOS_Parent];
-	var szMenuOption = 	aOption[gDialogue_ARRAYPOS_MenuOption];
-	var szText = 		aOption[gDialogue_ARRAYPOS_Text];
+	var menu_item_text = 	option[gDialogue_ARRAYPOS_MenuOption];
+	var message_text = 		option[gDialogue_ARRAYPOS_Text];
 	//var iObjectNr = 	aOption[gDialogue_ARRAYPOS_Object];
-	var aMenuStyle = 	aOption[gDialogue_ARRAYPOS_MenuStyle];
+	var menu_style = 	option[gDialogue_ARRAYPOS_MenuStyle];
 	//var aTextStyle = 	aOption[gDialogue_ARRAYPOS_TextStyle];
-	var aConditions = 	aOption[gDialogue_ARRAYPOS_Conditions];
+	var conditions = 	option[gDialogue_ARRAYPOS_Conditions];
 	//var aEvents = 		aOption[gDialogue_ARRAYPOS_Events];
 
 	// vorerst gibt es noch keine Conditions
-	var fAdd = false;
+	var add = false;
 
-	//if( CheckConditions(  aConditions, GetTargetString(), pTarget, GetUserString(), GetSpeaker())) fAdd = true;
-	var conditionInfo = CheckConditionsDetailed(  aConditions, GetTargetString(), pTarget, GetUserString(), GetSpeaker());
+	//if (CheckConditions(aConditions, GetTargetString(), pTarget, GetUserString(), GetSpeaker())) fAdd = true;
+	var conditionInfo = CheckConditionsDetailed(conditions, GetTargetString(), target, GetUserString(), GetSpeaker());
 
-	fAdd = conditionInfo[0];
-	var iFulfilled = conditionInfo[1];
+	add = conditionInfo[0];
+	var conditions_fulfilled = conditionInfo[1];
 
-	if (GetType(szText) == C4V_Array)
+	if (GetType(message_text) == C4V_Array)
 	{
-		szText = szText[Random(GetLength(szText))];
+		message_text = message_text[Random(GetLength(message_text))];
 	}
 
-	if( szMenuOption == 0 || szMenuOption == "" )
+	if (menu_item_text == 0 || menu_item_text == "")
 	{
-		if( szText )
+		if (message_text)
 		{
 			// hier fehlt noch die Verarbeitung von aTextStyle
-			MsgBoxAddText(pTarget, szText);
+			MsgBoxAddText(target, message_text);
 		}
 	}
 	else
 	{
-		var idIcon = NONE;
+		var menu_icon = NONE;
 		var extra, xPar;
-		var iStyle = 0;
-		var dwCol, iIndexOvr = iIndex;
-		//var bNoLog = false;
+		var conditions_required = 0;
+		var message_color, index_override = index;
 
-		if( GetType(aMenuStyle) == C4V_Array )
+
+		if (GetType(menu_style) == C4V_Array)
 		{
-			idIcon = aMenuStyle[0];
-			dwCol = aMenuStyle[1];
-			iStyle = aMenuStyle[2];
-			extra = aMenuStyle[3];
-			xPar = aMenuStyle[4];
-			if( aMenuStyle[5] != 0 ) iIndexOvr = aMenuStyle[5]-1;
+			menu_icon = menu_style[gMenuStyle_ARRAYPOS_Icon];
+			message_color = menu_style[gMenuStyle_ARRAYPOS_Color];
+			conditions_required = menu_style[gMenuStyle_ARRAYPOS_Conditions];
+			extra = menu_style[gMenuStyle_ARRAYPOS_Extra];
+			xPar = menu_style[gMenuStyle_ARRAYPOS_XPar1];
+			if (menu_style[gMenuStyle_ARRAYPOS_Index] != 0) index_override = menu_style[gMenuStyle_ARRAYPOS_Index]-1;
 		}
-		if( GetType(aMenuStyle) == C4V_C4ID )
-			idIcon = aMenuStyle;
-
-		//if( GetType(aTextStyle) == C4V_Array )
-		//	bNoLog = aMenuStyle[8];
-
+		if (GetType(menu_style) == C4V_C4ID)
+			menu_icon = menu_style;
 
 		// Farbe überschreiben
-		var dwClrOvrd = this->~GetDialogueOptionColor();
-		if( dwClrOvrd ) dwCol = dwClrOvrd;
-		if(!dwCol) dwCol = RGB(245,245,245); // etwas dunkler, damit man es vom Text unterscheiden kann
-		if( fAdd == false ) dwCol = RGB(255,0,0);
-		if( dwCol ) szMenuOption=ColorizeString(szMenuOption,dwCol);
+		var override_color = this->~GetDialogueOptionColor();
+		if (override_color) message_color = override_color;
+		if (!message_color) message_color = RGB(245, 245, 245); // etwas dunkler, damit man es vom Text unterscheiden kann
+		if (add == false) message_color = RGB(255, 0, 0);
+		if (message_color) menu_item_text = ColorizeString(menu_item_text, message_color);
 
-		var szCommand=Format("ProcessDialogue(Object(%d),%d,\"%s\")",ObjectNumber(pTarget),iIndexOvr, szMenuOption );
-		//if( bNoLog ) szCommand=Format("ProcessDialogue(Object(%d),%d,0)",ObjectNumber(pTarget),iIndexOvr );
+		var command = Format("ProcessDialogue(Object(%d), %d, \"%s\")", ObjectNumber(target), index_override, menu_item_text);
+		//if (bNoLog) szCommand = Format("ProcessDialogue(Object(%d), %d, 0)", ObjectNumber(pTarget), iIndexOvr);
 
-		if( fAdd == false && iStyle == 1) szCommand = "eval(\"true\")";//"";
+		if (add == false && conditions_required == 1) command = "eval(\"true\")";//"";
 
-		if( fAdd || (iStyle > 0 && iFulfilled >= iStyle))
-			MsgBoxAddOption( pTarget, idIcon, szMenuOption, szCommand, 0, extra, xPar);
+		if (add || (conditions_required > 0 && conditions_fulfilled >= conditions_required))
+			MsgBoxAddOption(target, menu_icon, menu_item_text, command, 0, extra, xPar);
 	}
 
 }
 
 /**
- * The object that the target speaks to in the dialogue. This is usually an NPC or the dialogue object itself.
- * @return object An object, which is classified as the speaker. Default value: this.
- * @note You do not need to change this.
+ The object that the target speaks to in the dialogue. This is usually an NPC or the dialogue object itself.
+ @return object An object, which is classified as the speaker. Default value: this.
+ @note You do not need to change this.
  */
 public func GetSpeaker(){ return this; }
 
 /**
- * The script system replaces this string with a reference to the day-night-cycle object.
- * @return String that is used in the script language: "pSpeaker".
+ The script system replaces this string with a reference to the day-night-cycle object.
+ @return String that is used in the script language: "pSpeaker".
  */
 public func GetUserString(){ return "pSpeaker"; }
 
 /**
- * The script system replaces this string with a reference to the target object.
- * @return String that is used in the script language: "pTarget".
+ The script system replaces this string with a reference to the target object.
+ @return String that is used in the script language: "pTarget".
  */
 public func GetTargetString(){ return "pTarget"; }
 
 /**
- * Prints a dialogue tree in the log. This may be useful for debugging and finding places where a dialogue option should be displayed, but isn't.
- * @note The log output is a debug log, enable debug mode first.
- * TODO: reference debug mode
+ Prints a dialogue tree in the log. This may be useful for debugging and finding places where a dialogue option should be displayed, but isn't.
+ @note The log output is a debug log, enable debug mode first.
+ TODO: reference debug mode
  */
 public func printTree()
 {
@@ -520,47 +482,43 @@ public func printTree()
 	mapping = [];
 	visited = [];
 	
-	for(var i=0; i<GetLength(aDialogue); i++)
+	for(var i = 0; i < GetLength(dialogue_definition); i++)
 	{
-		mapping[i]=aDialogue[i][gDialogue_ARRAYPOS_Index];
+		mapping[i] = dialogue_definition[i][gDialogue_ARRAYPOS_Index];
 	}
-	for(var i=0; i<GetLength(aDialogue); i++)
+	for(var i = 0; i<GetLength(dialogue_definition); i++)
 	{
-		var parentid = aDialogue[i][gDialogue_ARRAYPOS_Index];
-		var node = [i,[]]; // node, children
+		var parentid = dialogue_definition[i][gDialogue_ARRAYPOS_Index];
+		var node = [i, []]; // node, children
 
-		for(var j=0; j<GetLength(aDialogue); j++)
+		for(var j = 0; j<GetLength(dialogue_definition); j++)
 		{
-			if(j == i) continue;
+			if (j == i) continue;
 
-			var parentIndex = aDialogue[j][gDialogue_ARRAYPOS_Parent];
+			var parentIndex = dialogue_definition[j][gDialogue_ARRAYPOS_Parent];
 
-			if( GetType(parentIndex) == C4V_Array )
+			if (GetType(parentIndex) == C4V_Array)
 			{
 				for(var parent in parentIndex)
 				{
-					if(parent == parentid || parent == -1)
+					if (parent == parentid || parent == -1)
 					{
-						PushBack(GetArrayItemPosition(aDialogue[j][gDialogue_ARRAYPOS_Index],mapping),node[1]);
+						PushBack(GetArrayItemPosition(dialogue_definition[j][gDialogue_ARRAYPOS_Index], mapping), node[1]);
 					}
 				}
 			}
-			else if(parentIndex == parentid || parentIndex == -1)
+			else if (parentIndex == parentid || parentIndex == -1)
 			{
-				if(parentid == 1)
-					DebugLog("XXX Adding quest: %d",j);
-				PushBack(GetArrayItemPosition(aDialogue[j][gDialogue_ARRAYPOS_Index],mapping),node[1]); // add j as child of node;
+				if (parentid == 1)
+					DebugLog("XXX Adding quest: %d", j);
+				PushBack(GetArrayItemPosition(dialogue_definition[j][gDialogue_ARRAYPOS_Index], mapping), node[1]); // add j as child of node;
 			}
 		}
 
-		PushBack(node,tree);
+		PushBack(node, tree);
 	}
 
-	//for(var node in tree)
-	//{
-	//	printChildren(node[0],0);
-	//}
-		printChildren(tree[0][0],0,[-1]);
+	printChildren(tree[0][0], 0, [-1]);
 
 }
 
@@ -570,7 +528,7 @@ public func printChildren(int parentid, int depth, array children)
 	for(var index = 0; index < GetLength(tree); index++)
 	{
 		node = tree[index];
-		if(node[0] == parentid) break;
+		if (node[0] == parentid) break;
 	}
 
 	visited[parentid]++;
@@ -579,60 +537,55 @@ public func printChildren(int parentid, int depth, array children)
 	for(var i = 0; i<depth; i++)
 	{
 		var space = "   ";
-		if(i==depth-1)
+		if (i == depth-1)
 		{
 			space = " * ";
 		}
-		message = Format("%s%s", message,space);
+		message = Format("%s%s", message, space);
 	}
 
 	var option, answer;
-	answer = aDialogue[node[0]][gDialogue_ARRAYPOS_Text];
-	option = aDialogue[node[0]][gDialogue_ARRAYPOS_MenuOption];
+	answer = dialogue_definition[node[0]][gDialogue_ARRAYPOS_Text];
+	option = dialogue_definition[node[0]][gDialogue_ARRAYPOS_MenuOption];
 
-	if(GetType(answer) != C4V_String) answer = "(null)";
-	if(GetType(option) != C4V_String) option = "(null)";
+	if (GetType(answer) != C4V_String) answer = "(null)";
+	if (GetType(option) != C4V_String) option = "(null)";
 
-	message = Format("%s[%s]:%s",message,option,answer);
+	message = Format("%s[%s]:%s", message, option, answer);
 
 	DebugLog(message);
 
-	if(visited[parentid] > 1) return;
+	if (visited[parentid] > 1) return;
 
 	for(var j = 0; j<GetLength(node[1]); j++)
 	{
-			var child = node[1][j];
-//		var cancel = false;
-//		if(GetArrayItemPosition(parentid,children)>= 0 )
-//		{
-//		 if(depth>50) cancel = true;
-//		}
-//		if(cancel) continue;
-		printChildren(child,depth+1,node[1]);
+		var child = node[1][j];
+
+		printChildren(child, depth+1, node[1]);
 	}
 }
 
 public func printEntries()
 {
-	for(var field in aDialogue)
+	for(var field in dialogue_definition)
 	{
-		DebugLog("%d, parents %v: %s  - %v", field[0],field[1],field[2],field[3]);
+		DebugLog("%d, parents %v: %s  - %v", field[0], field[1], field[2], field[3]);
 	}
 }
 
 /**
- * Verifies, that the dialogue array is valid and creates entries built by TODO.
- * @note You do not have to call this yourself, this function gets called by SetDialogue()
+ Verifies, that the dialogue array is valid and creates entries built by TODO.
+ @note You do not have to call this yourself, this function gets called by SetDialogue()
  */
 public func ValidateDialogue()
 {
-	if (GetType(aDialogue) != C4V_Array) return 0;
+	if (GetType(dialogue_definition) != C4V_Array) return 0;
 
 	var reasons = [];
 
-	for(var i=0; i < GetLength(aDialogue); i++)
+	for(var i = 0; i < GetLength(dialogue_definition); i++)
 	{
-		var option = aDialogue[i];
+		var option = dialogue_definition[i];
 
 		if (!option)
 		{
@@ -644,7 +597,7 @@ public func ValidateDialogue()
 		{
 			var actualDialogue = option->Create();
 			DebugLog(Format("Converted aDialogue[%d] from %i-object to actual dialogue", i, ID_Helper_DialogueBuilder));
-			aDialogue[i] = actualDialogue;
+			dialogue_definition[i] = actualDialogue;
 		}
 		else if (GetType(option) != C4V_Array)
 		{
@@ -656,6 +609,6 @@ public func ValidateDialogue()
 
 	if (GetLength(reasons) > 0)
 	{
-		aDialogue = [[0, -1, 0, "Dialogue is not functional, see error log for details."]];
+		dialogue_definition = [[0, -1, 0, "Dialogue is not functional, see error log for details."]];
 	}
 }
