@@ -309,7 +309,7 @@ protected func ProcessDialogue(object target, int index, string szChoice)
 	// insert names if possible
 	if (message_text) message_text = Format(message_text, GetName(current_speaker));
 
-	MsgBox(target, message_text, current_speaker , /* szPortrait*/ 0, display_as_message, true, text_style);
+	MessageBox(target, message_text, current_speaker , /* szPortrait*/ 0, display_as_message, true, text_style);
 
 	// add dialogue options
 	if (!display_as_message)
@@ -392,7 +392,7 @@ protected func ProcessDialogueOption(object target, index)
 		if (message_text)
 		{
 			// does not take text_style into account yet
-			MsgBoxAddText(target, message_text);
+			MessageBoxAddText(target, message_text);
 		}
 	}
 	else
@@ -438,7 +438,7 @@ protected func ProcessDialogueOption(object target, index)
 		if (add == false && conditions_active && conditions_fulfilled < GetLength(conditions)) command = "eval(\"true\")"; // dummy command
 
 		if (add || (conditions_active && conditions_fulfilled >= conditions_required))
-			MsgBoxAddOption(target, menu_icon, menu_item_text, command, 0, extra, xpar1, xpar2);
+			MessageBoxAddOption(target, menu_icon, menu_item_text, command, 0, extra, xpar1, xpar2);
 	}
 
 }

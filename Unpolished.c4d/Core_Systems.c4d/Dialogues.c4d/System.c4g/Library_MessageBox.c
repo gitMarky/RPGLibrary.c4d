@@ -2,21 +2,21 @@
 
 #strict 2
 
-global func MsgBoxGetTargetByPlayer(object player)
+global func MessageBoxGetTargetByPlayer(object player)
 {
 	var message_target = GetCursor(GetController(player));
 	if (!message_target) message_target = player;
 	return message_target;
 }
 
-global func MsgBox(object player, string message, object speaker, string portrait, bool display_as_message, bool is_permanent, array text_style)
+global func MessageBox(object player, string message, object speaker, string portrait, bool display_as_message, bool is_permanent, array text_style)
 {
 	// Defaults
 	if (!player) if (!(player = this)) return false;
 	if (!speaker) if (!(speaker = this)) return false;
 	if (!message) return false;
 	if (!portrait) if (!(portrait = speaker->~GetMsgPortrait())) portrait = "1";
-	var message_target = MsgBoxGetTargetByPlayer(player);
+	var message_target = MessageBoxGetTargetByPlayer(player);
 	
 	// Determine portrait
 	var char, i, portrait_string = "";
@@ -112,16 +112,16 @@ global func MsgBox(object player, string message, object speaker, string portrai
 	return true;
 }
   
-global func MsgBoxAddText(object player, string text)
+global func MessageBoxAddText(object player, string text)
 {
-	var pMsgTarget = MsgBoxGetTargetByPlayer(player);
+	var pMsgTarget = MessageBoxGetTargetByPlayer(player);
 	return AddMenuItem(text, "", NONE, pMsgTarget, 0, 0, 0, C4MN_Add_ForceNoDesc);
 }
 
-global func MsgBoxAddOption(object player, id icon, string option, string command, param, int extra, xpar1, xpar2)
+global func MessageBoxAddOption(object player, id icon, string option, string command, param, int extra, xpar1, xpar2)
 {
 	// Optionen
 	extra |= C4MN_Add_ForceNoDesc;
-	var pMsgTarget = MsgBoxGetTargetByPlayer(player);
+	var pMsgTarget = MessageBoxGetTargetByPlayer(player);
 	return AddMenuItem(option, command, icon, pMsgTarget, 0, param, 0, extra, xpar1, xpar2);
 }
