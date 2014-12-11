@@ -2,167 +2,126 @@
 
 #strict 2
 
-global func MsgBoxGetTargetByPlayer(object pPlayer)
+global func MsgBoxGetTargetByPlayer(object player)
 {
-	var pMsgTarget = GetCursor(GetController(pPlayer));
-	if (!pMsgTarget)
-		pMsgTarget = pPlayer;
-	return pMsgTarget;
+	var message_target = GetCursor(GetController(player));
+	if (!message_target) message_target = player;
+	return message_target;
 }
 
-global func MsgBox(object pPlayer, string sMessage, object pSpeaker, string szPortrait, bool fAsMessage, bool fPermanent, array aOptions)
+global func MsgBox(object player, string message, object speaker, string portrait, bool display_as_message, bool is_permanent, array text_style)
 {
 	// Defaults
-	if (!pPlayer)
-		if (!(pPlayer = this))
-			return false;
-	if (!pSpeaker)
-		if (!(pSpeaker = this))
-			return false;
-	if (!sMessage)
-		return false;
-	if (!szPortrait)
-		if (!(szPortrait = pSpeaker->~GetMsgPortrait()))
-			szPortrait = "1";
-	var pMsgTarget = MsgBoxGetTargetByPlayer(pPlayer);
-	// Portrait ermitteln
-	var c, i, p2 = "";
-	if (GetChar(szPortrait) == GetChar("@"))
+	if (!player) if (!(player = this)) return false;
+	if (!speaker) if (!(speaker = this)) return false;
+	if (!message) return false;
+	if (!portrait) if (!(portrait = speaker->~GetMsgPortrait())) portrait = "1";
+	var message_target = MsgBoxGetTargetByPlayer(player);
+	
+	// Determine portrait
+	var char, i, portrait_string = "";
+	
+	if (GetChar(portrait) == GetChar("@"))
 	{
-		// @Portrait: Aus dieser Definition holen
-		while (c = GetChar(szPortrait, ++i))
-			p2 = Format("%s%c", p2, c);
-		szPortrait = Format("Portrait:%i::%x::%s", DG69, GetColorDw(pSpeaker), p2);
+		// @Portrait: get from this definition
+		while (char = GetChar(portrait, ++i)) portrait_string = Format("%s%c", portrait_string, char);
+		portrait = Format("Portrait:%i::%x::%s", ID_Helper_DefaultPortrait, GetColorDw(speaker), portrait_string);
 	}
 	else
 	{
-		var id = GetPortrait(pSpeaker, 1); //GetID(pSpeaker);
-		if (!id)
-			id = GetID(pSpeaker);
-		// Manche Clonks haben kein eignes Portrait und verwenden Standartportraits
+		var id = GetPortrait(speaker, 1);
+		if (!id) id = GetID(speaker);
+		// Some clonks do not have their own portrait, so they use defaults
 		if (id == ACLK || id == _ACK)
 			id = CLNK;
 		if (id == WDSK)
 			id = MAGE;
-		// Ansonsten direkt vom Sprecher
-		szPortrait = Format("Portrait:%i::%x::%s", id, GetColorDw(pSpeaker), szPortrait);
+		// Otherwise get it from the speaker
+		portrait = Format("Portrait:%i::%x::%s", id, GetColorDw(speaker), portrait);
 	}
-	var iSpeakerNameLen = 0;
-	while (GetChar(GetName(pSpeaker), iSpeakerNameLen))
-		++iSpeakerNameLen;
-	// Farbe ermitteln
-	//var dwClr = pSpeaker->~GetDlgMsgColor();
-	//if (!dwClr) dwClr = GetColorDw(pSpeaker);
-	//if (!dwClr) dwClr = 255;
-	var dwClr = GetColorDlg(pSpeaker);
-	// Farbe lesbar machen
-	//dwClr = MakeReadableColor( dwClr );
+	var speaker_name_length = 0;
+	while (GetChar(GetName(speaker), speaker_name_length)) ++speaker_name_length;
+	
+	// Determine color
+	var color = GetColorDlg(speaker);
 	// MenuDecoration
-	var idMenuDeco = MD69;
-	var szMenuCaption = "";
-	if (!(idMenuDeco = (pSpeaker->~GetDlgMsgDeco())))
-		idMenuDeco = MD69;
-	if (GetType(aOptions) == C4V_Array)
+	var menu_deco = ID_MenuDeco_Default;
+	var menu_caption = "";
+	if (!(menu_deco = (speaker->~GetDlgMsgDeco()))) menu_deco = ID_MenuDeco_Default;
+	if (GetType(text_style) == C4V_Array)
 	{
-		if (aOptions[5])
-			idMenuDeco = aOptions[5];
-		if (aOptions[6])
-			szMenuCaption = aOptions[6];
+		if (text_style[gTextStyle_ARRAYPOS_MenuDeco]) menu_deco = text_style[gTextStyle_ARRAYPOS_MenuDeco];
+		if (text_style[gTextStyle_ARRAYPOS_MenuCaption]) menu_caption = text_style[gTextStyle_ARRAYPOS_MenuCaption];
 	}
-	// Wie ausgeben?
-	if (fAsMessage)
+	// How to display?
+	if (display_as_message)
 	{
-		CloseMenu(pPlayer);
-		// Nachricht als reguläre Message; Spieler nicht stoppen
-		CustomMessage
-		(
-			Format("<c %x>%s:</c> %s", dwClr, GetName(pSpeaker), sMessage),
-			0,
-			GetController(pPlayer),
-			0,
-			35,
-			0xFFFFFF,
-			idMenuDeco,
-			szPortrait,
-			MSG_HCenter | MSG_Top
-		);
+		CloseMenu(player);
+		// Message as custom message, do not stop the player
+		CustomMessage(Format("<c %x>%s:</c> %s", color, GetName(speaker), message), 0, GetController(player), 0, 35, 0xFFFFFF, menu_deco, portrait, MSG_HCenter | MSG_Top);
 	}
 	else
 	{
-		// Nachricht als Menü
-		// Spieler soll anhalten, damit er nicht ins Verderben läuft
-		StopClonkEx(pPlayer);
-		if (!CreateMenu(_CAM, pMsgTarget, this, 0, szMenuCaption, 0, C4MN_Style_Dialog, fPermanent, _CAM))
-			return false;
-		if (GetType(aOptions) == C4V_Array)
+		// Message as menu
+		// The player has to stop or else he runs into oblivion
+		StopClonkEx(player);
+		if (!CreateMenu(ID_MenuIcon_Default, message_target, this, 0, menu_caption, 0, C4MN_Style_Dialog, is_permanent, ID_MenuIcon_Default)) return false;
+		if (GetType(text_style) == C4V_Array)
 		{
-			var fName, dwColor, fInstant;
+			var display_name, text_color, display_instantly;
 			
-			fName = aOptions[0];
-			dwColor = aOptions[1];
-			fInstant = aOptions[2];
-			if (aOptions[3])
-				szPortrait = aOptions[3];
+			display_name = text_style[gTextStyle_ARRAYPOS_Name];
+			text_color = text_style[gTextStyle_ARRAYPOS_Color];
+			display_instantly = text_style[gTextStyle_ARRAYPOS_Instant];
+			if (text_style[gTextStyle_ARRAYPOS_Portrait])
+				portrait = text_style[gTextStyle_ARRAYPOS_Portrait];
 			
-			var szMsgBox = sMessage;
-			if (dwColor)
-				szMsgBox = ColorizeString(szMsgBox, dwColor);
-			if (fName)
-				szMsgBox = Format("<c %x>%s:</c> %s", dwClr, GetName(pSpeaker), szMsgBox);
-			AddMenuItem(szPortrait, "", NONE, pMsgTarget, 0, 0, "", C4MN_Add_ImgTextSpec, 0, 0);
-			AddMenuItem(szMsgBox, "", NONE, pMsgTarget, 0, 0, "", C4MN_Add_ForceNoDesc, 0, 0);
+			var text = message;
+			if (text_color)
+				text = ColorizeString(text, text_color);
+			if (display_name)
+				text = Format("<c %x>%s:</c> %s", color, GetName(speaker), text);
+
+			AddMenuItem(portrait, "", NONE, message_target, 0, 0, "", C4MN_Add_ImgTextSpec, 0, 0);
+			AddMenuItem(text, "", NONE, message_target, 0, 0, "", C4MN_Add_ForceNoDesc, 0, 0);
 			
-			if (fInstant)
+			if (display_instantly)
 			{
-				var iMsgBoxLen = 0;
-				while (GetChar(szMsgBox, iMsgBoxLen))
-					++iMsgBoxLen;
-				iSpeakerNameLen += iMsgBoxLen;
+				var text_length = 0;
+				while (GetChar(text, text_length)) ++text_length;
+				speaker_name_length += text_length;
 			}
-			//SetMenuTextProgress(iSpeakerNameLen+1, pMsgTarget);
 		}
 		else
 		{
-			AddMenuItem(szPortrait, "", NONE, pMsgTarget, 0, 0, "", C4MN_Add_ImgTextSpec, 0, 0);
-			AddMenuItem
-			(
-				Format("<c %x>%s:</c> %s", dwClr, GetName(pSpeaker), sMessage),
-				"",
-				NONE,
-				pMsgTarget,
-				0,
-				0,
-				"",
-				C4MN_Add_ForceNoDesc,
-				0,
-				0
-			);
-			//SetMenuDecoration(MD69, pMsgTarget);
-			//SetMenuTextProgress(iSpeakerNameLen+1, pMsgTarget);
+			AddMenuItem(portrait, "", NONE, message_target, 0, 0, "", C4MN_Add_ImgTextSpec, 0, 0);
+			AddMenuItem(Format("<c %x>%s:</c> %s", color, GetName(speaker), message), "", NONE, message_target, 0, 0, "", C4MN_Add_ForceNoDesc, 0, 0);
 		}
-		if (idMenuDeco == NONE || idMenuDeco == -1)
-			SetMenuDecoration(0, pMsgTarget);
+		if (menu_deco == NONE || menu_deco == -1)
+		{
+			SetMenuDecoration(0, message_target);
+		}
 		else
 		{
-			SetMenuDecoration(idMenuDeco, pMsgTarget);
+			SetMenuDecoration(menu_deco, message_target);
 		}
 		
-		SetMenuTextProgress(iSpeakerNameLen + 1, pMsgTarget);
+		SetMenuTextProgress(speaker_name_length + 1, message_target);
 	}
 	
 	return true;
 }
   
-global func MsgBoxAddText(object pPlayer, string sText)
+global func MsgBoxAddText(object player, string text)
 {
-	var pMsgTarget = MsgBoxGetTargetByPlayer(pPlayer);
-	return AddMenuItem(sText, "", NONE, pMsgTarget, 0, 0, 0, C4MN_Add_ForceNoDesc);
+	var pMsgTarget = MsgBoxGetTargetByPlayer(player);
+	return AddMenuItem(text, "", NONE, pMsgTarget, 0, 0, 0, C4MN_Add_ForceNoDesc);
 }
 
-global func MsgBoxAddOption(object pPlayer, id idIcon, string sOption, string sCommand, vParam, int extra, xPar)
+global func MsgBoxAddOption(object player, id icon, string option, string command, param, int extra, xpar1, xpar2)
 {
 	// Optionen
 	extra |= C4MN_Add_ForceNoDesc;
-	var pMsgTarget = MsgBoxGetTargetByPlayer(pPlayer);
-	return AddMenuItem(sOption, sCommand, idIcon, pMsgTarget, 0, vParam, 0, extra, xPar);
+	var pMsgTarget = MsgBoxGetTargetByPlayer(player);
+	return AddMenuItem(option, command, icon, pMsgTarget, 0, param, 0, extra, xpar1, xpar2);
 }

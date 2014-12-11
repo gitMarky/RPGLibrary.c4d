@@ -65,6 +65,6 @@ public func DscQuestArthursArmor( bool bPhases )
 
 func DayNightCycleMarvin()
 {
-	return [[6,0,"AddBehaviour(pTarget, gBehaviour_WanderPoint, 20, [[215, 400],30,5,35,50], gBehaviour_Priority_Idle)"],
-	        [18,0,"RemoveBehaviour(pTarget, gBehaviour_WanderPoint, gBehaviour_Priority_Idle)"]];
+	return [[6,0,"AddBehaviour(pTarget, gBehaviour_Wander_Point, 20, [[215, 400],30,5,35,50], gBehaviour_Priority_Idle)"],
+	        [18,0,"RemoveBehaviour(pTarget, gBehaviour_Wander_Point, gBehaviour_Priority_Idle)"]];
 }

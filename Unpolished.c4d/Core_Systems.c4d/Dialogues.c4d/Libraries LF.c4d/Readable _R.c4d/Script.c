@@ -29,6 +29,8 @@ static const gMenuStyle_ARRAYPOS_Conditions = 	2; // Anzahl der Bedingungen, die
 static const gMenuStyle_ARRAYPOS_Extra = 		3; // siehe AddMenuItem
 static const gMenuStyle_ARRAYPOS_XPar1  = 		4; // siehe AddMenuItem
 static const gMenuStyle_ARRAYPOS_Index = 		5; // springt zum angegebenen Dialogindex, anstatt die eigene Nachricht auszuwählen
+static const gMenuStyle_ARRAYPOS_XPar2  = 		6; // siehe AddMenuItem
+
 // zu Conditions:
 //	    0 - wird immer ausgeblendet, wenn nicht alle Voraussetzungen erfüllt sind
 //	    x - wird ausgeblendet, solange die ersten x Voraussetzungen nicht erfüllt sind.
@@ -264,7 +266,7 @@ protected func ProcessDialogue(object target, int index, string szChoice)
 			return;
 
 	// override color
-	var dwClrOvrd = this->~GetDialogueColor();
+	var color_override = this->~GetDialogueColor();
 
 
 	// handle text style
@@ -272,15 +274,15 @@ protected func ProcessDialogue(object target, int index, string szChoice)
 	
 	if (GetType(text_style) == C4V_Array)
 	{
-		text_style[gTextStyle_ARRAYPOS_Color] = dwClrOvrd; // dwColor
+		if (color_override) text_style[gTextStyle_ARRAYPOS_Color] = color_override;
 		quest_log_skip_option = text_style[gTextStyle_ARRAYPOS_LogOption];
 		quest_log_quest_name = text_style[gTextStyle_ARRAYPOS_Quest];
 	}
 	else
 	{
 		text_style = [];
-		text_style[gTextStyle_ARRAYPOS_Name] = true; // fName
-		text_style[gTextStyle_ARRAYPOS_Color] = dwClrOvrd; // dwColor
+		text_style[gTextStyle_ARRAYPOS_Name] = true;
+		if (color_override) text_style[gTextStyle_ARRAYPOS_Color] = color_override;
 		quest_log_skip_option = false;
 	}
 
@@ -397,6 +399,11 @@ protected func ProcessDialogueOption(object target, index)
 
 	add = conditionInfo[0];
 	var conditions_fulfilled = conditionInfo[1];
+	
+	if (conditions_required > 0)
+	{
+		Log("Add %v, fulfilled %d, required %d", add, conditions_fulfilled, conditions_required);
+	}
 
 	if (GetType(message_text) == C4V_Array)
 	{
@@ -414,7 +421,7 @@ protected func ProcessDialogueOption(object target, index)
 	else
 	{
 		var menu_icon = NONE;
-		var extra, xPar;
+		var extra, xpar1, xpar2;
 		var conditions_required = 0;
 		var message_color, index_override = index;
 
@@ -425,7 +432,8 @@ protected func ProcessDialogueOption(object target, index)
 			message_color = menu_style[gMenuStyle_ARRAYPOS_Color];
 			conditions_required = menu_style[gMenuStyle_ARRAYPOS_Conditions];
 			extra = menu_style[gMenuStyle_ARRAYPOS_Extra];
-			xPar = menu_style[gMenuStyle_ARRAYPOS_XPar1];
+			xpar1 = menu_style[gMenuStyle_ARRAYPOS_XPar1];
+			xpar2 = menu_style[gMenuStyle_ARRAYPOS_XPar2];
 			if (menu_style[gMenuStyle_ARRAYPOS_Index] != 0) index_override = menu_style[gMenuStyle_ARRAYPOS_Index]-1;
 		}
 		if (GetType(menu_style) == C4V_C4ID)
@@ -441,10 +449,11 @@ protected func ProcessDialogueOption(object target, index)
 		var command = Format("ProcessDialogue(Object(%d), %d, \"%s\")", ObjectNumber(target), index_override, menu_item_text);
 		//if (bNoLog) szCommand = Format("ProcessDialogue(Object(%d), %d, 0)", ObjectNumber(pTarget), iIndexOvr);
 
-		if (add == false && conditions_required == 1) command = "eval(\"true\")";//"";
+		//if (add == false && conditions_required == 1) command = "eval(\"true\")";//"";
+		if (add == false && conditions_required >= 1 && conditions_fulfilled < GetLength(conditions)) command = "eval(\"true\")";//"";
 
 		if (add || (conditions_required > 0 && conditions_fulfilled >= conditions_required))
-			MsgBoxAddOption(target, menu_icon, menu_item_text, command, 0, extra, xPar);
+			MsgBoxAddOption(target, menu_icon, menu_item_text, command, 0, extra, xpar1, xpar2);
 	}
 
 }

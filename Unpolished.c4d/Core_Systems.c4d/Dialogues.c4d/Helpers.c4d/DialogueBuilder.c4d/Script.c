@@ -48,6 +48,10 @@ public func Init(int index, string option)
 {
 	dialogue[gDialogue_ARRAYPOS_Index] = 		index;
 	dialogue[gDialogue_ARRAYPOS_MenuOption] = 	option;
+	
+	SafeInitArray(gDialogue_ARRAYPOS_TextStyle);
+	
+	dialogue[gDialogue_ARRAYPOS_TextStyle][gTextStyle_ARRAYPOS_Name] = true;
 }
 
 public func Parent(parent)
@@ -126,15 +130,17 @@ public func Icon(id icon)
 }
  @par bit The extra value.
  @par xpar1 The extra parameter.
+ @par xpar2 The second extra parameter.
  @return object Returns the helper object, such that the dialogue option can be further modified.
  @version 0.2.0
  */
-public func MenuExtra(int bit, int xpar1)
+public func MenuExtra(int bit, int xpar1, int xpar2)
 {
 	SafeInitArray(gDialogue_ARRAYPOS_MenuStyle);
 	
 	dialogue[gDialogue_ARRAYPOS_MenuStyle][gMenuStyle_ARRAYPOS_Extra] = bit;
 	dialogue[gDialogue_ARRAYPOS_MenuStyle][gMenuStyle_ARRAYPOS_XPar1] = xpar1;
+	dialogue[gDialogue_ARRAYPOS_MenuStyle][gMenuStyle_ARRAYPOS_XPar2] = xpar2;
 	
 	return this;
 }
@@ -178,7 +184,7 @@ public func RequiredConditions(int amount)
  @return object Returns the helper object, such that the dialogue option can be further modified.
  @version 0.2.0
  */
-public func TextColorMessage(int dword)
+public func MenuItemColor(int dword)
 {
 	SafeInitArray(gDialogue_ARRAYPOS_MenuStyle);
 	
@@ -310,7 +316,7 @@ public func DisableSpeakerColor()
  @return object Returns the helper object, such that the dialogue option can be further modified.
  @version 0.2.0
  */
-public func TextColorOption(int dword)
+public func TextColor(int dword)
 {
 	SafeInitArray(gDialogue_ARRAYPOS_TextStyle);
 	

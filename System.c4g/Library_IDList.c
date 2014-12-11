@@ -25,6 +25,8 @@ static const ID_MenuIcon_StandardButton = LIGH;
 static const ID_MenuIcon_MouseCursor = MCCR;
 
 // Menu Decos
+static const ID_MenuIcon_Default = _CAM;
+static const ID_MenuDeco_Default = MD69;
 static const ID_MenuDeco_Wood = MD69;
 static const ID_MenuDeco_Temple = MD70;
 
@@ -49,4 +51,6 @@ static const ID_Helper_DialogueBuilder = _DLB;
 static const ID_Helper_ScreenFader = _SCF;
 
 static const ID_Helper_DayNightCycleController = DNCC;
+
+static const ID_Helper_DefaultPortrait = CLNK;
 
