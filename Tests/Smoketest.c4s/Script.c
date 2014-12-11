@@ -35,6 +35,12 @@ func DoStartSzen()
 	CreateObject(TIME);
 	AttachDayNightCycle(sorcerer,"Marvin");
 	AttachDayNightCycle(knight, "Arthur");
+	
+	// create king john
+	var king = CreateObject(KING, 320, 358, NO_OWNER);
+	king->SetName("John");
+	AttachDialogue(king, "King");
+	AttachDayNightCycle(king, "King");
 }
 
 protected func InitializePlayer(int player, int tx, int ty, object pBase, int iTeam)

@@ -125,29 +125,16 @@ public func Icon(id icon)
 {@tr {@td 4} {@td Draws the picture graphic of object MenuXPar1().}}
 }
  @par bit The extra value.
+ @par xpar1 The extra parameter.
  @return object Returns the helper object, such that the dialogue option can be further modified.
  @version 0.2.0
  */
-public func MenuExtra(int bit)
+public func MenuExtra(int bit, int xpar1)
 {
 	SafeInitArray(gDialogue_ARRAYPOS_MenuStyle);
 	
 	dialogue[gDialogue_ARRAYPOS_MenuStyle][gMenuStyle_ARRAYPOS_Extra] = bit;
-	
-	return this;
-}
-
-/**
- First additional parameter for MenuExtra().
- @par parameter The parameter.
- @return object Returns the helper object, such that the dialogue option can be further modified.
- @version 0.2.0
- */
-public func MenuXPar1(parameter)
-{
-	SafeInitArray(gDialogue_ARRAYPOS_MenuStyle);
-	
-	dialogue[gDialogue_ARRAYPOS_MenuStyle][gMenuStyle_ARRAYPOS_XPar1] = parameter;
+	dialogue[gDialogue_ARRAYPOS_MenuStyle][gMenuStyle_ARRAYPOS_XPar1] = xpar1;
 	
 	return this;
 }
@@ -162,7 +149,7 @@ public func NextDialogue(int index)
 {
 	SafeInitArray(gDialogue_ARRAYPOS_MenuStyle);
 	
-	dialogue[gDialogue_ARRAYPOS_MenuStyle][gMenuStyle_ARRAYPOS_Index] = index;
+	dialogue[gDialogue_ARRAYPOS_MenuStyle][gMenuStyle_ARRAYPOS_Index] = index + 1;
 	
 	return this;
 }
