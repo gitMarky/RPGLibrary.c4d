@@ -43,7 +43,7 @@ global func MessageBox(object player, string message, object speaker, string por
 	while (GetChar(GetName(speaker), speaker_name_length)) ++speaker_name_length;
 	
 	// Determine color
-	var color = GetColorDlg(speaker);
+	var color = GetSpeakerColor(speaker);
 	// MenuDecoration
 	var menu_deco = ID_MenuDeco_Default;
 	var menu_caption = "";
@@ -64,7 +64,7 @@ global func MessageBox(object player, string message, object speaker, string por
 	{
 		// Message as menu
 		// The player has to stop or else he runs into oblivion
-		StopClonkEx(player);
+		StopClonk(player, true);
 		if (!CreateMenu(ID_MenuIcon_Default, message_target, this, 0, menu_caption, 0, C4MN_Style_Dialog, is_permanent, ID_MenuIcon_Default)) return false;
 		if (GetType(text_style) == C4V_Array)
 		{

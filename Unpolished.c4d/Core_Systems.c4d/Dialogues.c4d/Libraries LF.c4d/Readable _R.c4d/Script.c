@@ -354,9 +354,9 @@ protected func ProcessDialogue(object target, int index, string szChoice)
 		if (target == GetFilm()) quest_log_global = true;
 
 		if (!quest_log_skip_option)
-			AddQuestLog(quest_log_quest_name, [Format("<c %x>%s:</c>", GetColorDlg(target), GetName(target)), szChoice], target, quest_log_global);
+			AddQuestLog(quest_log_quest_name, [Format("<c %x>%s:</c>", GetSpeakerColor(target), GetName(target)), szChoice], target, quest_log_global);
 
-		AddQuestLog(quest_log_quest_name, [Format("<c %x>%s:</c>", GetColorDlg(current_speaker), GetName(current_speaker)), message_text], target, quest_log_global);
+		AddQuestLog(quest_log_quest_name, [Format("<c %x>%s:</c>", GetSpeakerColor(current_speaker), GetName(current_speaker)), message_text], target, quest_log_global);
 	}
 }
 

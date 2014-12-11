@@ -25,7 +25,7 @@ public func MenuQueryCancel()
  * Creates a helper object with an entrance, that attaches to an object. 
  * Entering the helper object starts the dialogue.
  * @par target The helper object attaches to this object.
- * @par dialogue Can be any dialogue. TODO.
+ * @par dialogue Can be any dialogue. See "Demo Scenario: Adding a dialogue".
  */
 global func AttachDialogue(object target, dialogue)
 {

@@ -23,7 +23,7 @@ global func StartSzen()
 {
 	for(var i = 0; i < GetPlayerCount(C4PT_User); i++)
 	{
-		GetCursor(GetPlayerByIndex(i,C4PT_User))->~StopClonkEx();
+		GetCursor(GetPlayerByIndex(i,C4PT_User))->~StopClonk();
 		GameCall("PlayerStart", GetPlayerByIndex(i,C4PT_User));
 	}
 	GameCall("DoStartSzen", GetPlayerByIndex(i,C4PT_User));
