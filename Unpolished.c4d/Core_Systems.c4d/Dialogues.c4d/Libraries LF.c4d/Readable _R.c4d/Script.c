@@ -247,16 +247,11 @@ protected func ProcessDialogue(object target, int index, string szChoice)
 		if (option[gDialogue_ARRAYPOS_Index] == index) break;
 	}
 
-
-	// Initialize data
-	//var iIndex = 		option[gDialogue_ARRAYPOS_Index]; those are the same anyway
-	//var iParentIndex = 	option[gDialogue_ARRAYPOS_Parent];
-	//var szMenuOption = 	option[gDialogue_ARRAYPOS_MenuOption];
+	// get data
+	
 	var message_text = 		option[gDialogue_ARRAYPOS_Text];
-	var object_nr = 	option[gDialogue_ARRAYPOS_Object]; //
-	//var aMenuStyle = 	option[gDialogue_ARRAYPOS_MenuStyle];
-	var text_style = 	option[gDialogue_ARRAYPOS_TextStyle]; //
-	//var aConditions = 	option[gDialogue_ARRAYPOS_Conditions];
+	var object_nr = 	option[gDialogue_ARRAYPOS_Object]; 
+	var text_style = 	option[gDialogue_ARRAYPOS_TextStyle]; 
 	var events = 		option[gDialogue_ARRAYPOS_Events];
 
 	// fire all events for that dialogue
@@ -285,8 +280,6 @@ protected func ProcessDialogue(object target, int index, string szChoice)
 		if (color_override) text_style[gTextStyle_ARRAYPOS_Color] = color_override;
 		quest_log_skip_option = false;
 	}
-
-
 
 	// message instead of text box?
 	var display_as_message = false;
@@ -329,7 +322,6 @@ protected func ProcessDialogue(object target, int index, string szChoice)
 			if (GetLength(option[gDialogue_ARRAYPOS_Parent]))
 			if (GetArrayItemPosition(index, option[gDialogue_ARRAYPOS_Parent]) > -1
 		    || (GetArrayItemPosition(-1, option[gDialogue_ARRAYPOS_Parent])> -1 && option[gDialogue_ARRAYPOS_MenuOption]))
-			//if (GetArrayItemPosition(iIndex, aOption[gDialogue_ARRAYPOS_Parent]) > -1)
 			{
 				DebugLog("%d in %v", index, option[gDialogue_ARRAYPOS_Parent]);
 				add = true;
@@ -337,23 +329,19 @@ protected func ProcessDialogue(object target, int index, string szChoice)
 		}
 		else
 		{
-			//if (aOption[gDialogue_ARRAYPOS_Parent] == iIndex) add = true;
 			if (option[gDialogue_ARRAYPOS_Parent] == index) add = true;
 			if (option[gDialogue_ARRAYPOS_Parent] == -1 && option[gDialogue_ARRAYPOS_MenuOption]) add = true; // nur, wenn er eine Menu-Auswahl hat!
 
-			//if (aOption[gDialogue_ARRAYPOS_Parent] == -1 && GetType(aOption[gDialogue_ARRAYPOS_MenuOption]) == C4V_String && aOption[gDialogue_ARRAYPOS_MenuOption] != "") add = true;
 			DebugLog("check add %d: %d %d, %v", option[gDialogue_ARRAYPOS_Index], option[gDialogue_ARRAYPOS_Parent], index, add);
 
 		}
 
-		//if (aOption[gDialogue_ARRAYPOS_Index] == 0) add = false;
 		if (option[gDialogue_ARRAYPOS_MenuOption] == "" && option[gDialogue_ARRAYPOS_Text] == "") {add = false; DebugLog("Cancel add 0");}
 		if (GetType(option[gDialogue_ARRAYPOS_MenuOption]) != C4V_String && GetType(option[gDialogue_ARRAYPOS_Text]) != C4V_Array) {add = false; DebugLog("Cancel add 1");}
 		if (GetType(option[gDialogue_ARRAYPOS_Text]) != C4V_String && GetType(option[gDialogue_ARRAYPOS_Text]) != C4V_Array) {add = false; DebugLog("Cancel add 2");}
 
 		if (add)
 		{
-			//DebugLog("Dialog Final: %d in %v: %s %s", iIndex, aOption[gDialogue_ARRAYPOS_Parent] , aOption[gDialogue_ARRAYPOS_MenuOption], aOption[gDialogue_ARRAYPOS_Text]);
 			ProcessDialogueOption(target, option[gDialogue_ARRAYPOS_Index]);
 		}
 	}
@@ -380,30 +368,19 @@ protected func ProcessDialogueOption(object target, index)
 		if (option[gDialogue_ARRAYPOS_Index] == index) break;
 	}
 
-	// Daten aufbauen
-	//var iIndex = 		aOption[gDialogue_ARRAYPOS_Index];
-	//var iParentIndex = 	aOption[gDialogue_ARRAYPOS_Parent];
+	// get data
+	
 	var menu_item_text = 	option[gDialogue_ARRAYPOS_MenuOption];
 	var message_text = 		option[gDialogue_ARRAYPOS_Text];
-	//var iObjectNr = 	aOption[gDialogue_ARRAYPOS_Object];
 	var menu_style = 	option[gDialogue_ARRAYPOS_MenuStyle];
-	//var aTextStyle = 	aOption[gDialogue_ARRAYPOS_TextStyle];
 	var conditions = 	option[gDialogue_ARRAYPOS_Conditions];
-	//var aEvents = 		aOption[gDialogue_ARRAYPOS_Events];
 
-	// vorerst gibt es noch keine Conditions
 	var add = false;
 
-	//if (CheckConditions(aConditions, GetTargetString(), pTarget, GetUserString(), GetSpeaker())) fAdd = true;
 	var conditionInfo = CheckConditionsDetailed(conditions, GetTargetString(), target, GetUserString(), GetSpeaker());
 
 	add = conditionInfo[0];
 	var conditions_fulfilled = conditionInfo[1];
-	
-	if (conditions_required > 0)
-	{
-		Log("Add %v, fulfilled %d, required %d", add, conditions_fulfilled, conditions_required);
-	}
 
 	if (GetType(message_text) == C4V_Array)
 	{
@@ -414,7 +391,7 @@ protected func ProcessDialogueOption(object target, index)
 	{
 		if (message_text)
 		{
-			// hier fehlt noch die Verarbeitung von aTextStyle
+			// does not take text_style into account yet
 			MsgBoxAddText(target, message_text);
 		}
 	}
@@ -423,6 +400,7 @@ protected func ProcessDialogueOption(object target, index)
 		var menu_icon = NONE;
 		var extra, xpar1, xpar2;
 		var conditions_required = 0;
+		var conditions_active = false;
 		var message_color, index_override = index;
 
 
@@ -431,28 +409,35 @@ protected func ProcessDialogueOption(object target, index)
 			menu_icon = menu_style[gMenuStyle_ARRAYPOS_Icon];
 			message_color = menu_style[gMenuStyle_ARRAYPOS_Color];
 			conditions_required = menu_style[gMenuStyle_ARRAYPOS_Conditions];
+			
 			extra = menu_style[gMenuStyle_ARRAYPOS_Extra];
 			xpar1 = menu_style[gMenuStyle_ARRAYPOS_XPar1];
 			xpar2 = menu_style[gMenuStyle_ARRAYPOS_XPar2];
+			
 			if (menu_style[gMenuStyle_ARRAYPOS_Index] != 0) index_override = menu_style[gMenuStyle_ARRAYPOS_Index]-1;
+			
+			if (conditions_required > 0)
+			{
+				conditions_required--;
+				conditions_active = true;
+			}
 		}
 		if (GetType(menu_style) == C4V_C4ID)
 			menu_icon = menu_style;
 
-		// Farbe überschreiben
+		// Override the color
 		var override_color = this->~GetDialogueOptionColor();
 		if (override_color) message_color = override_color;
-		if (!message_color) message_color = RGB(245, 245, 245); // etwas dunkler, damit man es vom Text unterscheiden kann
+		if (!message_color) message_color = RGB(245, 245, 245); // make it darker, so that you can distinguish it from normal text
 		if (add == false) message_color = RGB(255, 0, 0);
+		
 		if (message_color) menu_item_text = ColorizeString(menu_item_text, message_color);
 
 		var command = Format("ProcessDialogue(Object(%d), %d, \"%s\")", ObjectNumber(target), index_override, menu_item_text);
-		//if (bNoLog) szCommand = Format("ProcessDialogue(Object(%d), %d, 0)", ObjectNumber(pTarget), iIndexOvr);
 
-		//if (add == false && conditions_required == 1) command = "eval(\"true\")";//"";
-		if (add == false && conditions_required >= 1 && conditions_fulfilled < GetLength(conditions)) command = "eval(\"true\")";//"";
+		if (add == false && conditions_active && conditions_fulfilled < GetLength(conditions)) command = "eval(\"true\")"; // dummy command
 
-		if (add || (conditions_required > 0 && conditions_fulfilled >= conditions_required))
+		if (add || (conditions_active && conditions_fulfilled >= conditions_required))
 			MsgBoxAddOption(target, menu_icon, menu_item_text, command, 0, extra, xpar1, xpar2);
 	}
 

@@ -173,7 +173,7 @@ public func RequiredConditions(int amount)
 {
 	SafeInitArray(gDialogue_ARRAYPOS_MenuStyle);
 	
-	dialogue[gDialogue_ARRAYPOS_MenuStyle][gMenuStyle_ARRAYPOS_Color] = amount;
+	dialogue[gDialogue_ARRAYPOS_MenuStyle][gMenuStyle_ARRAYPOS_Conditions] = amount + 1;
 	
 	return this;
 }

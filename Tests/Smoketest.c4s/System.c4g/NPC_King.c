@@ -10,7 +10,7 @@ public func MsgDialogueKing() {
 	DlgOption(2, -1, "Test 2")->Text("Should display the clonk rank symbol")->Icon(CLNK)->MenuExtra(1),
 	DlgOption(3, -1, "Test 3")->Text("Should display the mouse cursor axe")->Icon(MCCR)->MenuExtra(2, 3),
 	DlgOption(4, -1, "Test 4")->Text("Blub")->NextDialogue(2),
-	DlgOption(5,  3, "Test 5")->Text("This was displayed red until you collected a rock")->Conditions("true")->Conditions("pTarget->FindContents(ROCK)")->RequiredConditions(1),
+	DlgOption(5, -1, "Test 5")->Text("This was displayed red until you collected a rock")->Conditions("pTarget->FindContents(ROCK)")->RequiredConditions(0),
 	DlgOption(6, -1, "Test 6")->Text("This text should be green")->MenuItemColor(RGB(0, 255, 0)),
 	DlgOption(7, -1, "Test 7")->Text("This has a new menu caption")->MenuCaption("John the funky king"),
 	DlgOption(8, -1, "Test 8")->Text("Cool menu deco")->MenuDeco(HZDC),
