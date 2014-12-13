@@ -76,15 +76,16 @@ public func MsgDialogueArthur() {
 This is just so that Arthur has something to say, but this does not actually matter. The most important part is the quest that we are adding.
 Create a new script file, put it in Arthur's script because it is his armor, or put it in Marvin's script because he gives you the reward.
 {@code
-public func DscQuestArthursArmor(bool bStages)
+public func DscQuestInfoArthursArmor()
 {
-	if (bStages) return[
-	[1, "FindContents(BRMR, FindObject(CST2))", "pQuest->~SetStage(2, pActivePlayer, true)"], // this stage is activated by Marvin's dialogue. Once the armor is in the castle, it sets the quest stage to 2 for all players
-	[2], // this is just a dummy. The final stage is set in Marvin's dialogue
-	[3, 0, ["pQuest->~GiveReward(pActivePlayer,@qCreateContents(COKI,pActivePlayer)@q)", Format("FinishQuest(@q%s@q, pActivePlayer, true)", marvins_quest)]] // rewards the player with a cookie and successfully finishes the quest for all players
-	];
-@br
-	return [ "Armor Delivery" ];
+	return QstInfo("Armor Delivery");
+}
+
+public func DscQuestStagesArthursArmor()
+{
+	return [ QstStage(1)->Conditions("FindContents(BRMR, FindObject(CST2))")->Events("pQuest->~SetStage(2, pActivePlayer, true)"), // this stage is activated by Marvin's dialogue. Once the armor is in the castle, it sets the quest stage to 2 for all players
+			 QstStage(2), // this is just a dummy. The final stage is set in Marvin's dialogue
+			 QstStage(3)->Events(["pQuest->~GiveReward(pActivePlayer,@qCreateContents(COKI,pActivePlayer)@q)", Format("FinishQuest(@q%s@q, pActivePlayer, true)", marvins_quest)])];	 
 }
 }
 As you see, the quest does not do much. Before talking to Marvin, it does nothing. Once we set the quest stage to 1 it checks whether the armor is in the castle every 36 frames, and if so it sets the stage to 2.
@@ -165,20 +166,16 @@ public func MsgDialogueArthur() {
 }
 Now, we expand the quest by the relevant stages.
 {@code
-public func DscQuestArthursArmor(bool bStages)
+public func DscQuestStagesArthursArmor()
 {
-	if (bStages) return[
-	[1, "FindContents(BRMR, FindObject(CST2))", "pQuest->~SetStage(8, pActivePlayer, true)"], // sets the quest stage to 8 for all players
-	[2], // this is just a dummy. The final stage is set in Marvin's dialogue
-	[3, 0, ["pQuest->~GiveReward(pActivePlayer,@qCreateContents(COKI,pActivePlayer)@q)", Format("FinishQuest(@q%s@q, pActivePlayer, true)", marvins_quest)]] ,
-	[4, 0, ["StartFilm()", "GetFilm()->PosCam(FindObject(KNIG),0,true)","SetCommand(FindObject(KNIG),@qEnter@q, FindObject(CST2))", "pQuest->SetStage(5,0,true)"]],
-	[5, "FindContents(KNIG, FindObject(CST2))", ["Enter(FindObject(KNIG), FindObject(BRMR))", "SetCommand(FindObject(KNIG), @qMoveTo@q, 0, 345, 390)", "pQuest->SetStage(6,0,true)"], 10],
-	[6, "!GetCommand(FindObject(KNIG))", ["FindObject(BRMR)->Activate(FindObject(KNIG))", "pQuest->SetStage(7,0,true)"]],
-	[7, "GetAction(FindObject(KNIG)) == @qWalk@q", ["StopFilm()", "pQuest->SetStage(2,0,true)"]],
-	[8]
-	];
-@br
-	return [ "Armor Delivery" ];
+	return [ QstStage(1)->Conditions("FindContents(BRMR, FindObject(CST2))")->Events("pQuest->~SetStage(8, pActivePlayer, true)"), // sets the quest stage to 8 for all players
+			 QstStage(2), // this is just a dummy. The final stage is set in Marvin's dialogue
+			 QstStage(3)->Events(["pQuest->~GiveReward(pActivePlayer,@qCreateContents(COKI,pActivePlayer)@q)", Format("FinishQuest(@q%s@q, pActivePlayer, true)", marvins_quest)]),
+			 QstStage(4)->Events(["StartFilm()", "GetFilm()->PosCam(FindObject(KNIG),0,true)","SetCommand(FindObject(KNIG),@qEnter@q, FindObject(CST2))", "pQuest->SetStage(5,0,true)"]),
+			 QstStage(5)->Conditions("FindContents(KNIG, FindObject(CST2))")->Events(["Enter(FindObject(KNIG), FindObject(BRMR))", "SetCommand(FindObject(KNIG), @qMoveTo@q, 0, 345, 390)", "pQuest->SetStage(6,0,true)"])->Timer(10),
+			 QstStage(6)->Conditions("!GetCommand(FindObject(KNIG))")->Events(["FindObject(BRMR)->Activate(FindObject(KNIG))", "pQuest->SetStage(7,0,true)"]),
+			 QstStage(7)->Conditions("GetAction(FindObject(KNIG)) == @qWalk@q")->Events(["StopFilm()", "pQuest->SetStage(2,0,true)"]),
+			 QstStage(8)];	 
 }
 } 
 @title Demo Scenario: Adding a cutscene
