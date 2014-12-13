@@ -20,11 +20,23 @@ static const gQuest_Effect_Monitor_Name = "MonitorQuest";
 static const gQuest_Effect_Monitor_Priority = 50;
 static const gQuest_Effect_Monitor_DefaultInterval = 150;
 
-static const gQuest_Stage_Silent = 0;
-static const gQuest_Stage_Default = 1;
+// array indices
+static const gQuest_Stages_Index = 		0;
+static const gQuest_Stages_Condition = 	1;
+static const gQuest_Stages_Events = 	2;
+static const gQuest_Stages_Timer = 		3;
 
-static const gQuestStageFinished = -1;
-static const gQuestStageFailed = -2;
+// array indices
+static const gQuest_Data_Title = 		0;
+static const gQuest_Data_Activation = 	1;
+static const gQuest_Data_Condition = 	2;
+
+static const gQuest_Stage_Inactive = 	0;
+static const gQuest_Stage_Default = 	1;
+
+static const gQuest_Stage_Invalid = 	-5;
+static const gQuest_Stage_Finished = 	-1;
+static const gQuest_Stage_Failed = 		-2;
 
 /**
  Creates a quest monitor for the specified quest. The quest monitor tracks
@@ -96,7 +108,7 @@ global func FinishQuest(string identifier, object crew, bool set_status_globally
 //		return false;
 //	
 //	quest->SetStage(gQuestStageFinished, crew, set_status_globally, function_call, vP1, vP2);
-	return SetQuestStage(identifier, gQuestStageFinished, crew, set_status_globally, function_call, vP1, vP2);
+	return SetQuestStage(identifier, gQuest_Stage_Finished, crew, set_status_globally, function_call, vP1, vP2);
 }
 
 global func FailQuest(string identifier, object crew, bool set_status_globally, string function_call, vP1, vP2)
@@ -106,7 +118,7 @@ global func FailQuest(string identifier, object crew, bool set_status_globally, 
 //		return false;
 //	
 //	quest->SetStage(gQuestStageFailed, crew, set_status_globally, function_call, vP1, vP2);
-	return SetQuestStage(identifier, gQuestStageFailed, crew, set_status_globally, function_call, vP1, vP2);
+	return SetQuestStage(identifier, gQuest_Stage_Failed, crew, set_status_globally, function_call, vP1, vP2);
 }
 
 /**
@@ -277,7 +289,7 @@ public func AddPlayerSilent(object crew)
 	if (!crew) return;
 	if (GetArrayItemPosition(crew, active_characters) > -1) return false; // player already has the quest
 	
-	AddPlayerToArray(crew, gQuest_Stage_Silent);
+	AddPlayerToArray(crew, gQuest_Stage_Inactive);
 	
 	DebugLog("Silent Added Player %s/%s to Quest %s", GetName(crew), GetPlayerName(GetOwner(crew)), quest_identifier);
 }
@@ -305,9 +317,9 @@ public func SetQuest(string identifier, description, stages)
 	else if (description)
 	{
 		if (story)
-			quest_data = ObjectCall(story, Format("DscQuest%s", description), false);
+			quest_data = ObjectCall(story, Format("DscQuestInfo%s", description));
 		else
-			quest_data = GameCall(Format("DscQuest%s", description), false);
+			quest_data = GameCall(Format("DscQuestInfo%s", description));
 	}
 	
 	// direct input
@@ -318,9 +330,24 @@ public func SetQuest(string identifier, description, stages)
 	else if (description)
 	{
 		if (story)
-			quest_stages = ObjectCall(story, Format("DscQuest%s", description), true);
+			quest_stages = ObjectCall(story, Format("DscQuestStages%s", description));
 		else
-			quest_stages = GameCall(Format("DscQuest%s", description), true);
+			quest_stages = GameCall(Format("DscQuestStages%s", description));
+	}
+	
+	// let builders create the data
+	if (GetType(quest_data) == C4V_C4Object && quest_data->GetID() == ID_Helper_QuestBuilder)
+	{
+		quest_data = quest_data->Create();
+	}
+	
+	// let builders create the stages
+	for (var i = 0; i < GetLength(quest_stages); i++)
+	{
+		if (GetType(quest_stages[i]) == C4V_C4Object && quest_stages[i]->GetID() == ID_Helper_QuestBuilder)
+		{
+			quest_stages[i] = quest_stages[i]->Create();
+		}
 	}
 	
 	ScheduleCall(this, "DoMonitorQuest", 1, 0, this, 0, 0);
@@ -348,7 +375,7 @@ public func SetStage(int stage_index, object crew, bool set_status_globally, str
 			
 			// already finished?
 			// if (GetStage(current_crew) == gQuestStageFinished) this does the same loop again -> ineffective!!
-			if (active_stage[i] == gQuestStageFinished)
+			if (active_stage[i] == gQuest_Stage_Finished)
 				set_stage_for_current_crew = false;
 			// TODO: what about failed quests?????
 			
@@ -356,12 +383,12 @@ public func SetStage(int stage_index, object crew, bool set_status_globally, str
 			{
 				active_stage[i] = stage_index;
 				
-				if (stage_index < 0) // finished or failed? Notify the quest log
+				if (stage_index < gQuest_Stage_Inactive) // finished or failed? Notify the quest log
 				{
 					var log = current_crew->~GetQuestLogEx();
 					if (log)
 					{
-						if (stage_index == gQuestStageFinished)
+						if (stage_index == gQuest_Stage_Finished)
 							log->~FinishQuest(quest_identifier);
 						else
 							log->~FailQuest(quest_identifier);
@@ -389,16 +416,22 @@ public func GetStage(object crew, bool get_status_globally, string function_call
 					return_stage = true;
 			}
 			else
+			{
 				return_stage = true;
+			}
 			
 			if (return_stage)
 			{
 				return active_stage[i];
 			}
+			else
+			{
+				return gQuest_Stage_Invalid;
+			}
 		}
 	}
 	
-	return 0;
+	return gQuest_Stage_Inactive;
 }
 
 public func AddLog(array log_message, object crew, bool set_status_globally, string function_call, vP1, vP2)
@@ -431,7 +464,7 @@ public func AddLog(array log_message, object crew, bool set_status_globally, str
 				{
 					PushBack(log_message, active_log[i]);
 					
-					if (GetStage(current_crew) > 0) // update the log only if the quest is not finished yet and if the quest is active
+					if (GetStage(current_crew) > gQuest_Stage_Inactive) // update the log only if the quest is not finished yet and if the quest is active
 					{
 						var log = current_crew->~GetQuestLogEx();
 						if (log)
@@ -520,8 +553,8 @@ protected func DoMonitorQuest(object target, int effect_nr, int time)
 			
 			for (var stage in quest_stages) 
 			{
-				var stage_index = 0;
-				if (GetType(stage) == C4V_Array) stage_index = stage[0];
+				var stage_index = gQuest_Stage_Inactive;
+				if (GetType(stage) == C4V_Array) stage_index = stage[gQuest_Stages_Index];
 				
 				//Log("CheckStage %d",iStage);
 				
@@ -529,14 +562,14 @@ protected func DoMonitorQuest(object target, int effect_nr, int time)
 				if (!stage_index || stage_index == active_stage[crew_index])
 				{
 					// newly added
-					if (active_stage[crew_index] >= 0)
+					if (active_stage[crew_index] >= gQuest_Stage_Inactive)
 					{
 						is_finished = false;
 						
 						//Log("QuestStage %d",iStage);
-						var stage_conditions = stage[1];
-						var stage_events = stage[2];
-						var stage_timer = stage[3];
+						var stage_conditions = stage[gQuest_Stages_Condition];
+						var stage_events = stage[gQuest_Stages_Events];
+						var stage_timer = stage[gQuest_Stages_Timer];
 						
 						if (!stage_timer) stage_timer = 36;
 						
@@ -557,9 +590,9 @@ protected func DoMonitorQuest(object target, int effect_nr, int time)
 				return -1;
 			} // done :)
 		}
-		else if (quest_data[1])
+		else if (quest_data[gQuest_Data_Activation])
 		{
-			CheckConditions(quest_data[2], crew, true);
+			CheckConditions(quest_data[gQuest_Data_Condition], crew, true);
 		}
 	}
 

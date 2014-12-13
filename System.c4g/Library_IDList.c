@@ -52,6 +52,7 @@ static const ID_Library_DayNightCycle = LF_C;
 
 static const ID_Helper_Story = _STY;
 static const ID_Helper_DialogueBuilder = _DLB;
+static const ID_Helper_QuestBuilder = __QB;
 
 static const ID_Helper_ScreenFader = _SCF;
 

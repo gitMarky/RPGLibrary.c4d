@@ -19,13 +19,6 @@ public func MsgDialogueArthur() {
 	];
 }
 
-//-> Clonk::GetX()
-// = 284
-//-> Clonk::GetX()
-// = 336
-//-> Clonk::GetY()
-// = 358
- 
 func DayNightCycleArthur()
 {
 	return [[6,0,"AddBehaviour(pTarget, gBehaviour_Wander_Area, 20, [284,336,1,15,75], gBehaviour_Priority_Idle)"],

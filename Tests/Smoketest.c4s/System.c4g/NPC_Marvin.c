@@ -40,27 +40,31 @@ public func MsgDialogueMarvin() {
 	DlgOptionCancelToggle()
 ];}
 
-//public func CreateQuests()
-//{
-//	CreateQuest("MarvinsRock");
-//	Log("Created Marvin's Rock Quest");
-//	_inherited();
-//}
-
-public func DscQuestArthursArmor( bool bPhases )
+public func DscQuestInfoArthursArmor()
 {
-	if( bPhases ) return[
-	[1, "FindContents(BRMR, FindObject(CST2))", "pQuest->~SetStage(8, pActivePlayer, true)"], // sets the quest stage to 2 for all players
-	[2], // this is just a dummy. The final stage is set in Marvin's dialogue
-	[3, 0, ["pQuest->~GiveReward(pActivePlayer,\"CreateContents(COKI,pActivePlayer)\")", Format("FinishQuest(\"%s\", pActivePlayer, true)", marvins_quest)]] ,
-	[4, 0, ["StartFilm()", "GetFilm()->PosCam(FindObject(KNIG),0,true)","SetCommand(FindObject(KNIG),\"Enter\", FindObject(CST2))", "pQuest->SetStage(5,0,true)"]],
-	[5, "FindContents(KNIG, FindObject(CST2))", ["Enter(FindObject(KNIG), FindObject(BRMR))", "SetCommand(FindObject(KNIG), \"MoveTo\", 0, 345, 390)", "pQuest->SetStage(6,0,true)"], 10],
-	[6, "!GetCommand(FindObject(KNIG))", ["FindObject(BRMR)->Activate(FindObject(KNIG))", "pQuest->SetStage(7,0,true)"]],
-	[7, "GetAction(FindObject(KNIG)) == \"Walk\"", ["StopFilm()", "pQuest->SetStage(2,0,true)"]],
-	[8]
-	];
+	return QstInfo("Armor Delivery");
+}
 
-	return [ "Armor Delivery" ];
+public func DscQuestStagesArthursArmor()
+{
+	return [ QstStage(1)->Conditions("FindContents(BRMR, FindObject(CST2))")->Events("pQuest->~SetStage(8, pActivePlayer, true)"),
+			 QstStage(2),
+			 QstStage(3)->Events(["pQuest->~GiveReward(pActivePlayer,\"CreateContents(COKI,pActivePlayer)\")", Format("FinishQuest(\"%s\", pActivePlayer, true)", marvins_quest)]),
+			 QstStage(4)->Events(["StartFilm()", "GetFilm()->PosCam(FindObject(KNIG),0,true)","SetCommand(FindObject(KNIG),\"Enter\", FindObject(CST2))", "pQuest->SetStage(5,0,true)"]),
+			 QstStage(5)->Conditions("FindContents(KNIG, FindObject(CST2))")->Events(["Enter(FindObject(KNIG), FindObject(BRMR))", "SetCommand(FindObject(KNIG), \"MoveTo\", 0, 345, 390)", "pQuest->SetStage(6,0,true)"])->Timer(10),
+			 QstStage(6)->Conditions("!GetCommand(FindObject(KNIG))")->Events(["FindObject(BRMR)->Activate(FindObject(KNIG))", "pQuest->SetStage(7,0,true)"]),
+			 QstStage(7)->Conditions("GetAction(FindObject(KNIG)) == \"Walk\"")->Events(["StopFilm()", "pQuest->SetStage(2,0,true)"]),
+			 QstStage(8)];	 
+//	return[
+//	[1, "FindContents(BRMR, FindObject(CST2))", "pQuest->~SetStage(8, pActivePlayer, true)"], // sets the quest stage to 8 for all players
+//	[2], // this is just a dummy. The final stage is set in Marvin's dialogue
+//	[3, 0, ["pQuest->~GiveReward(pActivePlayer,\"CreateContents(COKI,pActivePlayer)\")", Format("FinishQuest(\"%s\", pActivePlayer, true)", marvins_quest)]] ,
+//	[4, 0, ["StartFilm()", "GetFilm()->PosCam(FindObject(KNIG),0,true)","SetCommand(FindObject(KNIG),\"Enter\", FindObject(CST2))", "pQuest->SetStage(5,0,true)"]],
+//	[5, "FindContents(KNIG, FindObject(CST2))", ["Enter(FindObject(KNIG), FindObject(BRMR))", "SetCommand(FindObject(KNIG), \"MoveTo\", 0, 345, 390)", "pQuest->SetStage(6,0,true)"], 10],
+//	[6, "!GetCommand(FindObject(KNIG))", ["FindObject(BRMR)->Activate(FindObject(KNIG))", "pQuest->SetStage(7,0,true)"]],
+//	[7, "GetAction(FindObject(KNIG)) == \"Walk\"", ["StopFilm()", "pQuest->SetStage(2,0,true)"]],
+//	[8]
+//	];
 }
 
 func DayNightCycleMarvin()
