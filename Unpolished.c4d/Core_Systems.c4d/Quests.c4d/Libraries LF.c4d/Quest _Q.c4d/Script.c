@@ -3,114 +3,186 @@ Basic script for quest functionality.
 
 @title Quest
 @author Marky
-@version 0.1.0
+@version 0.2.0
 --*/
 
 #strict 2
 
 // TODO: translate
+// TODO: quest builder object
 
-local aQuest,aProgress,aPlayers,aQuestLog;
-local aQuestStages;
-local szQuestName;
-local bQuestActive;
+local quest_data, active_stage, active_characters, active_log;
+local quest_stages;
+local quest_identifier;
+local quest_is_active;
+
+static const gQuest_Effect_Monitor_Name = "MonitorQuest";
+static const gQuest_Effect_Monitor_Priority = 50;
+static const gQuest_Effect_Monitor_DefaultInterval = 150;
+
+static const gQuest_Stage_Silent = 0;
+static const gQuest_Stage_Default = 1;
 
 static const gQuestStageFinished = -1;
 static const gQuestStageFailed = -2;
 
-
-global func CreateQuest( string szName, array aDesc, array aStages )
+/**
+ Creates a quest monitor for the specified quest. The quest monitor tracks
+ the status of the quest for each player. It allows setting the status globally
+ and locally, so that the following situations become possible:@br
+ - every player can finish or fail the quest individually@br
+ - players can finish the quest cooperatively: One finishes - all finish@br
+ - players can finish the quest competitively: One finishes - others fail@br
+ - a mix: One player causes an event which globally changes the quest, then
+   the progress is handled individually again
+ @par identifier This is a unique string that the quest will be referred to.
+ @par description This is a description of the quest. See TODO.
+ @par stages These are the quest stages. See TODO.
+ @version 0.1.0
+ */
+global func CreateQuest(string identifier, array description, array stages)
 {
 	var obj;
-	if( !(obj = FindQuest( szName ) ))
+	if (!(obj = FindQuest(identifier)))
 	{
-		var obj = CreateObject( ID_QuestHandler, 0, 0, -1 );
-		obj->SetPosition(0,0);	
+		var obj = CreateObject(ID_QuestHandler, 0, 0, -1);
+		obj->SetPosition(0, 0);
 	}
 
-	if( GetType(aDesc) == C4V_Array )
-		obj->~SetQuest( szName, aDesc, aStages );
+	if (GetType(description) == C4V_Array)
+		obj->~SetQuest(identifier, description, stages);
 	else
-		obj->~SetQuest( szName, szName ); // wir versuchen es mit dem Szenario-Script
+		obj->~SetQuest(identifier, identifier); // try it with scenario script
 }
 
-global func FindQuest( string szName )
+/**
+ Finds the quest monitor of the quest.
+ @par identifier The unique quest identifier.
+ @return The object, if it could be found
+ @note The quest has to be created with CreateQuest() first
+ @version 0.1.0
+ */
+global func FindQuest(string identifier)
 {
-	return FindObject2( Find_ID( ID_QuestHandler ), Find_Func( "CompareQuestName", szName ) );
+	return FindObject2(Find_ID(ID_QuestHandler), Find_Func("CompareQuestName", identifier));
 }
 
-global func ActivateQuest( string szName, object pTarget )
+/**
+ Activates a quest for an object.
+ @par identifier The quest identifier.
+ @par crew The crew member that this quest will be activated for.
+ @par check_interval [since v0.2.0] The quest checks its conditions every {@c check_interval} frames.
+ @return bool false, if there the quest was not found
+ @note The quest has to be created with CreateQuest() first. Initially
+ the quest is inactive, which means that it does not check for conditions
+ of the quest stages. When activating a quest, the quest checks its conditions
+ every {@c check_interval} frames.
+ @version 0.1.0
+ */
+global func ActivateQuest(string identifier, object target, int check_interval)
 {
-	var quest = FindQuest( szName );
-	if(!quest) return false;
+	var quest = FindQuest(identifier);
+	if (!quest) return false;
 
-	ChangeEffect ("MonitorQuest", quest, 0, "MonitorQuest", 1);
-	quest->AddPlayer( pTarget );
+	ChangeEffect(gQuest_Effect_Monitor_Name, quest, 0, gQuest_Effect_Monitor_Name, Max(1, check_interval));
+	quest->AddPlayer(target);
+	return true;
 }
 
-global func FinishQuest( string szName, object pPlayer, bool bGlobal, string szFunc, vP1, vP2 )
+global func FinishQuest(string identifier, object crew, bool set_status_globally, string function_call, vP1, vP2)
 {
-	var quest = FindQuest( szName );
-	if(!quest) return false;
-
-	quest->SetStage( gQuestStageFinished, pPlayer, bGlobal, szFunc, vP1, vP2 );
+//	var quest = FindQuest(identifier);
+//	if (!quest)
+//		return false;
+//	
+//	quest->SetStage(gQuestStageFinished, crew, set_status_globally, function_call, vP1, vP2);
+	return SetQuestStage(identifier, gQuestStageFinished, crew, set_status_globally, function_call, vP1, vP2);
 }
 
-global func FailQuest( string szName, object pPlayer, bool bGlobal, string szFunc, vP1, vP2 )
+global func FailQuest(string identifier, object crew, bool set_status_globally, string function_call, vP1, vP2)
 {
-	var quest = FindQuest( szName );
-	if(!quest) return false;
-
-	quest->SetStage( gQuestStageFailed, pPlayer, bGlobal, szFunc, vP1, vP2 );
+//	var quest = FindQuest(identifier);
+//	if (!quest)
+//		return false;
+//	
+//	quest->SetStage(gQuestStageFailed, crew, set_status_globally, function_call, vP1, vP2);
+	return SetQuestStage(identifier, gQuestStageFailed, crew, set_status_globally, function_call, vP1, vP2);
 }
 
-global func SetQuestStage( string szName, int iStage, object pPlayer, bool bGlobal, string szFunc, vP1, vP2 )
+/**
+ @par identifier The quest identifier.
+ @par stage_index The new quest stage.
+ @par crew The crew member that this quest will be activated for.
+ @par set_status_globally [optional] If true, then the status will be set for all active players
+ @par function_call [optional] This function call is executed by the object in question.
+ If it returns false, then the quest stage is not updated.
+ @par vP1 [optional] First parameter for {@c function_call}
+ @par vP2 [optional] Second parameter for {@c function_call}
+ @example
+ {@code
+ // advances all knights, that have "Quest1", to quest stage 3
+ SetQuestStage("Quest1", 3, 0, true, "IsKnight");
+ // Advances the "Quest2" to stage 5 for player 1, if his selected has "Quest2" and he has a shield.
+ SetQuestStage("Quest2", 5, GetCursor(0), false, "HasShield");
+ }
+ @note
+ The quest stage will not be set if the quest was already finished for this player
+ @version 0.1.0
+ */
+global func SetQuestStage(string identifier, int stage_index, object crew, bool set_status_globally, string function_call, vP1, vP2)
 {
-	var quest = FindQuest( szName );
-	if(!quest) return false;
-
-	quest->SetStage( iStage, pPlayer, bGlobal, szFunc, vP1, vP2 );
+	var quest = FindQuest(identifier);
+	if (!quest)
+		return false;
+	
+	quest->SetStage(stage_index, crew, set_status_globally, function_call, vP1, vP2);
 }
 
-global func GetQuestStage( string szName, object pPlayer, bool bGlobal, string szFunc, vP1, vP2 )
+global func GetQuestStage(string identifier, object crew, bool set_status_globally, string function_call, vP1, vP2)
 {
-	var quest = FindQuest( szName );
-	if(!quest) return false;
-
-	return quest->GetStage( pPlayer, bGlobal, szFunc, vP1, vP2 );
+	var quest = FindQuest(identifier);
+	if (!quest)
+		return false;
+	
+	return quest->GetStage(crew, set_status_globally, function_call, vP1, vP2);
 }
 
-global func AddQuestLog( string szName, array aMessage, object pPlayer, bool bGlobal, string szFunc, vP1, vP2 )
+global func AddQuestLog(string identifier, array log_message, object crew, bool set_status_globally, string function_call, vP1, vP2)
 {
-	var quest = FindQuest( szName );
-	if(!quest) return false;
-
-	quest->AddLog( aMessage, pPlayer, bGlobal, szFunc, vP1, vP2 );
+	var quest = FindQuest(identifier);
+	if (!quest)
+		return false;
+	
+	quest->AddLog(log_message, crew, set_status_globally, function_call, vP1, vP2);
 }
 
-global func GetQuestLog( string szName, object pPlayer )
+global func GetQuestLog(string identifier, object crew)
 {
-	var quest = FindQuest( szName );
-	if(!quest) return "";
-
-	return quest->GetLog( pPlayer );
+	var quest = FindQuest(identifier);
+	if (!quest)
+		return "";
+	
+	return quest->GetLog(crew);
 }
 
-global func GetQuestVar( string szName, string szVarName )
+global func & GetQuestVar(string identifier, string var_name)
 {
-	var quest = FindQuest( szName );
-	if(!quest) return "";
-
-	return LocalN2("szVarName",quest);
+	var quest = FindQuest(identifier);
+	if (!quest)
+		return "";
+	
+	return LocalN2("szVarName", quest);
 }
 
-global func SetQuestVar( string szName, string szVarName, vValue )
+global func SetQuestVar(string identifier, string var_name, value)
 {
-	var quest = FindQuest( szName );
-	if(!quest) return "";
-
-	if(!LocalN2(szVarName,quest)) CreateLocalN2(szVarName,quest,0);
-	LocalN2(szVarName,quest) = vValue;
+	var quest = FindQuest(identifier);
+	if (!quest)
+		return "";
+	
+	if (!LocalN2(var_name, quest))
+		CreateLocalN2(var_name, quest, 0);
+	LocalN2(var_name, quest) = value;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -160,135 +232,139 @@ Platzhalter für eval-Scripte:
 */
 protected func Initialize()
 {
-	aPlayers = [];
-	aProgress = [];
-	aQuest = [];
-	bQuestActive = false;
-	aQuestLog = [];
-
-	//AddEffect("MonitorQuest",this,50,50,this);
-	AddEffect("MonitorQuest",this,50,150,this);
+	// active characters and active stage are basically a map
+	active_characters = [];
+	active_stage = [];
+	active_log = [];
+	
+	// data
+	quest_data = [];
+	quest_is_active = false;
+	
+	AddEffect(gQuest_Effect_Monitor_Name, this, gQuest_Effect_Monitor_Priority, gQuest_Effect_Monitor_DefaultInterval, this);
 }
 
-public func CompareQuestName( string szName )
+public func CompareQuestName(string identifier)
 {
-	return szQuestName == szName;
+	return quest_identifier == identifier;
 }
 
-public func AddPlayer( object pTarget )
+public func AddPlayer(object crew)
 {
-	if(!pTarget) return;
-	//if( GetArrayItemPosition( pTarget, aPlayers ) > -1 ) return false; // der Spieler hat die Quest schon
-	//AddPlayerSilent( pTarget );
-	var index = GetArrayItemPosition( pTarget, aPlayers );
-	if( index < 0 ) 
-	{
-		// spätestens jetzt ist die Quest aktiv!
-		//bQuestActive = true;
-		
-		// Spieler speichern und Status auf 0 setzen
-		PushBack( pTarget, aPlayers );
-		PushBack( 1, aProgress );
-		PushBack( [ [0,aQuest[0]]], aQuestLog);
+	if (!crew) return;
+
+	var index = GetArrayItemPosition(crew, active_characters);
+	if (index < 0)
+	{		
+		AddPlayerToArray(crew, gQuest_Stage_Default);
 	}
 	else
 	{
-		aProgress[index] = 1; // wir haben die Quest aktiviert!
+		active_stage[index] = gQuest_Stage_Default; // activate the quest
 	}
-	// spätestens jetzt ist die Quest aktiv!
-	bQuestActive = true;
-
-	var log = pTarget->~GetQuestLogEx();
-	if(log) log->~AddQuest(szQuestName);
-
-	DebugLog("Added Player %s/%s to Quest %s", GetName(pTarget),GetPlayerName(GetOwner(pTarget)),szQuestName);
-	//ScheduleCall(this,"DoMonitorQuest",1,0,this,0,0);
+	// set quest to active
+	quest_is_active = true;
+	
+	var log = crew->~GetQuestLogEx();
+	if (log)
+		log->~AddQuest(quest_identifier);
+	
+	DebugLog("Added Player %s/%s to Quest %s", GetName(crew), GetPlayerName(GetOwner(crew)), quest_identifier);
 }
 
-public func AddPlayerSilent( object pTarget )
+public func AddPlayerSilent(object crew)
 {
-	if(!pTarget) return;
-	if( GetArrayItemPosition( pTarget, aPlayers ) > -1 ) return false; // der Spieler hat die Quest schon
+	if (!crew) return;
+	if (GetArrayItemPosition(crew, active_characters) > -1) return false; // player already has the quest
+	
+	AddPlayerToArray(crew, gQuest_Stage_Silent);
+	
+	DebugLog("Silent Added Player %s/%s to Quest %s", GetName(crew), GetPlayerName(GetOwner(crew)), quest_identifier);
+}
 
-	// Spieler speichern und Status auf 0 setzen
-	PushBack( pTarget, aPlayers );
-	PushBack( 0, aProgress );
-	PushBack( [ [0,aQuest[0]]], aQuestLog);
-
-	DebugLog("Silent Added Player %s/%s to Quest %s", GetName(pTarget),GetPlayerName(GetOwner(pTarget)),szQuestName);
+private func AddPlayerToArray(object crew, int stage)
+{
+		// Save players and initialize default status
+		PushBack(crew, active_characters);
+		PushBack(stage, active_stage);
+		PushBack([[0, quest_data[0]]], active_log);
 }
 
 // das Array manipulieren
 
-public func SetQuest( sNm, aQst, aStg )
+public func SetQuest(string identifier, description, stages)
 {
-	szQuestName = sNm;
-	var story = FindObject(_STY);
-
-	// Direkteingabe
-	if( GetType(aQst) == C4V_Array )
-		aQuest = aQst;
-	// oder per Szenario-Script / System.c4g
-	// sollte im Szenario-Script gesetzt werden, nicht im Editor, damit das Objekt
-	// den korrekten Dialog aus System.c4g erhält!
-	else if( aQst )
+	quest_identifier = identifier;
+	var story = GetStory();
+	
+	// direct input
+	if (GetType(description) == C4V_Array)
 	{
-		if( story )
-			aQuest = ObjectCall( story, Format("DscQuest%s", aQst), false);
-		else
-			aQuest = GameCall(Format("DscQuest%s", aQst), false);
+		quest_data = description;
 	}
-
-	// Direkteingabe
-	if( GetType(aStg) == C4V_Array )
-		aQuestStages = aStg;
-	// oder per Szenario-Script / System.c4g
-	// sollte im Szenario-Script gesetzt werden, nicht im Editor, damit das Objekt
-	// den korrekten Dialog aus System.c4g erhält!
-	else if( aQst )
+	else if (description)
 	{
-		if( story )
-			aQuestStages = ObjectCall( story, Format("DscQuest%s", aQst), true);
+		if (story)
+			quest_data = ObjectCall(story, Format("DscQuest%s", description), false);
 		else
-		aQuestStages = GameCall(Format("DscQuest%s", aQst), true);
+			quest_data = GameCall(Format("DscQuest%s", description), false);
 	}
-	//ChangeEffect (string szEffectName, object pTarget, int iIndex, string szNewEffectName, int iNewTimer)
-
-	ScheduleCall(this,"DoMonitorQuest",1,0,this,0,0);
-	ScheduleCall(this,"DoMonitorQuest",2,0,this,0,0);
+	
+	// direct input
+	if (GetType(stages) == C4V_Array)
+	{
+		quest_stages = stages;
+	}
+	else if (description)
+	{
+		if (story)
+			quest_stages = ObjectCall(story, Format("DscQuest%s", description), true);
+		else
+			quest_stages = GameCall(Format("DscQuest%s", description), true);
+	}
+	
+	ScheduleCall(this, "DoMonitorQuest", 1, 0, this, 0, 0);
+	ScheduleCall(this, "DoMonitorQuest", 2, 0, this, 0, 0);
 }
 
-public func SetStage( int iStage, object pPlayer, bool bGlobal, string szFunc, vP1, vP2 )
+public func SetStage(int stage_index, object crew, bool set_status_globally, string function_call, vP1, vP2)
 {
-	for( var i = 0; i < GetLength( aPlayers ); i++ )
+	for (var i = 0; i < GetLength(active_characters); i++)
 	{
-		var pPlr = aPlayers[i];
-
-		if( bGlobal || pPlr == pPlayer )
+		var current_crew = active_characters[i];
+		
+		if (set_status_globally || current_crew == crew)
 		{
-			var bSet = false;
-			if( szFunc )
+			var set_stage_for_current_crew = false;
+			
+			if (function_call)
 			{
-				if( ObjectCall( pPlr, szFunc, vP1, vP2 ) ) bSet = true;
+				set_stage_for_current_crew = ObjectCall(current_crew, function_call, vP1, vP2);
 			}
 			else
-				bSet = true;
-
-			// schon beendet!
-			if( GetStage(pPlr) == gQuestStageFinished ) bSet = false;
-
-			if( bSet )
 			{
-				aProgress[i]=iStage;
-				if( iStage < 0)
+				set_stage_for_current_crew = true;
+			}
+			
+			// already finished?
+			// if (GetStage(current_crew) == gQuestStageFinished) this does the same loop again -> ineffective!!
+			if (active_stage[i] == gQuestStageFinished)
+				set_stage_for_current_crew = false;
+			// TODO: what about failed quests?????
+			
+			if (set_stage_for_current_crew)
+			{
+				active_stage[i] = stage_index;
+				
+				if (stage_index < 0) // finished or failed? Notify the quest log
 				{
-					var log = pPlr->~GetQuestLogEx();
-					if(log)
+					var log = current_crew->~GetQuestLogEx();
+					if (log)
 					{
-						if( iStage == gQuestStageFinished )
-							log->~FinishQuest(szQuestName);
+						if (stage_index == gQuestStageFinished)
+							log->~FinishQuest(quest_identifier);
 						else
-							log->~FailQuest(szQuestName);
+							log->~FailQuest(quest_identifier);
 					}
 				}
 			}
@@ -296,101 +372,115 @@ public func SetStage( int iStage, object pPlayer, bool bGlobal, string szFunc, v
 	}
 }
 
-public func GetStage( object pPlayer, bool bGlobal, string szFunc, vP1, vP2 )
+public func GetStage(object crew, bool get_status_globally, string function_call, vP1, vP2)
 {
-	for( var i = 0; i < GetLength( aPlayers ); i++ )
+    // TODO
+    // not sure why the get function should have a filter :/
+	for (var i = 0; i < GetLength(active_characters); i++)
 	{
-		var pPlr = aPlayers[i];
-
-		if( bGlobal || pPlr == pPlayer )
+		var current_crew = active_characters[i];
+		
+		if (get_status_globally || current_crew == crew)
 		{
-			var bSet = false;
-			if( szFunc )
+			var return_stage = false;
+			if (function_call)
 			{
-				if( ObjectCall( pPlr, szFunc, vP1, vP2 ) ) bSet = true;
+				if (ObjectCall(current_crew, function_call, vP1, vP2))
+					return_stage = true;
 			}
 			else
-				bSet = true;
-
-			if( bSet )
+				return_stage = true;
+			
+			if (return_stage)
 			{
-				return aProgress[i];
+				return active_stage[i];
 			}
 		}
 	}
-
+	
 	return 0;
 }
 
-public func AddLog( array aMessage, object pPlayer, bool bGlobal, string szFunc, vP1, vP2 )
+public func AddLog(array log_message, object crew, bool set_status_globally, string function_call, vP1, vP2)
 {
-	// loggt, ohne die Quest ins Buch aufzunehmen!
-	if( GetArrayItemPosition( pPlayer, aPlayers ) < 0 ) AddPlayerSilent( pPlayer );
-	// jetzt den Leuten das Zeug ins Log schreiben
-	for( var i = 0; i < GetLength( aPlayers ); i++ )
+	// logs the quest without adding it to the players quest log
+	// if it is not active for the player yet.
+	// this has one very important rease: you should be able to get quest infos, without knowing
+	// that there will be a quest!
+	// once the quest is active it can be looked up in the quest log
+	if (GetArrayItemPosition(crew, active_characters) < 0) AddPlayerSilent(crew);
+	
+	// write to the log
+	for (var i = 0; i < GetLength(active_characters); i++)
 	{
-		var pPlr = aPlayers[i];
-
-		if( bGlobal || pPlr == pPlayer )
+		var current_crew = active_characters[i];
+		
+		if (set_status_globally || current_crew == crew)
 		{
-			var bSet = false;
-			if( szFunc )
+			var write_to_log = false;
+			if (function_call)
 			{
-				if( ObjectCall( pPlr, szFunc, vP1, vP2 ) ) bSet = true;
+				if (ObjectCall(current_crew, function_call, vP1, vP2))
+					write_to_log = true;
 			}
 			else
-				bSet = true;
-
-			if( bSet ) if(GetType( aQuestLog ) == C4V_Array)
-			{
-					PushBack(aMessage,aQuestLog[i]);
-
-					if( GetStage( pPlr ) > 0  )
+				write_to_log = true;
+			
+			if (write_to_log)
+				if (GetType(active_log) == C4V_Array)
+				{
+					PushBack(log_message, active_log[i]);
+					
+					if (GetStage(current_crew) > 0) // update the log only if the quest is not finished yet and if the quest is active
 					{
-						var log = pPlr->~GetQuestLogEx();
-						if(log) log->~UpdateQuest(szQuestName);
+						var log = current_crew->~GetQuestLogEx();
+						if (log)
+							log->~UpdateQuest(quest_identifier);
 					}
-			}
+				}
 		}
 	}
 }
 
-public func GetLog( object pPlayer)
+public func GetLog(object crew)
 {
-	var index = GetArrayItemPosition( pPlayer, aPlayers);
-	if(index < 0) return "";
-
-	return aQuestLog[index];
+	var index = GetArrayItemPosition(crew, active_characters);
+	if (index < 0)
+		return "";
+	
+	return active_log[index];
 }
 
-public func GiveReward( object pPlayer, aReward, aRewardGlobal )
+public func GiveReward(object crew, events_reward_local, events_reward_global)
 {
-	if( GetArrayItemPosition( pPlayer, aPlayers ) >= 0)
-		ProcessEvents( aReward, pPlayer, true );
-
-	for( var obj in aPlayers )
-		ProcessEvents( aRewardGlobal, obj, true);
+	if (GetArrayItemPosition(crew, active_characters) >= 0)
+		ProcessEvents(events_reward_local, crew, true);
+	
+	for (var obj in active_characters) 
+		ProcessEvents(events_reward_global, obj, true);
 }
 
-public func AddPhase( aOption )
+public func AddPhase(stage)
 {
-	if( GetType(aQuestStages) == C4V_Array )
-		PushBack( aOption, aQuestStages );
+	if (GetType(quest_stages) == C4V_Array)
+		PushBack(stage, quest_stages);
 }
 
+/* This should be removed
 public func GetUnusedDlgIndex()
 {
 	var aIndices = [];
-	for( aOption in aQuest )
-		PushBack( aOption[0], aIndices );
-
-	var i=0;
-	for( i=0; i<= GetLength(aQuest); i++)
-		if(GetArrayItemPosition(i,aIndices)==-1)
+	for (aOption in aQuest) 
+		PushBack(aOption[0], aIndices);
+	
+	var i = 0;
+	for (i = 0; i <= GetLength(aQuest); i++)
+		if (GetArrayItemPosition(i, aIndices) == -1)
 			break;
-
+	
 	return i;
 }
+*/
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //
@@ -399,148 +489,168 @@ public func GetUnusedDlgIndex()
 protected func GetHumanPlayersEx()
 {
 	var aClonks = [];
-
-	for(var i = 0; i < GetPlayerCount(C4PT_User); i++)
-		PushBack( GetHiRank(GetPlayerByIndex(i, C4PT_User)), aClonks );
-
+	
+	for (var i = 0; i < GetPlayerCount(C4PT_User); i++)
+		PushBack(GetHiRank(GetPlayerByIndex(i, C4PT_User)), aClonks);
+	
 	return aClonks;
 }
 
-protected func FxMonitorQuestTimer(object pTarget, int iEffectNumber, int iEffectTime)
+protected func FxMonitorQuestTimer(object target, int effect_nr, int time)
 {
-	DoMonitorQuest( pTarget, iEffectNumber, iEffectTime);
+	DoMonitorQuest(target, effect_nr, time);
 }
 
-protected func DoMonitorQuest(object pTarget, int iEffectNumber, int iEffectTime)
+protected func DoMonitorQuest(object target, int effect_nr, int time)
 {
 	var players = GetHumanPlayersEx();
+	
+	if (GetType(players) != C4V_Array) return;
 
-	if( GetType(players) == C4V_Array )
-	for( pPlr in players )
+	for (crew in players) 
 	{
-		var iIndex = GetArrayItemPosition( pPlr, aPlayers );
-
-			//Log("Check Player %d", iIndex);
-			// wenn der Spieler die Quest bereits hat
-			if( iIndex > -1 )
+		var crew_index = GetArrayItemPosition(crew, active_characters);
+		
+		//Log("Check Player %d", iIndex);
+		// if the player already has the quest
+		if (crew_index > -1)
+		{
+			
+			var is_finished = true;
+			
+			for (var stage in quest_stages) 
 			{
-
-				var bFinished = true;
-
-				for( var stg in aQuestStages )
+				var stage_index = 0;
+				if (GetType(stage) == C4V_Array) stage_index = stage[0];
+				
+				//Log("CheckStage %d",iStage);
+				
+				// handle general or specific stage
+				if (!stage_index || stage_index == active_stage[crew_index])
 				{
-					var iStage = 0;
-					if( GetType(stg) == C4V_Array ) iStage = stg[0];
-
-					//Log("CheckStage %d",iStage);
-
-					// allgemeine Phase oder spezielle Phase behandeln
-					if( !iStage || iStage == aProgress[iIndex] )
-					if( aProgress[iIndex] >= 0 ) // neu eingefügt
+					// newly added
+					if (active_stage[crew_index] >= 0)
 					{
-						 bFinished = false; // neu eingefügt
+						is_finished = false;
+						
 						//Log("QuestStage %d",iStage);
-						var aConditions = stg[1];
-						var aEvents = stg[2];
-						var iTimer = stg[3];
-
-						if(!iTimer) iTimer = 36;
-
-						if( !(iEffectTime%iTimer))
-							if( CheckConditions( aConditions, pPlr, false ) )
-								ProcessEvents( aEvents, pPlr );
-					}
-
-					//Log("Not finished, I hope");
-					//if( aProgress[iIndex] >= 0 ) bFinished = false;
-				}
-
-				if( bFinished ){ DebugLog("Quest finished"); return -1;} // fertig :)
-			}
-			// wenn eine Bedingung zu erfüllen ist
-			else if( aQuest[1])
-			{
-				CheckConditions( aQuest[2], pPlr, true);
-			}
-
-	}
-}
-
-
-protected func CheckConditions( aConditions, object pActivePlayer, bool bActivate)
-{
-	var fFulfilled = true; // im Zweifel für den Angeklagten
-	var aCond;
-	var fCheck = true;
-
-	// keine Bedingungen sind immer erfüllt
-	if(!aConditions) fCheck = false;
-	if( GetType(aConditions) == C4V_Array ) if(GetLength(aConditions) < 1) fCheck = false;
-
-	if( fCheck )
-	{
-					if( GetType( aConditions ) == C4V_String )
-					{
-						if(!CheckCondition( aConditions, pActivePlayer/*, aClonks[i]*/ ))
+						var stage_conditions = stage[1];
+						var stage_events = stage[2];
+						var stage_timer = stage[3];
+						
+						if (!stage_timer) stage_timer = 36;
+						
+						if ((time % stage_timer) == 0 && CheckConditions(stage_conditions, crew, false))
 						{
-							fFulfilled = false;
-
+								ProcessEvents(stage_events, crew);
 						}
 					}
-					else
-					{
-							for( aCond in aConditions )
-								// die erste nicht-erfüllte Bedingung macht ihn schuldig ;)
-								if(!CheckCondition( aCond, pActivePlayer/*, aClonks[i]*/ ))
-								{
-									fFulfilled = false;
-									break;
-								}
-					}
-	}
-
-	if( fFulfilled && bActivate && pActivePlayer != this )
-	{
-		ChangeEffect ("MonitorQuest", this, 0, "MonitorQuest", 1); 
-		AddPlayer( pActivePlayer );
-	}
-
-	return fFulfilled;
-}
-
-protected func ProcessEvents( aEvents, object pActivePlayer, bool bPlayer )
-{
-	// keine Bedingungen sind immer erfüllt
-	if(!aEvents) return true;
-	if( GetType(aEvents) == C4V_Array ) if(GetLength(aEvents) < 1) return true;
-
-	var aEv;
-
-			if( GetType( aEvents ) == C4V_String )
-				CheckCondition( aEvents, pActivePlayer, bPlayer );
-			else
-			{
-				for( aEv in aEvents )
-					CheckCondition( aEv, pActivePlayer, bPlayer );
+				}
+				
+				//Log("Not finished, I hope");
+				//if (aProgress[iIndex] >= 0) bFinished = false;
 			}
+			
+			if (is_finished)
+			{
+				DebugLog("Quest finished");
+				return -1;
+			} // done :)
+		}
+		else if (quest_data[1])
+		{
+			CheckConditions(quest_data[2], crew, true);
+		}
+	}
+
 }
 
-protected func CheckCondition( aCondition, object pActivePlayer, bool bPlayer )
+
+protected func CheckConditions(conditions, object active_crew, bool should_activate)
 {
-	// keine Bedingungen sind immer erfüllt
-	if(!aCondition) return true;
-	if( GetType(aCondition) != C4V_Array && GetType(aCondition) != C4V_String ) return true;
+	var is_fulfilled = true; // im Zweifel für den Angeklagten
+	var should_check = true;
+	
+	// no conditions are always fulfilled, no need to check anything here
+	if (!conditions) should_check = false;
+	if (GetType(conditions) == C4V_Array && GetLength(conditions) < 1) should_check = false;
+	
+	if (should_check)
+	{
+		if (GetType(conditions) == C4V_String)
+		{
+			if (!CheckCondition(conditions, active_crew))
+			{
+				is_fulfilled = false;
+			}
+		}
+		else
+		{
+			for (var condition in conditions) 
+			{
+				if (!CheckCondition(condition, active_crew))
+				{
+					is_fulfilled = false;
+					break;
+				}
+			}
+		}
+	}
+	
+	if (is_fulfilled && should_activate && active_crew != this)
+	{
+		ChangeEffect(gQuest_Effect_Monitor_Name, this, 0, gQuest_Effect_Monitor_Name, 1);
+		AddPlayer(active_crew);
+	}
+	
+	return is_fulfilled;
+}
 
-	var szEval = aCondition;
+protected func ProcessEvents(events, object active_crew, bool should_activate)
+{
+	// no events can alway be processed
+	if (!events) return true;
+	if (GetType(events) == C4V_Array && GetLength(events) < 1) return true;
+	
+	if (GetType(events) == C4V_String)
+	{
+		CheckCondition(events, active_crew, should_activate);
+	}
+	else
+	{
+		for (var event in events) 
+		{
+			CheckCondition(event, active_crew, should_activate);
+		}
+	}
+}
 
-	if(bPlayer) szEval = ReplaceAll(szEval,"pPlayer",Format("Object(%d)",ObjectNumber(pActivePlayer)));
-	szEval = ReplaceAll(szEval,"pActivePlayer",Format("Object(%d)",ObjectNumber(pActivePlayer)));
-	szEval = ReplaceAll(szEval,"pQuest", "this");
-
-	DebugLog("Evaluating Quest Condition \"%s\", %d",szEval, FrameCounter());
-
-	var result = eval( szEval );
+protected func CheckCondition(condition, object active_crew, bool should_activate)
+{
+	// no condition is always fulfilled
+	if (!condition) return true;
+	//if (GetType(condition) != C4V_Array && GetType(condition) != C4V_String) return true;
+	if (GetType(condition) != C4V_Array && GetType(condition) != C4V_String) return true;
+	
+	if (GetType(condition) == C4V_Array)
+	{
+		ErrorLog("Condition %v type is invalid - expected C4V_String, but got C4V_Array", condition);
+		return false;
+	}
+	
+	var script = condition;
+	
+	if (should_activate)
+	{
+		script = ReplaceAll(script, "pPlayer", Format("Object(%d)", ObjectNumber(active_crew)));
+	}
+	script = ReplaceAll(script, "pActivePlayer", Format("Object(%d)", ObjectNumber(active_crew)));
+	script = ReplaceAll(script, "pQuest", "this");
+	
+	DebugLog("Evaluating Quest Condition \"%s\", %d", script, FrameCounter());
+	
+	var result = eval(script);
 	DebugLog("Evaluation: %v", result);
-
+	
 	return result;
 }
