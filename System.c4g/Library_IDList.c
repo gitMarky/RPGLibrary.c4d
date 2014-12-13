@@ -25,6 +25,30 @@ static const ID_Menu_ComboSymbol = LICS;
 static const ID_MenuIcon_StandardButton = LIGH;
 static const ID_MenuIcon_MouseCursor = MCCR;
 
+// Ambience
+
+static const ID_Ambience_Fireflies = FFAC; // the spawner
+
+// Objects
+
+static const ID_Object_CaveElevator = _CEL;
+static const ID_Object_CandleHolder = _CHO;
+static const ID_Object_WoodenBarricade = _WBR;
+static const ID_Object_Greenstuff = _VEG;
+static const ID_Object_BigRock1 = RO13;
+static const ID_Object_BigRock2 = RO69;
+static const ID_Object_Twines =  S_RN;
+static const ID_Object_Cobweb = SWEB;
+static const ID_Object_StoneIdol2 = IL04;
+static const ID_Object_Cart = _CRT;
+static const ID_Object_Edge = _EDG;
+static const ID_Object_Furframe = _FUR;
+static const ID_Object_Skinframe = SKN_;
+static const ID_Object_BigCage = _CAG;
+
+static const ID_Passage_Staircase = _SCS;
+static const ID_Passage_Cave = CAVE;
+
 // Menu Decos
 
 static const ID_MenuIcon_Default = _CAM;
@@ -47,6 +71,8 @@ static const ID_QuestHandler = LF_Q;
 // Libraries
 
 static const ID_Library_DayNightCycle = LF_C;
+static const ID_Library_Decoration = LF_D;
+static const ID_Library_Readable = LF_R;
 
 // Helper objects
 

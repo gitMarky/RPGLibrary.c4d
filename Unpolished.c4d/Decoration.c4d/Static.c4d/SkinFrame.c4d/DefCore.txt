@@ -1,0 +1,10 @@
+[DefCore]
+id=SKN_
+Version=4,9,8
+Name=Skin
+Category=C4D_StaticBack
+MaxUserSelect=3
+Width=26
+Height=29
+Offset=-13,-15
+Rotate=1

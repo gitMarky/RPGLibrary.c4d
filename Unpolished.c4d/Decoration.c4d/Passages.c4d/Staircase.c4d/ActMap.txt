@@ -1,0 +1,6 @@
+[Action]
+Name=Decoration
+Length=4
+Delay=0
+Facet=0,0,21,24
+NextAction=Hold

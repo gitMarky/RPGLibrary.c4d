@@ -1,0 +1,5 @@
+[DefCore]
+id=LF_D
+Version=4,9,8
+Name=Decoration
+Category=1
