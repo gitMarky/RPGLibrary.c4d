@@ -1,2 +1,0 @@
-DE:Basissysteme
-US:Core Systems
