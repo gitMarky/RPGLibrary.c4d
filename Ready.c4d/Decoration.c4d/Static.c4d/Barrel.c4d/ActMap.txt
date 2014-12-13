@@ -2,5 +2,5 @@
 Name=Decoration
 Length=3
 Delay=0
-Facet=24,0,24,18
+Facet=0,0,24,18
 NextAction=Hold
