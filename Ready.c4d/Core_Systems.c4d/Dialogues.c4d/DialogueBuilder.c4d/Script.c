@@ -297,6 +297,22 @@ public func DisplayInstantly()
 }
 
 /**
+ Tells the dialogue which object is speaking. By default this is the object
+ that the dialogue is set to, so use this if you want other objects to speak
+ in the dialogue.
+ @par speaker The object that is displayed as the speaker. You have several options here:@br
+ - {@c gDialogue_Object_Target} displays the player character as the speaker,@br
+ - {@c int nr} displays {@c Object(nr)} as the speaker,@br
+ - {@c string variable_name} displays the global varialbe {@c GlobalN(variable_name)} as the speaker
+ */
+public func Speaker(speaker)
+{
+	dialogue[gDialogue_ARRAYPOS_Object] = speaker;
+	
+	return this;
+}
+
+/**
  Usually the character that is talking is displayed with his own color. Calling this function disables that.
  @return object Returns the helper object, such that the dialogue option can be further modified.
  @version 0.2.0

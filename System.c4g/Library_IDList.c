@@ -73,12 +73,14 @@ static const ID_QuestHandler = LF_Q;
 static const ID_Library_DayNightCycle = LF_C;
 static const ID_Library_Decoration = LF_D;
 static const ID_Library_Readable = LF_R;
+static const ID_Library_Switch = LF_S;
 
 // Helper objects
 
 static const ID_Helper_Story = _STY;
 static const ID_Helper_DialogueBuilder = _DLB;
 static const ID_Helper_QuestBuilder = __QB;
+static const ID_Helper_SwitchBuilder = LF_S; // yes, it is the same
 
 static const ID_Helper_ScreenFader = _SCF;
 

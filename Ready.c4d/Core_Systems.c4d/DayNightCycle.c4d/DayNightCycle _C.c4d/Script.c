@@ -99,7 +99,7 @@ public func SetDayNightCycle(cycle)
 		cycle_definition_array = cycle;
 	else if (cycle)
 	{
-		var story = FindObject(ID_Helper_Story);
+		var story = GetStory();
 		if (story)
 			cycle_definition_array = ObjectCall(story, Format("DayNightCycle%s", cycle));
 		else

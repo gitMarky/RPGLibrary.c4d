@@ -15,7 +15,6 @@ An item, that looks like a book. Can have a dialogue.
 protected func Initialize()
 {
 	SetColorDw(HSL(Random(256), 255, Random(128) + 128));
-	TestBook();
 }
  
 /**
@@ -28,11 +27,12 @@ protected func Activate(object player)
 	[$CtrlRead$]
 	
 	StartDialogue(player);
-	return 1;
+	return true;
 }
 
 private func TestBook()
 {
+/*
 	SetDialogue
 	(
 		[
@@ -97,7 +97,36 @@ private func TestBook()
 			[7, -1, "Schließen", "", 0, [MCMX, 0, 0, 0, 0, -1], -1, 0, "CloseMenu(pTarget)"]
 		]
 	);
-	
+*/
+
+	SetDialogue
+	(
+		[
+			DlgOption(0, -1)->Text("Dies ist die Erste Seite des Buches")->Icon(MCMC),
+			DlgOption(1, 0, "Zu S.2")->Text("Dies ist die zweite Seite des Buches")->Icon(MCM2),
+			DlgOption(2, [0, 1], "Zu S.3")->Text("Dies ist die dritte Seite des Buches")->Icon(MCM3),
+			DlgOption(4, 0)->Text("Dies ist ein Info-Text"),
+			DlgOption(5, 2, "Genauer Untersuchen")->Text("Hier gibt der Clonk einen Kommentar ab!")->Speaker(gDialogue_Object_Target)->Icon(MCMQ),
+			DlgOption(6, [0, 1, 2, 5], "Zu S.4")
+				->Text("Dies ist die vierte Seite des Buches. Außerdem wird es hier farbig und sofort angezeigt|Eine Sensation, bei so einem langen Text")
+				->Icon(MCM4)->DisplayInstantly()->TextColor(RGB(255, 0, 0)),
+			DlgOption(3, [1, 2, 6], "Zurück zu S.1")->Text("Dieser Text erscheint nicht, wir springen direkt zu Seite 1!")->Icon(MCMC)->NextDialogue(1),
+			
+			DlgOption(14, -1, "2 Ich habe kein Gold")->Text("Blabla")->Icon(GOLD)->RequiredConditions(0)->Conditions("pTarget->~GetMoney() == 0"),
+			DlgOption(15, -1, "2 Ich habe Gold")->Text("Blabla")->Icon(GOLD)->RequiredConditions(0)->Conditions("GetWealth(GetOwner(pTarget)) > 0"),
+			DlgOption(16, -1, "2 Du hast kein Gold")->Text("Blabla")->Icon(GOLD)->RequiredConditions(0)->Conditions("pSpeaker->~GetMoney() == 0"),
+			DlgOption(17, -1, "Es gibt Schwert und Schild")->Text("Blabla")->Icon(SWOR)->RequiredConditions(0)->Conditions(["FindObject(SWOR)", "FindObject(SHIE)"]),
+			DlgOption(14, -1, "Sepp ist eine Variable")->Text("Blabla")->Icon(CLNK)->RequiredConditions(0)->Conditions("GlobalN(\"Sepp\")"),
+			DlgOption(18, -1,"Gib mir einen Flint")->Text("Hier hast Du ihn")->Icon(FLNT)
+				->Conditions("!FindContents(FLNT,pTarget)")
+				->Events("CreateContents(FLNT,pTarget)"),
+			DlgOption(19, -1, "Hier hast Du den Flint zurück")->Text("Danke")->Icon(FLNT)
+				->Conditions("FindContents(FLNT,pTarget)")
+				->Events("!FindContents(FLNT,pTarget) || RemoveObject(FindContents(FLNT,pTarget));"),
+			DlgOption(7, -1, "Schließen")->Text("")->Icon(MCMX)->NextDialogue(-1)->Events("CloseMenu(pTarget)")
+		]
+	);
+
 	Activate(GetHiRank());
 }
 
