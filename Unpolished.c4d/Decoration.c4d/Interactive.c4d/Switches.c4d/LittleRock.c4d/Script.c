@@ -24,7 +24,7 @@ public func Initialize()
  @par mass The total mass of all objects that are on the switch. Must be >= 1.
  @return The new activation mass.
  */
-public func SetActivationMass(int mass)
+public func SetNeededWeight(int mass)
 {
 	if (activation_mass < 1)
 	{

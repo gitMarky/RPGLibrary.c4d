@@ -6,137 +6,111 @@ This touch plate is sensitive to weight placed on it.
 @version 0.1.0
 --*/
 
+#include LF_S // Switch
+
 #strict 2
 
 static const gFloorSwitch_NeededWeight = 20;
 static const gFloorSwitch_DownPos      = 4;
 
-local iYPos;
-local idSpecific;	 // only items with matching ID are counted
-local iNeededWeight;
-local idMaster;		 // Super ID which handles the floor switch with an object
-local iYPosBottom;	 // additional lower position
-local aTargets;
+local y_pos_current;
+local specific_id;	 // only items with matching ID are counted
+local activation_mass;
+local master_id;		 // Super ID which handles the floor switch with one object
+local y_pos_bottom;	 // additional lower position
 
 protected func Initialize()
 {
-	aTargets = CreateArray();
-	iYPosBottom = gFloorSwitch_DownPos;
+	y_pos_bottom = gFloorSwitch_DownPos;
 }
 
 protected func Timer10()
 {
 	// Calculate position by current weight
-	var iWgt, obj;
-	while (obj = FindObject(idSpecific, -25, -30, 50, 30, 0, 0, 0, NoContainer(), obj))
-		if (obj->GetContact(0, -1, 8))
-			if (~obj->GetCategory() & C4D_StaticBack)
-				iWgt += obj->GetMass();
+	var mass, target;
+	while (target = FindObject(specific_id, -25, -30, 50, 30, 0, 0, 0, NoContainer(), target))
+		if (target->GetContact(0, -1, 8))
+			if (~target->GetCategory() & C4D_StaticBack)
+				mass += target->GetMass();
 				
-	if (idMaster)
-		if (obj = FindObject(idMaster, -25, -30, 50, 30, 0, 0, 0, NoContainer()))
-			if (obj->GetContact(0, -1, 8))
-				if (~obj->GetCategory() & C4D_StaticBack)
-					iWgt += iNeededWeight + gFloorSwitch_NeededWeight;
+	if (master_id)
+		if (target = FindObject(master_id, -25, -30, 50, 30, 0, 0, 0, NoContainer()))
+			if (target->GetContact(0, -1, 8))
+				if (~target->GetCategory() & C4D_StaticBack)
+					mass += activation_mass + gFloorSwitch_NeededWeight;
 					
-	var iDesiredY = 0;
+	var y_pos_desired = 0;
 	
 	// Check weight, either use own value or default value
-	if (iNeededWeight)
+	if (activation_mass)
 	{
-		if (iWgt >= iNeededWeight)
-			iDesiredY = iYPosBottom;
+		if (mass >= activation_mass)
+			y_pos_desired = y_pos_bottom;
 	}
-	else if (iWgt >= gFloorSwitch_NeededWeight)
-		iDesiredY = iYPosBottom;
+	else if (mass >= gFloorSwitch_NeededWeight)
+		y_pos_desired = y_pos_bottom;
 	
 	// At desired position?
-	if (iDesiredY == iYPos)
+	if (y_pos_desired == y_pos_current)
 		return;
 	
 	// No target? "stuck"!
-	if (!GetLength(aTargets))
+	if (GetActiveState() == gSwitch_State_Inactive)
 	{
-		iYPos = iDesiredY;
+		y_pos_current = y_pos_desired;
 		Sound("ArrowHit");
 		Message("$MsgStuck$", this);
 		return;
 	}
 	
 	// Sound when the switch starts moving
-	if (!iYPos || iYPos == gFloorSwitch_DownPos)
+	if (!y_pos_current || y_pos_current == gFloorSwitch_DownPos)
 		Sound("Elevator");
 	
 	// Move up/down
-	iDesiredY = BoundBy(iDesiredY - iYPos, -1, 1);
+	y_pos_desired = BoundBy(y_pos_desired - y_pos_current, -1, 1);
 	
-	while (obj = FindObject(0, -25, -30, 50, 30, 0, 0, 0, NoContainer(), obj))
-		if (obj->GetContact(0, -1, 8))
-			if (~obj->GetCategory() & C4D_StaticBack)
-				obj->SetPosition(obj->GetX(), obj->GetY() + iDesiredY);
+	while (target = FindObject(0, -25, -30, 50, 30, 0, 0, 0, NoContainer(), target))
+		if (target->GetContact(0, -1, 8))
+			if (~target->GetCategory() & C4D_StaticBack)
+				target->SetPosition(target->GetX(), target->GetY() + y_pos_desired);
 	
-	SetPosition(GetX(), GetY() + iDesiredY);
-	iYPos += iDesiredY;
+	SetPosition(GetX(), GetY() + y_pos_desired);
+	y_pos_current += y_pos_desired;
 	
-	// Notify connected objects
-	for (var target in aTargets)
+	// notify targets
+	if (y_pos_desired > 0)
 	{
-		var obj = target[0];
-		var direction = target[1];
-	
-		if (iDesiredY * direction > 0)
-			obj->ControlDown(this);
-		else
-			obj->ControlUp(this);
+		SetState(1);
+	}
+	else if (y_pos_desired < 0)
+	{
+		SetState(0);
 	}
 	
 	// Sound when stopping
-	if (!iYPos || iYPos == gFloorSwitch_DownPos)
+	if (!y_pos_current || y_pos_current == gFloorSwitch_DownPos)
+	{
 		Sound("Chuff");
-}
-
-/**
- * Adds a target to the switch. When the switch is at its bottom most position the target receives a function call.
- * @par pTarget The object that will receive the command.
- * @par iDir [optional] The switch calls ControlDown() in the target if iDir is 1, and ControlUp() if iDir is -1. If no parameter is passed, then ControlDown() is the default call.
- */
-public func AddTarget(object pTarget, int iDir)
-{
-	if (iDir != 0 && iDir != 1) return;
-	if (!iDir)
-		iDir = 1;
-	var i;
-	while (Local(i))
-		++ ++i;
-	Local(i++) = pTarget;
-	Local(i) = iDir;
-}
-
-/**
- * Identifies this object as a switch.
- * @return bool true.
- */
-public func IsSwitch()
-{
-	return true;
+	}
 }
 
 /**
  * Determines, how far the plate is pushed into the ground when the full weight is placed on it.
- * @par iYDistance The plate moves downwards this many pixels. The default distance is 4 pixels.
+ * @par distance The plate moves downwards this many pixels. The default distance is 4 pixels.
  */
-public func SetMoveDistance(int iYDistance)
+public func SetMoveDistance(int distance)
 {
-	iYPosBottom = iYDistance;
+	y_pos_bottom = distance;
 }
 
 /**
  * Sets the weight value that is needed for the floor switch to go off.
- * @par iWeight The total weight value of objects that lie on top of the switch. The default weight is 20.
+ * @par mass The total weight value of objects that lie on top of the switch. The default weight is 20.
  */
-public func SetNeededWeight(int iWeight)
+public func SetNeededWeight(int mass)
 {
-	iNeededWeight = iWeight;
+	activation_mass = mass;
 }
 
 /**
@@ -145,7 +119,7 @@ public func SetNeededWeight(int iWeight)
  */
 public func SetSpecificID(id definition)
 {
-	idSpecific = definition;
+	specific_id = definition;
 }
 
 /**
@@ -154,5 +128,5 @@ public func SetSpecificID(id definition)
  */
 public func SetMasterID(id definition)
 {
-	idMaster = definition;
+	master_id = definition;
 }

@@ -26,6 +26,10 @@ static const gSwitch_Def_ColorUser =	3;
 
 static const gSwitch_State_Inactive = -1;
 
+/**
+ * Identifies this object as a switch.
+ * @return bool true.
+ */
 public func IsSwitch()
 {
 	return true;
