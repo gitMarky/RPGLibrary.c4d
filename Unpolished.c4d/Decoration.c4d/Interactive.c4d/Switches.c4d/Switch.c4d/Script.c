@@ -139,24 +139,6 @@ protected func ControlRight(object controller)
 	Sound("Click");
 	return true;
 }
-
-private func MessageBlocked(object target)
-{
-	return SwitchMessage("$MessageBlocked$", target);
-}
-private func MessageLocked(object target)
-{
-	return SwitchMessage("$MessageLocked$", target);
-}
-
-private func SwitchMessage(string message, object target)
-{
-	if (!target) target = this;
-	Message(message, target);
-	Sound("ArrowHit");
-	return true;
-}
-
 public func AttachBottom()
 {
 	var obj = FindObject(0, 0, 13, 0, 0);

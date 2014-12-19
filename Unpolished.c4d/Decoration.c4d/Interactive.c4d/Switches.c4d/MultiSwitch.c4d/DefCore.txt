@@ -14,5 +14,5 @@ Vertices=2
 VertexX=-10,10
 VertexY=8,8
 VertexFriction=20,20
-Grab=2 
-NeededGfxMode=1
+Grab=2
+ColorByOwner=1

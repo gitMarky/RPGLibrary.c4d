@@ -1,0 +1,6 @@
+DescSwitch=Switch
+MessageBlocked=Stuck :(
+MessageLocked=Locked :(
+MessageUnlocked=Lock removed!
+MessageWrongKey=Key doesn't fit.
+MessageNotLocked=Not locked.

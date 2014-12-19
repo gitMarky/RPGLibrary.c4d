@@ -2,6 +2,7 @@
 
 #strict 2
 
+local last_action;
 local radius;
 local amount;
 local drain;
@@ -29,6 +30,8 @@ global func PlaceWaterfall(int x_top, int y_top, int x_bottom, int y_bottom, int
 	drainer->LocalN("amount") = amount * 2;
 	drainer->LocalN("material_index") = material;
 	drainer->LocalN("drain") = true;
+	
+	return [fall, drainer];
 }
 
 protected func Initialize()
@@ -60,4 +63,18 @@ private func Draining()
 	
 	if (GetAction() == "DrainLow")
 		Sound("Water", 0, this, 100, 0, true, false, 150);
+}
+
+public func SwitchOff()
+{
+	last_action = GetAction();
+	SetAction("Idle");
+}
+
+public func SwitchOn()
+{
+	if (last_action)
+	{
+		SetAction(last_action);
+	}
 }

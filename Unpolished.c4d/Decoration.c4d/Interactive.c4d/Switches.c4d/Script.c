@@ -46,11 +46,12 @@ protected func Initialize()
 }
 
 /**
-@param cycle A day-night-cycle definition array.
-@param target [optional] The target to attach the day-night-cycle to. No value or 0
-referrs to the local object.
+Defines the switch states.
+@param states Can be an array with the switch states, or a string. In case of a string,
+the function tries calling "SwitchState<string>" first in the story object and then as a
+game call.
 @author Marky
-@version 0.1.0
+@version 0.2.0
 */
 public func SetSwitchStates(states)
 {
@@ -114,6 +115,11 @@ public func ValidateSwitchStates()
 //
 // build switch states
 
+/**
+ Creates a helper object that can be used to define switch states.
+ @par state This has to be a unique integer for the specific dialogue.
+ @return object Returns the helper object, such that the dialogue option can be further modified.
+ */
 global func SwitchDef(int state)
 {
 	var obj = CreateObject(ID_Helper_SwitchBuilder, 0, 0, NO_OWNER);
@@ -127,6 +133,14 @@ global func SwitchDef(int state)
 	return obj;
 }
 
+/**
+ Once the switch state is activated, the switch issues function calls to its
+ targets. Works like an ObjectCall().
+ @par target The function call is issued to to this object.
+ @par call [optional] If no parameter is passed, then the switch
+ calls {@code target->OnSwitchState(int state, object switch)}.
+ @return object Returns the helper object, such that the dialogue option can be further modified.
+ */
 public func TargetCall(object target, string call, p2, p3, p4, p5, p6, p7, p8, p9)
 {
 	var option = [target, call, p2, p3, p4, p5, p6, p7, p8, p9];
@@ -136,6 +150,12 @@ public func TargetCall(object target, string call, p2, p3, p4, p5, p6, p7, p8, p
 	return this;
 }
 
+/**
+ Can be used to specify a color for base graphics of the switch. It gets modulated in this color
+ when the state is active.
+ @par value The color modulation, in dword format.
+ @return object Returns the helper object, such that the dialogue option can be further modified.
+ */
 public func ColorBase(int value)
 {
 	switch_states[gSwitch_Def_ColorBase] = value;
@@ -143,6 +163,12 @@ public func ColorBase(int value)
 	return this; 
 }
 
+/**
+ Can be used to specify a color for overlay graphics of the switch. It gets modulated in this color
+ when the state is active.
+ @par value The color modulation, in dword format.
+ @return object Returns the helper object, such that the dialogue option can be further modified.
+ */
 public func ColorUser(int value)
 {
 	switch_states[gSwitch_Def_ColorUser] = value;
@@ -152,6 +178,7 @@ public func ColorUser(int value)
 
 public func Create(object switch)
 {
+/*
 	// TODO: Code is wrong
 	// replace references to 'this' with the switch object
 	for (var i = 0; i < GetLength(switch_states); i++)
@@ -170,6 +197,21 @@ public func Create(object switch)
 			switch_states[i][gSwitch_Def_Targets][j] = call;
 		}
 	}
+*/
+
+		
+		for (var j = 0; j < GetLength(switch_states[gSwitch_Def_Targets]); j++)
+		{
+			var call = switch_states[gSwitch_Def_Targets][j];
+			
+			for (var k = 0; k < GetLength(call); k++)
+			{
+				if (call[k] == this) call[k] = switch;
+			}
+			
+			switch_states[gSwitch_Def_Targets][j] = call;
+		}
+
 
 	return switch_states;
 }
@@ -178,6 +220,12 @@ public func Create(object switch)
 //
 // handle switching
 
+/**
+ Switches the state.
+ @par state The state number that will be activated.
+ @return true, if all target calls returned true.
+ @link SetSuccessfulCalls()
+ */
 public func SetState(int state)
 {
 	var i;
@@ -198,7 +246,7 @@ public func SetState(int state)
 	
 	if (i < GetLength(switch_states)) // you can actually set to inactive and have a call!
 	{
-		for (var call in switch_states[i])
+		for (var call in switch_states[i][gSwitch_Def_Targets])
 		{
 			result &= DoTargetCall(call, active_state);
 		}
@@ -258,6 +306,10 @@ private func DoTargetCall(call, int state)
 	}
 }
 
+/**
+ Get the state which is active in the switch.
+ @return The state that is currently active.
+ */
 public func GetActiveState()
 {
 	return active_state;
@@ -268,6 +320,12 @@ protected func RequiresSuccessfulCalls()
 	return requires_successful_calls;
 }
 
+/**
+ Usually the SetState() function returns {@c true} only if
+ all target calls return {@c true}.
+ @par require if this is set to true, then SetState() returns true
+ always if the state is not active already.
+ */
 protected func SetSuccessfulCalls(bool require)
 {
 	return requires_successful_calls = require;
@@ -289,4 +347,25 @@ protected func UpdateColors(int state)
 	{
 		SetColorDw(color_user);
 	}
+}
+
+/////////////////////////////////////////////////////////////////////////
+//
+// messages
+
+private func MessageBlocked(object target)
+{
+	return SwitchMessage("$MessageBlocked$", target);
+}
+private func MessageLocked(object target)
+{
+	return SwitchMessage("$MessageLocked$", target);
+}
+
+private func SwitchMessage(string message, object target)
+{
+	if (!target) target = this;
+	Message(message, target);
+	Sound("ArrowHit");
+	return true;
 }
