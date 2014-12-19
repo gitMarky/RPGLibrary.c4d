@@ -14,7 +14,7 @@ protected func Initialize()
 public func StartInactive()
 {
 	SetPhase(6);
-	active_state = gSwitch_State_Inactive;
+	active_state = 6;
 }
 
 protected func UpdatePhase()
@@ -48,7 +48,7 @@ protected func ControlSwitch(object controller, int change)
 	
 	var success = false;
 	
-	success = OperateSwitch(-1);
+	success = OperateSwitch(GetActiveState(), change);
 	
 	if (!success && RequiresSuccessfulCalls())
 	{
@@ -59,12 +59,15 @@ protected func ControlSwitch(object controller, int change)
 	return true;
 }
 
-private func OperateSwitch(int change)
+public func OperateSwitch(int old_state, int change)
 {
-	var old_state = GetActiveState();
 	var new_state = BoundBy(old_state + change, 0, 12);
 	
-	if (old_state == new_state) return false;
+	if (old_state == new_state)
+	{
+		//DebugLog("Cannot change state: old %d == new: %d", old_state, new_state);
+		return false;
+	}
 	
 	// pre-filter, because the original switch script
 	// does not support jumping over non-existing states
@@ -79,13 +82,17 @@ private func OperateSwitch(int change)
 		}
 	}
 	
+	//DebugLog("Does switch state %d exist? %v", new_state, does_new_state_exist);
+	
 	if (!does_new_state_exist)
 	{
 		playing_animation = true;
 		
 		SetPhase(new_state);
 		
-		ScheduleCall(this, "OperateSwitch", 3, 0, change);
+		ScheduleCall(this, "OperateSwitch", 3, 0, new_state, change);
+		
+		DebugLog("Playing switch animation");
 		
 		return true;
 	}

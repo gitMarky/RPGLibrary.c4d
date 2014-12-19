@@ -18,3 +18,4 @@ Grab=2
 # ATTACH overrides
 HorizontalFix=1
 GrabPutGet=C4D_GrabPut
+ColorByOwner=1

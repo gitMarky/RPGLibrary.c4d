@@ -143,6 +143,7 @@ global func SwitchDef(int state)
  */
 public func TargetCall(object target, string call, p2, p3, p4, p5, p6, p7, p8, p9)
 {
+	if (!target) target = this;
 	var option = [target, call, p2, p3, p4, p5, p6, p7, p8, p9];
 	
 	PushBack(option, switch_states[gSwitch_Def_Targets]);

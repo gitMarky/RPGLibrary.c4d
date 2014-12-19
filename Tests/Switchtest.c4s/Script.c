@@ -24,11 +24,27 @@ func DoStartSzen()
 	drain->SwitchOff();
 	
 	var states = [
-	SwitchDef(0)->TargetCall(fall, "SwitchOff")->TargetCall(drain, "SwitchOn"),
-	SwitchDef(1)->TargetCall(fall, "SwitchOn")->TargetCall(drain, "SwitchOff")
+	SwitchDef(0)->TargetCall(fall, "SwitchOff")->TargetCall(drain, "SwitchOn")->ColorUser(RGB(100,100,100)),
+	SwitchDef(1)->TargetCall(fall, "SwitchOn")->TargetCall(drain, "SwitchOff")->ColorUser(RGB(50,0,255))
 	];
 	
+	switch->SetGraphics("Classic");
 	switch->SetSwitchStates(states);
+	
+	
+	var multiswitch = CreateObject(_DRD, 0, 0, NO_OWNER);
+	multiswitch->SetPosition(125,181);
+	
+	var multistates = [
+		SwitchDef(0),
+		SwitchDef(4),
+		SwitchDef(8),
+		SwitchDef(12)
+	];
+	
+	multiswitch->SetSuccessfulCalls(false);
+	multiswitch->SetSwitchStates(multistates);
+	multiswitch->StartInactive();
 }
 
 protected func InitializePlayer(int player, int tx, int ty, object pBase, int iTeam)

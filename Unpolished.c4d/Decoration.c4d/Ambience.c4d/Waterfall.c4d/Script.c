@@ -67,8 +67,11 @@ private func Draining()
 
 public func SwitchOff()
 {
-	last_action = GetAction();
-	SetAction("Idle");
+	if (!ActIdle())
+	{
+		last_action = GetAction();
+		SetAction("Idle");
+	}
 }
 
 public func SwitchOn()
