@@ -1,6 +1,6 @@
 [DefCore]
 id=_CHO
-Version=4,9,6,0
+Version=4,9,10,7
 Name=CandleHolder
 Category=1
 Width=52

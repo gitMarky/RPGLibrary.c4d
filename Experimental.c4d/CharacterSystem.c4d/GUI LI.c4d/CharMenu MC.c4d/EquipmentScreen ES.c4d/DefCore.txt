@@ -1,6 +1,7 @@
 [DefCore]
 id=LIES
 Name=HUD Equipment
+Version=4,9,10,7
 Category=C4D_StaticBack
 Width=386
 Height=220

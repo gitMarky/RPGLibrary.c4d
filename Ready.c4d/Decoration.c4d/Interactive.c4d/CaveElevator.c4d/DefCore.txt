@@ -1,7 +1,7 @@
 [DefCore]
 id=_CEL
 Name=CaveElevator
-Version=4,9,5,3
+Version=4,9,10,7
 Category=1154
 MaxUserSelect=2
 Width=22

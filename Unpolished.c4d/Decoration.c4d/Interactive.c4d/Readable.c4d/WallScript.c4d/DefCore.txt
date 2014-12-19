@@ -1,7 +1,7 @@
 [DefCore]
 id=_WSC
 Name=WallScript
-Version=4,9,5
+Version=4,9,10,7
 Category=2
 Width=20
 Height=20

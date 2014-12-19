@@ -1,7 +1,7 @@
 [DefCore]
 id=SP69
 Name=Signpost
-Version=4,9,5,4
+Version=4,9,10,7
 Category=2
 Width=16
 Height=16

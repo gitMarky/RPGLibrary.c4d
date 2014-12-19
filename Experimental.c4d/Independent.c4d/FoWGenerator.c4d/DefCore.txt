@@ -1,7 +1,7 @@
 [DefCore]
 id=_FOW
 Name=Shadow
-Version=4,9,5,4
+Version=4,9,10,7
 Category=16777217
 Width=4
 Height=4

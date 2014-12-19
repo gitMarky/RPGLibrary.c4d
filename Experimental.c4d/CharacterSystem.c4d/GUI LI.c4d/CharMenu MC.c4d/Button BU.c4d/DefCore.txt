@@ -1,6 +1,7 @@
 [DefCore]
 id=LIBU
 Name=HUD Button
+Version=4,9,10,7
 Category=C4D_StaticBack
 Width=40
 Height=40

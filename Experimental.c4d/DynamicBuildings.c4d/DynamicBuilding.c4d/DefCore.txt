@@ -1,7 +1,7 @@
 [DefCore]
 id=TAHT
 Name=TemplateAccessibleHut
-Version=4,6,0
+Version=4,9,10,7
 Category=C4D_Structure
 Width=60
 Height=50

@@ -1,6 +1,6 @@
 [DefCore]
 id=LF_S
-Version=4,9,8
+Version=4,9,10,7
 Name=Switch
 Category=1
 ColorByOwner=1

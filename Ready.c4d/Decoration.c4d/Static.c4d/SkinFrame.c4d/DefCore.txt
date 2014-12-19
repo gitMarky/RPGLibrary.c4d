@@ -1,6 +1,6 @@
 [DefCore]
 id=SKN_
-Version=4,9,8
+Version=4,9,10,7
 Name=Skin
 Category=C4D_StaticBack
 MaxUserSelect=3

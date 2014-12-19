@@ -1,7 +1,7 @@
 [DefCore]
 id=BO69
 Name=Book
-Version=4,9,5
+Version=4,9,10,7
 Category=2576
 MaxUserSelect=1
 Width=7

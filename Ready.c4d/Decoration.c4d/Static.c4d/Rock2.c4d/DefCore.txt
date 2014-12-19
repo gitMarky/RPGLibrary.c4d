@@ -1,7 +1,7 @@
 [DefCore]
 id=RO69
 Name=Rock
-Version=4,6,2
+Version=4,9,10,7
 Category=1
 Width=32
 Height=32

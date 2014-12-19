@@ -1,6 +1,7 @@
 [DefCore]
 id=LIRS
 Name=RingMenuSymbol
+Version=4,9,10,7
 Category=8388609
 Width=35
 Height=35

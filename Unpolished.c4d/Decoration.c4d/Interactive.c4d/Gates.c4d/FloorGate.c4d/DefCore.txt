@@ -1,6 +1,6 @@
 [DefCore]
 id=_FGT
-Version=4,9,5
+Version=4,9,10,7
 Name=FloorGate
 Category=4
 Width=50

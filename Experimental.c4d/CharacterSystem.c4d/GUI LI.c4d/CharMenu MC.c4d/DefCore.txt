@@ -1,6 +1,7 @@
 [DefCore]
 id=LIMC
 Name=Hudmenu
+Version=4,9,10,7
 Category=C4D_StaticBack
 Width=1
 Height=1

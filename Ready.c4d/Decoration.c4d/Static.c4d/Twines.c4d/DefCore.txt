@@ -1,6 +1,7 @@
 [DefCore]
 id=S_RN
 Name=Ranken
+Version=4,9,10,7
 Category=32769
 MaxUserSelect=10
 Width=34

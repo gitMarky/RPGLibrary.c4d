@@ -1,6 +1,7 @@
 [DefCore]
 id=LIAV
 Name=HUD Avatar
+Version=4,9,10,7
 Category=C4D_StaticBack
 Width=120
 Height=180

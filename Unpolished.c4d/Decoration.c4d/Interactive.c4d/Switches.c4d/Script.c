@@ -1,4 +1,4 @@
-/*-- Switch
+/*-- Switches
 @version 0.2.0
 @author Marky
 --*/
@@ -178,41 +178,18 @@ public func ColorUser(int value)
 }
 
 public func Create(object switch)
-{
-/*
-	// TODO: Code is wrong
-	// replace references to 'this' with the switch object
-	for (var i = 0; i < GetLength(switch_states); i++)
+{		
+	for (var j = 0; j < GetLength(switch_states[gSwitch_Def_Targets]); j++)
 	{
-		if (!switch_states[i]) continue;
+		var call = switch_states[gSwitch_Def_Targets][j];
 		
-		for (var j = 0; j < GetLength(switch_states[i][gSwitch_Def_Targets]); j++)
+		for (var k = 0; k < GetLength(call); k++)
 		{
-			var call = switch_states[i][gSwitch_Def_Targets][j];
-			
-			for (var k = 0; k < GetLength(call); k++)
-			{
-				if (call[k] == this) call[k] = switch;
-			}
-			
-			switch_states[i][gSwitch_Def_Targets][j] = call;
+			if (call[k] == this) call[k] = switch;
 		}
+		
+		switch_states[gSwitch_Def_Targets][j] = call;
 	}
-*/
-
-		
-		for (var j = 0; j < GetLength(switch_states[gSwitch_Def_Targets]); j++)
-		{
-			var call = switch_states[gSwitch_Def_Targets][j];
-			
-			for (var k = 0; k < GetLength(call); k++)
-			{
-				if (call[k] == this) call[k] = switch;
-			}
-			
-			switch_states[gSwitch_Def_Targets][j] = call;
-		}
-
 
 	return switch_states;
 }

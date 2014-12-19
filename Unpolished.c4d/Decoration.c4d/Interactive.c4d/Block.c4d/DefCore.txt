@@ -1,7 +1,7 @@
 [DefCore]
 id=_BLK
 Name=Block
-Version=4,9,5
+Version=4,9,10,7
 Category=4
 Width=40
 Height=40
