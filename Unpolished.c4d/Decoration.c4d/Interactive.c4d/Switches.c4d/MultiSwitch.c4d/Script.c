@@ -1,4 +1,13 @@
-/*-- Schalter --*/
+/*--
+A switch that can have up to 13 different state (0 to 12).
+Switching left and right operates the switch. Each state corresponds with
+one phase of the switch object.@br
+Pressing left and right goes to the next available state. For example if 
+state 0, 6 and 12 are defined, then the {@c ControlRight} shifts the state
+to 6 on the first press and 12 on the second.
+@author Unknown (original graphics), Marky (Script)
+@version 0.2.0
+ --*/
 
 #strict 2
 #include LF_S

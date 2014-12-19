@@ -7,7 +7,7 @@ A block than can move in all four directions. Usually the movement is started by
 
 #strict 2
 
-local iXDir, iYDir;
+local x_dir, y_dir;
 
 static const gBlock_MoveSound = "Elevator",
              gBlock_HitSound  = "Discharge";
@@ -28,11 +28,11 @@ public func ControlUp(object pController)
 	if (GetXDir())
 		return;
 	
-	if (iYDir >= 0)
+	if (y_dir >= 0)
 		Sound(gBlock_MoveSound);
 	
-	iYDir = -1;
-	iXDir = 0;
+	y_dir = -1;
+	x_dir = 0;
 	
 	return UpdateComDir();
 }
@@ -48,11 +48,11 @@ public func ControlDown(object pController)
 	if (GetXDir())
 		return;
 	
-	if (iYDir <= 0)
+	if (y_dir <= 0)
 		Sound(gBlock_MoveSound);
 	
-	iYDir = 1;
-	iXDir = 0;
+	y_dir = 1;
+	x_dir = 0;
 	
 	return UpdateComDir();
 }
@@ -68,12 +68,12 @@ public func ControlLeft(object pController)
 	if (Abs(GetYDir()) > 2)
 		return;
 	
-	if (iXDir >= 0)
+	if (x_dir >= 0)
 		Sound(gBlock_MoveSound);
 	SetYDir();
 	
-	iXDir = -1;
-	iYDir = 0;
+	x_dir = -1;
+	y_dir = 0;
 	
 	return UpdateComDir();
 }
@@ -89,31 +89,31 @@ public func ControlRight(object pController)
 	if (Abs(GetYDir()) > 2)
 		return;
 	
-	if (iXDir <= 0)
+	if (x_dir <= 0)
 		Sound(gBlock_MoveSound);
 	SetYDir();
 	
-	iXDir = 1;
-	iYDir = 0;
+	x_dir = 1;
+	y_dir = 0;
 	
 	return UpdateComDir();
 }
 
 protected func ContactLeft()
 {
-	if (iXDir >= 0)
+	if (x_dir >= 0)
 		return;
 		
 	Sound(gBlock_HitSound);
-	return iXDir = 0;
+	return x_dir = 0;
 }
 protected func ContactRight()
 {
-	if (iXDir <= 0)
+	if (x_dir <= 0)
 		return;
 		
 	Sound(gBlock_HitSound);
-	return iXDir = 0;
+	return x_dir = 0;
 }
 
 protected func Hit()
@@ -123,12 +123,12 @@ protected func Hit()
 	SetXDir();
 	SetYDir();
 	
-	iXDir = iYDir = 0;
+	x_dir = y_dir = 0;
 	SetComDir();
 }
 
 private func UpdateComDir() // only for iXDir|iYDir != 0
 {
 	// Puzzling, isn't it?
-	return SetComDir(iXDir * (iYDir - 2) + !iXDir * (iYDir - 1) * 2 + 5);
+	return SetComDir(x_dir * (y_dir - 2) + !x_dir * (y_dir - 1) * 2 + 5);
 }

@@ -1,5 +1,6 @@
 /*--
-Bounces things into the air
+Bounces things into the air.
+@note Bouncy things are all things alive, collectible, or returning {@c true} in IsTrampolinObject().  
 @title Trampolin
 @author Sven2
 @version 0.1.0
@@ -7,9 +8,10 @@ Bounces things into the air
 
 #strict 2
 
+static const gTrampolin_Identifier_Function = "IsTrampolinObject";
+
 local high_frequency_check;
 
-/* Initialisierung */
 
 protected func Initialize()
 {
@@ -30,112 +32,109 @@ protected func TrampUpStart()
 {
 	Sound("Boing");
 	SetYDir(-5);
-	var obj, eff;
-	for (obj in FindObjects
-		(
+	var target, effect_nr;
+	for (target in FindObjects
+	    (
 			Find_InRect(-15, -25, 30, 28),
-			Find_Or(Find_OCF(OCF_Alive | OCF_Collectible), Find_Func("IsTrampolinObject")),
+			Find_Or(Find_OCF(OCF_Alive | OCF_Collectible), Find_Func(gTrampolin_Identifier_Function)),
 			Find_NoContainer()
 		)) 
 	{
-		if ((eff = GetEffect("IntTramp", obj)) || obj->GetYDir() >= 0)
-			if (!obj->GetContact(0, -1, 8))
-				if (obj->GetDefBottom() >= GetY() - 12)
-				{
-					if (!eff && obj->GetAction() == "Tumble" && !Random(4))
-						continue; // CrewMember rauslassen (ala)
-					var iYDir;
-					if (eff)
-					{
-						iYDir = EffectVar(0, obj, eff);
-						RemoveEffect(0, obj, eff);
-					}
-					else
-						iYDir = obj->GetYDir();
-					if (!GetAlive(obj))
-					{
-						iYDir = Min(iYDir, 30);
-					}
-					if (!obj->Fling(0, 0, iYDir * -3 / 20 - 2))
-						obj->SetYDir(iYDir * -3 / 2 - 20);
-					else
-						obj->SetXDir(obj->GetXDir() * 3 / 2);
-				}
+		if ((effect_nr = GetEffect("IntTramp", target)) || target->GetYDir() >= 0)
+		if (!target->GetContact(0, -1, 8))
+		if (target->GetDefBottom() >= GetY() - 12)
+		{
+			if (!effect_nr && target->GetAction() == "Tumble" && !Random(4)) continue; // skip CrewMember (ala)
+			
+			var y_dir;
+			if (effect_nr)
+			{
+				y_dir = EffectVar(0, target, effect_nr);
+				RemoveEffect(0, target, effect_nr);
+			}
+			else
+				y_dir = target->GetYDir();
+			if (!GetAlive(target))
+			{
+				y_dir = Min(y_dir, 30);
+			}
+			if (!target->Fling(0, 0, y_dir * -3 / 20 - 2))
+				target->SetYDir(y_dir * -3 / 2 - 20);
+			else
+				target->SetXDir(target->GetXDir() * 3 / 2);
+		}
 	}
 }
 
 protected func CheckTime()
 {
-	if (GetR() || Contained())
-		return;
-	// Trampolin auslösen
-	var obj;
-	for (obj in FindObjects
+	if (GetR() || Contained()) return;
+	// activate trampolin
+	var target;
+	for (target in FindObjects
 		(
 			Find_InRect(-15, -25, 30, 28),
-			Find_Or(Find_OCF(OCF_Alive | OCF_Collectible), Find_Func("IsTrampolinObject")),
+			Find_Or(Find_OCF(OCF_Alive | OCF_Collectible), Find_Func(gTrampolin_Identifier_Function)),
 			Find_NoContainer()
 		)) 
-		if (obj->GetYDir() > 0)
-			if (!obj->GetContact(0, -1, 8))
-				if (obj->GetDefBottom() >= GetY() - 12)
-				{
-					if (obj->GetAction() == "Tumble" && !Random(4))
-						return SetAction("Fail");
-					TrampDowning();
-					return SetAction("TrampDown");
-				}
+		if (target->GetYDir() > 0)
+		if (!target->GetContact(0, -1, 8))
+		if (target->GetDefBottom() >= GetY() - 12)
+		{
+			if (target->GetAction() == "Tumble" && !Random(4))
+				return SetAction("Fail");
+			TrampDowning();
+			return SetAction("TrampDown");
+		}
 }
 
 protected func TrampDowning()
 {
-	// Objekte halten
-	var obj;
-	for (obj in FindObjects
+	// bind objects
+	var target;
+	for (target in FindObjects
 		(
 			Find_InRect(-15, -25, 30, 28),
-			Find_Or(Find_OCF(OCF_Alive | OCF_Collectible), Find_Func("IsTrampolinObject")),
+			Find_Or(Find_OCF(OCF_Alive | OCF_Collectible), Find_Func(gTrampolin_Identifier_Function)),
 			Find_NoContainer()
 		)) 
-		if (obj->GetYDir() > 0)
-			if (!obj->GetContact(0, -1, 8))
-				if (obj->GetDefBottom() >= GetY() - 12)
-					if (!GetEffect("IntTramp", obj))
-						AddEffect("IntTramp", obj, 1, 1, this);
+		if (target->GetYDir() > 0)
+		if (!target->GetContact(0, -1, 8))
+		if (target->GetDefBottom() >= GetY() - 12)
+			if (!GetEffect("IntTramp", target))
+				AddEffect("IntTramp", target, 1, 1, this);
 }
 
-protected func FxIntTrampStart(object pTarget, int iEffectNumber, int iTemp)
+protected func FxIntTrampStart(object target, int effect_nr, int temp)
 {
-	// Geschwindigkeit sichern...
-	if (iTemp)
-		return;
-	EffectVar(0, pTarget, iEffectNumber) = pTarget->GetYDir();
-	// Clonk knien
-	pTarget->SetAction("Tumble");
-	// ...und Geschwindigkeit richten
-	FxIntTrampTimer(pTarget, iEffectNumber);
+	// save velocity
+	if (temp) return;
+	EffectVar(0, target, effect_nr) = target->GetYDir();
+	// tumble the clonk
+	target->SetAction("Tumble");
+	// ...fix velocity
+	FxIntTrampTimer(target, effect_nr);
 	return FX_OK;
 }
 
-protected func FxIntTrampTimer(object pTarget, int iEffectNumber, int iEffectTime)
+protected func FxIntTrampTimer(object target, int effect_nr, int time)
 {
-	// Trampolin-Action vorbei?
-	if (GetAction() == "Ready")
-		return FX_Execute_Kill;
-	// Aus dem Trampolin-Bereich?
-	if (Abs(GetX(pTarget) - GetX()) > 16)
-		return FX_Execute_Kill;
-	// Objekt halten
+	// animation done?
+	if (GetAction() == "Ready") return FX_Execute_Kill;
+	// moved out of the area of effect?
+	if (Abs(GetX(target) - GetX()) > 16) return FX_Execute_Kill;
+	
+	// bind object
 	var ydirfact = 5;
-	if (pTarget->GetAlive())
+	if (target->GetAlive())
 	{
-		pTarget->SetXDir(BoundBy(pTarget->GetXDir(), -10, 10));
+		target->SetXDir(BoundBy(target->GetXDir(), -10, 10));
 	}
 	else
 	{
-		pTarget->SetXDir(BoundBy(pTarget->GetXDir(), -15, 15));
+		target->SetXDir(BoundBy(target->GetXDir(), -15, 15));
 	}
-	pTarget->SetYDir(BoundBy(GetY() - GetY(pTarget) - 4, -5, pTarget->GetYDir(0, ydirfact)), 0, ydirfact);
+	target->SetYDir(BoundBy(GetY() - GetY(target) - 4, -5, target->GetYDir(0, ydirfact)), 0, ydirfact);
 	return FX_OK;
 }
 

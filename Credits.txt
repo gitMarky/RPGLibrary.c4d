@@ -8,5 +8,11 @@ David Dormagen, Sven2, Randrian:
 - diverse Hilfsobjekte wie Wallscript, Bücher, Deko, usw.
 - sehr gute Vorarbeit!
 
+Die Geschichte von Harkon:
+- Randrian: Sehr gute Deko-Objekte, Vorlage für Häuser-Innenansicht
+
+Gecko:
+- tolle neue Deko-Objekte und ein paar Scripte
+
 TqmTqm:
 - Stringmanipulationen - war zu faul sie selbst zu programmieren ;)

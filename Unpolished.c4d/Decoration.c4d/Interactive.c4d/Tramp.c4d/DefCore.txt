@@ -1,5 +1,5 @@
 [DefCore]
-id=TP69
+id=temp
 Name=Trampoline
 Version=4,9,10,7
 Category=3332
