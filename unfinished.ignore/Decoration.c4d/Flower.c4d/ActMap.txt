@@ -1,0 +1,9 @@
+[Action]
+Name=Flower
+Directions=2
+FlipDir=1
+Length=4
+Delay=0
+Facet=0,0,25,25
+FacetBase=0
+NextAction=Flower

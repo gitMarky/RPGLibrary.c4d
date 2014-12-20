@@ -1,0 +1,2 @@
+DE:Abschließbare Tür
+US:Lockable door

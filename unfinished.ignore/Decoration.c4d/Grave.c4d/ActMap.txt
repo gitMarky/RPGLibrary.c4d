@@ -1,0 +1,17 @@
+[Action]
+Name=Free
+Length=1
+Delay=0
+
+[Action]
+Name=Waiting
+Length=1
+Delay=10
+EndCall=WaitingTimer
+NextAction=Waiting
+
+[Action]
+Name=Occupied
+Length=1
+Delay=0
+FacetBase=1

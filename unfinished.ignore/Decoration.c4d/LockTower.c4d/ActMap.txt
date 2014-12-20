@@ -1,0 +1,12 @@
+[Action]
+Name=Be
+Directions=2
+FlipDir=1
+Facet=0,0,15,74
+
+[Action]
+Name=Be2
+Directions=2
+FlipDir=1
+Facet=0,74,15,74
+FacetTopFace=1

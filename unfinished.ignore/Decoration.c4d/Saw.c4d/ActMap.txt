@@ -1,0 +1,11 @@
+[Action]
+Name=Saw
+Procedure=NONE
+Length=20
+Delay=1
+Facet=0,22,31,22
+NextAction=Saw
+StartCall=Sawing
+EndCall=Effects
+
+ 

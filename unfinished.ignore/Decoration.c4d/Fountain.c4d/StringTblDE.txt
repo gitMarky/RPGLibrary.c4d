@@ -1,0 +1,4 @@
+FillBucket=Fass füllen
+NoBucket=Es wird ein leeres Fass benötigt!
+NoWater=Kein Wasser mehr da!
+NoRope=Kein Seil

@@ -1,0 +1,10 @@
+[Action]
+Name=Closed
+FacetBase=1
+Length=1
+
+[Action]
+Name=Open
+FacetBase=0
+Length=1
+Facet=64,0,64,60

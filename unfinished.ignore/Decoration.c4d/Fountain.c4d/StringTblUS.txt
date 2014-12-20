@@ -1,0 +1,4 @@
+FillBucket=Fill barrel
+NoBucket=You need an empty barrel!
+NoWater=No water any more!
+NoRope=No rope
