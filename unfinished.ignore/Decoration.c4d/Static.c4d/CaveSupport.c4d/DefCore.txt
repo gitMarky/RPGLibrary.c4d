@@ -1,0 +1,17 @@
+[DefCore]
+id=_CSP
+Version=4,9,10,7
+Name=CaveSupport
+Category=1
+Width=30
+Height=50
+Offset=-15,-25
+Value=0
+Mass=400
+Components=WOOD=3;
+Picture=0,0,30,50
+Vertices=4
+VertexX=0,0,-14,14
+VertexY=0,36,-36,-36
+VertexFriction=100,100,100,100
+ 

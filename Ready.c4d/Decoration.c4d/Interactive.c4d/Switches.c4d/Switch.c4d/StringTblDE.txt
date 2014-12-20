@@ -1,6 +1,3 @@
 DescSwitch=Umschalten
 MessageBlocked=Klemmt :(
-MessageLocked=Abgeschlossen :(
 MessageUnlocked=Schloss entfernt!
-MessageWrongKey=Passt nicht.
-MessageNotLocked=Nicht abgeschlossen.

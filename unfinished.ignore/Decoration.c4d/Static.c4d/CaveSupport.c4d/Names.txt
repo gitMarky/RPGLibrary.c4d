@@ -1,0 +1,2 @@
+DE:Stützpfeiler
+US:Support beam

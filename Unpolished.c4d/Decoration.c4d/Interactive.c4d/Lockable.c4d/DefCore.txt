@@ -1,0 +1,6 @@
+[DefCore]
+id=LF_L
+Version=4,9,10,7
+Name=Lockable
+Category=1
+ColorByOwner=1

@@ -2,11 +2,7 @@
 
 #strict 2
 #include LF_S // Switch
-// #include LF_U // Unlockable TODO;
-
-local key_id;
-
-local swallow_key;
+#include LF_L // Lockable;
 
 local has_three_states;
 
@@ -66,11 +62,6 @@ public func ThreeStatesSwitch()
 	has_three_states = true;
 	
 	SetPhase(Random(3));
-}
-
-protected func IsLocked()
-{
-	return GetAction() == "Locked";
 }
 
 protected func ControlLeft(object controller)
@@ -161,26 +152,12 @@ protected func RejectCollect(id def, object obj)
 	return true;
 }
 
-private func SetLocked(id key, bool remove_key)
+private func OnUnlockWithKey(object key)
 {
-	ChangeAction("Locked");
-	swallow_key = remove_key;
-}
-
-private func UnlockWithKey(object key)
-{
-	if (!key || !key->~IsKey()) return;
-	if (!IsLocked()) return SwitchMessage("$MessageNotLocked$", Contained(key));
-	if (key->~GetKeyID() != key_id) return SwitchMessage("$MessageWrongKey$", Contained(key));
-
 	Sound("Connect");
 	SwitchMessage("$MessageUnlocked$", Contained(key));
 	
 	ChangeAction("Switch");
 	UpdatePhase();
-	if (swallow_key)
-	{
-		RemoveObject(key);
-	}
 }
   

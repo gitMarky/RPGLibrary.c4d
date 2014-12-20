@@ -1,6 +1,6 @@
-/* Fundament */
+/* Road */
 
-/* Alle Fundamente leiten ihre Grundfunktionalität von BAS7 ab */
+/* Inherits from the basic foundation: BAS7 */
 
 #strict 2
 
@@ -10,7 +10,7 @@ private func BasementID() { return(_ROA); }
 private func BasementWidth() { return(72); }
 
 // indestructable
-protected func Damage(iChange, iByPlayer)
+protected func Damage(change, by_player)
 {
 }
 

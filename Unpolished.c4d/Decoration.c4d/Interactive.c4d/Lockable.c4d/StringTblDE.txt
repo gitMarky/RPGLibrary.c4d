@@ -1,0 +1,4 @@
+MessageLocked=Abgeschlossen :(
+MessageUnlocked=Schloss entfernt!
+MessageWrongKey=Passt nicht.
+MessageNotLocked=Nicht abgeschlossen.
