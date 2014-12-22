@@ -15,7 +15,7 @@ static const gBed3_MaxPlaces = 2;
 /* Initialisierung */
 protected func Initialize()
 {
-	if (!Contained())
+	if (!Contained() && GetType(seat) != C4V_Array)
 	{
 		seat = [];
 		graphics_dummy = [];

@@ -11,9 +11,9 @@ local graphics_dummy;
 static const gDrinkTable_MaxPlaces = 3;
 
 /* Initialisierung */
-protected func DoInitialize()
+protected func Initialize()
 {
-	if (!Contained())
+	if (!Contained() && GetType(seat) != C4V_Array)
 	{
 		seat = [];
 		graphics_dummy = [];
@@ -71,7 +71,7 @@ private func OnEntrance(object clonk)
 	// already occupied?
 	if (IsOccupied() >= gDrinkTable_MaxPlaces)
 		return CheckChallenge(clonk);
-		
+
 	// enter
 	Enter(this, clonk);
 	var i = 0;
@@ -92,13 +92,13 @@ private func OnEntrance(object clonk)
 
 private func OnExit(object clonk)
 {
-	Exit(clonk, 0, +15);
 	var i = 0;
 	for (; i < gDrinkTable_MaxPlaces; i++)
 	{
 		if (seat[i] == clonk)
 			break;
 	}
+	Exit(clonk, (i - 1) * 17, +15);
 	seat[i] = 0;
 	UpdateState();
 }
