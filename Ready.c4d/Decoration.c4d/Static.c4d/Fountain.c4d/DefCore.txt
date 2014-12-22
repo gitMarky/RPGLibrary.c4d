@@ -18,9 +18,7 @@ Exclusive=1
 BlastIncinerate=45
 Construction=1
 Float=1
-Grab=3
 ContainBlast=1
-AutoContextMenu=1
 
 [Physical]
 Energy=100000

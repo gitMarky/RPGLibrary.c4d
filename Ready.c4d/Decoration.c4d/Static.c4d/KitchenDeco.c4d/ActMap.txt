@@ -1,5 +1,5 @@
 [Action]
-Name=Exist
+Name=Decoration
 Facet=0,0,14,19
 Directions=2
 FlipDir=1
