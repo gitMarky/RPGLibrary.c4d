@@ -1,0 +1,8 @@
+[DefCore]
+id=WBR_
+Version=4,9,10,7
+Name=Wineboard
+Category=C4D_StaticBack
+Width=51
+Height=35
+Offset=-25,-18

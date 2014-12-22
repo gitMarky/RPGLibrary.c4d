@@ -1,0 +1,14 @@
+[DefCore]
+id=KFLR
+Version=4,9,10,7
+Name=Blume
+Category=C4D_StaticBack|C4D_SelectVegetation
+MaxUserSelect=3
+Width=25
+Height=25
+Offset=-12,-12
+Vertices=2
+VertexX=6,-6
+VertexY=6,-6
+Mass=1
+Picture=0,25,64,64

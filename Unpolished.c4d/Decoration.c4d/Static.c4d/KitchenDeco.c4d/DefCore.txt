@@ -1,0 +1,8 @@
+[DefCore]
+id=KDC_
+Version=4,9,10,7
+Name=KitchenDeco
+Category=C4D_StaticBack
+Width=14
+Height=19
+Offset=-7,-10

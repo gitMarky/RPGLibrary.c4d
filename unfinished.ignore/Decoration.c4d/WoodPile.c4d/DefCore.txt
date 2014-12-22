@@ -1,8 +1,0 @@
-[DefCore]
-id=WDP_
-Version=4,9,8
-Name=Woodpile
-Category=C4D_StaticBack
-Width=28
-Height=12
-Offset=-14,-6

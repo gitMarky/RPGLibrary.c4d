@@ -1,0 +1,15 @@
+[DefCore]
+id=_VG2
+Name=Vegetation2
+Version=4,9,10,7
+Category=1
+Width=20
+Height=40
+Offset=-10,-20
+Value=10
+Mass=1
+Components=WOOD=1;
+Picture=0,0,20,40
+Rotate=1
+Chop=0
+
