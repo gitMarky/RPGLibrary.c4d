@@ -96,5 +96,25 @@ protected func ControlSwitch(object controller, com_dir)
 		com_dir_by_switch = com_dir;
 	else
 		Schedule("SetComDir(iSwitchDir)", manual_use_reset_timer);
+		
 	return SetComDir(com_dir);
+}
+
+protected func FixVertically()
+{
+	var effect = GetEffect("IntFixVer", this);
+	
+	if (!effect)
+	{
+		effect = AddEffect("IntFixVer", this, 50, 1, this);
+	}
+	
+	EffectVar(0, this, effect) = GetY();
+}
+
+protected func FxIntFixVerTimer(object target, int effect_nr, int time)
+{
+	var y = EffectVar(0, target, effect_nr);
+	
+	if (target->GetY() != y) target->SetPosition(target->GetX(), y);
 }

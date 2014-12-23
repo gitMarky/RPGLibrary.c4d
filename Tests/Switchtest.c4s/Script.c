@@ -56,6 +56,7 @@ func DoStartSzen()
 	
 	var gate = CreateObject(_FGT);
 	gate->SetPosition(230, 195);
+	gate->FixVertically();
 	
 	var lock_switch = [
 		SwitchDef(0)->TargetCall(gate, "ControlLeft", lock),

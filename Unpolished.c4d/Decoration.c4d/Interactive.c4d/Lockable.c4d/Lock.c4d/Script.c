@@ -12,11 +12,6 @@
 static const gLock_State_Locked = 0;
 static const gLock_State_Unlocked = 1;
 
-protected func Initialize()
-{
-	UpdateAction();
-}
-
 /* Control */
 
 public func IsLocked()
