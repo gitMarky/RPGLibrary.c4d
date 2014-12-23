@@ -7,36 +7,36 @@ A gate that moves up or down.
 
 #strict 2
 
-local iSwitchDir;
+local com_dir_by_switch;
 
 protected func Initialize()
 {
-	SetComDir(iSwitchDir = COMD_Down);
+	SetComDir(com_dir_by_switch = COMD_Down);
 }
 
-public func ControlLeft(object pController)
+public func ControlLeft(object controller)
 {
 	[$DescUp$]
-	return ControlUp(pController);
+	return ControlUp(controller);
 }
 
 /**
  * Starts upward movement.
  *
- * @par pController The object that ordered the command. Only switches can switch gates.
+ * @par controller The object that ordered the command. Only switches can switch gates.
  * @return int The new ComDir value of the block.
  */
-public func ControlUp(object pController)
+public func ControlUp(object controller)
 {
 	[$DescUp$]
 
-	return ControlSwitch(pController, COMD_Up);
+	return ControlSwitch(controller, COMD_Up);
 }
 
-public func ControlRight(object pController)
+public func ControlRight(object controller)
 {
 	[$DescDown$]
-	return ControlDown(pController);
+	return ControlDown(controller);
 }
 
 /**
@@ -45,11 +45,11 @@ public func ControlRight(object pController)
  * @par pController The object that ordered the command. Only switches can switch gates.
  * @return int The new ComDir value of the block.
  */
-public func ControlDown(object pController)
+public func ControlDown(object controller)
 {
 	[$DescDown$]
 
-	return ControlSwitch(pController, COMD_Down);
+	return ControlSwitch(controller, COMD_Down);
 }
 
 protected func Hit()
@@ -61,16 +61,16 @@ protected func Hit()
  * Inverts the current direction of movement.
  * @par pController The object that ordered the command. Only switches can switch gates.
  */
-public func Activate(object pController)
+public func Activate(object controller)
 {
 	if (GetComDir() == COMD_Up)
-		ControlDown(pController);
+		ControlDown(controller);
 	else
-		ControlUp(pController);
+		ControlUp(controller);
 }
 
 
-public func RecheckTransfer(object pClonk)
+public func RecheckTransfer(object clonk)
 {
 	// Open gate
 	SetComDir(COMD_Up);
@@ -79,32 +79,32 @@ public func RecheckTransfer(object pClonk)
 	// Not open yet? Wait a little
 	if (!GetContact())
 	{
-		AddCommand(pClonk, "Wait", this, 0, 0, 0, 0, 10);
+		AddCommand(clonk, "Wait", this, 0, 0, 0, 0, 10);
 		return true;
 	}
 	// Go on
 }
 
-private func ControlSwitch(object pController, int iComDir)
+private func ControlSwitch(object controller, int com_dir)
 {
 	// User cannot switch gates
-	if (!pController)
+	if (!controller)
 		return;
 		
-	if (!pController->~IsSwitch())
+	if (!controller->~IsSwitch())
 	{
-		PlrMessage("$MsgNoDirect$", GetController(pController));
-		Sound("Error", false, this, 100, GetController(pController) + 1);
+		PlrMessage("$MsgNoDirect$", GetController(controller));
+		Sound("Error", false, this, 100, GetController(controller) + 1);
 		return;
 	}
 	else
 	{
-		iSwitchDir = iComDir;
+		com_dir_by_switch = com_dir;
 		SetYDir();
 	}
 	
-	if (GetComDir() != iComDir)
+	if (GetComDir() != com_dir)
 		Sound("Elevator");
 	
-	return SetComDir(iComDir);
+	return SetComDir(com_dir);
 }

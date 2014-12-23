@@ -32,10 +32,18 @@ protected func RejectCollect(id def, object obj)
 	}
 }
 
-private func SetLocked(id key, bool remove_key)
+
+private func SetLocked(key, bool remove_key)
+{
+	swallow_key = remove_key;
+	key_id = key;
+	
+	OnSetLocked();
+}
+
+private func OnSetLocked()
 {
 	ChangeAction("Locked");
-	swallow_key = remove_key;
 }
 
 private func UnlockWithKey(object key)

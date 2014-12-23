@@ -1,0 +1,5 @@
+MessageGetPutKey=Schlüssel reinstecken/rausnehmen
+MessageWrongKey=Schlüssel passt nicht!
+MessageNoKey=Kein Schlüssel!
+MessageTurnKey=Schlüssel drehen
+MessageKeyStuck=Klemmt!

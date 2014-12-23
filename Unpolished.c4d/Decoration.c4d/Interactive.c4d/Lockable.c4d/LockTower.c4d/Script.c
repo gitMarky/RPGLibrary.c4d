@@ -1,4 +1,7 @@
-/*-- Wachturm-Tor --*/
+/*-- Lockable tower part with steel gate.
+@author Sven2
+@version 0.2.0
+--*/
 
 #strict 2
 
@@ -7,14 +10,13 @@
 protected func Initialize()
 {
 	SetAction("Be");
-  return 1;
 }
 
-func SetDir(iDir)
+public func SetDir(direction)
 {
-	if(iDir == 1)
-		SetSolidMask(15,74,15,74);
+	if (direction == 1)
+		SetSolidMask(15, 74, 15, 74);
 	else
-		SetSolidMask(15,0,15,74);
-	return _inherited(iDir);
+		SetSolidMask(15, 0, 15, 74);
+	return _inherited(direction);
 }

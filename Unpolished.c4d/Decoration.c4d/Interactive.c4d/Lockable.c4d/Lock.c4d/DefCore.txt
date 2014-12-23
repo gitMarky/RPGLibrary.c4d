@@ -1,0 +1,11 @@
+[DefCore]
+id=LOCK
+Name=Lock
+Category=2
+Width=6
+Height=11
+Offset=-3,-5
+Picture=6,0,27,41
+Components=LOCK=1;
+Grab=1
+ColorByOwner=1

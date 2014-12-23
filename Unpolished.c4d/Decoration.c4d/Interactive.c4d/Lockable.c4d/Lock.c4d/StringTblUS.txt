@@ -1,0 +1,5 @@
+MessageGetPutKey=Get/Put key
+MessageWrongKey=Key does not fit!
+MessageNoKey=No key!
+MessageTurnKey=Turn key
+MessageKeyStuck=Stuck!

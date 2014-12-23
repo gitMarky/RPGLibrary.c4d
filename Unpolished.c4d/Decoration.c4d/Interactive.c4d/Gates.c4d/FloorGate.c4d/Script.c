@@ -7,14 +7,14 @@ A gate that slides in a certain direction.
 
 #strict 2
 
-local iSwitchDir;
-local iManualDuration;
+local com_dir_by_switch;
+local manual_use_reset_timer;
 
 protected func Initialize()
 {
 	SetAction("Gate");
-	SetComDir(iSwitchDir = COMD_Down);
-	iManualDuration = 30;
+	SetComDir(com_dir_by_switch = COMD_Down);
+	manual_use_reset_timer = 30;
 }
 
 /**
@@ -26,59 +26,59 @@ protected func Initialize()
  *        certain time, then reverts the movement.
  * @return int The new ComDir value of the block.
  */
-public func ControlUp(object pController)
+public func ControlUp(object controller)
 {
 	[$DescUp$]
 	
-	return ControlSwitch(pController, COMD_Up);
+	return ControlSwitch(controller, COMD_Up);
 }
 
 /**
  * Starts downward movement.
  *
- * @par pController The object that ordered the command.
+ * @par controller The object that ordered the command.
  *        Input from switches moves the object permanently.
  *        Input from other objects moves the object for a
  *        certain time, then reverts the movement.
  * @return int The new ComDir value of the block.
  */
-public func ControlDown(object pController)
+public func ControlDown(object controller)
 {
 	[$DescDown$]
 	
-	return ControlSwitch(pController, COMD_Down);
+	return ControlSwitch(controller, COMD_Down);
 }
 
 /**
  * Starts leftward movement.
  *
- * @par pController The object that ordered the command.
+ * @par controller The object that ordered the command.
  *        Input from switches moves the object permanently.
  *        Input from other objects moves the object for a
  *        certain time, then reverts the movement.
  * @return int The new ComDir value of the block.
  */
-public func ControlLeft(object pController)
+public func ControlLeft(object controller)
 {
 	[$DescUp$]
 	
-	return ControlSwitch(pController, COMD_Left);
+	return ControlSwitch(controller, COMD_Left);
 }
 
 /**
  * Starts rightward movement.
  *
- * @par pController The object that ordered the command.
+ * @par controller The object that ordered the command.
  *        Input from switches moves the object permanently.
  *        Input from other objects moves the object for a
  *        certain time, then reverts the movement.
  * @return int The new ComDir value of the block.
  */
-public func ControlRight(object pController)
+public func ControlRight(object controller)
 {
 	[$DescDown$]
 	
-	return ControlSwitch(pController, COMD_Right);
+	return ControlSwitch(controller, COMD_Right);
 }
 
 protected func Hit()
@@ -86,15 +86,15 @@ protected func Hit()
 	Sound("Discharge");
 }
 
-protected func ControlSwitch(object pController, comdir)
+protected func ControlSwitch(object controller, com_dir)
 {
-	if (GetComDir() != comdir)
+	if (GetComDir() != com_dir)
 		Sound("Elevator");
 	
 	// Switches switch status permanently, a user for 30 frames only
-	if (pController && pController->~IsSwitch())
-		iSwitchDir = comdir;
+	if (controller && controller->~IsSwitch())
+		com_dir_by_switch = com_dir;
 	else
-		Schedule("SetComDir(iSwitchDir)", iManualDuration);
-	return SetComDir(comdir);
+		Schedule("SetComDir(iSwitchDir)", manual_use_reset_timer);
+	return SetComDir(com_dir);
 }
