@@ -12,6 +12,10 @@
 static const gLock_State_Locked = 0;
 static const gLock_State_Unlocked = 1;
 
+protected func Initialize()
+{
+	UpdateAction();
+}
 
 /* Control */
 
@@ -104,6 +108,11 @@ public func OnUnlockWithKey(object key)
 {
 	SetState(gLock_State_Unlocked);
 	UpdateAction();
+}
+
+public func OnSetLocked()
+{
+	OnLockWithKey();
 }
 
 public func OnLockWithKey(object key)

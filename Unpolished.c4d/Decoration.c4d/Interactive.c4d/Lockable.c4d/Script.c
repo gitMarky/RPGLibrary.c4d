@@ -43,7 +43,7 @@ private func SetLocked(key, bool remove_key)
 
 private func OnSetLocked()
 {
-	ChangeAction("Locked");
+	if (GetActMapVal("Name", "Locked")) ChangeAction("Locked");
 }
 
 private func UnlockWithKey(object key)

@@ -32,7 +32,7 @@ func DoStartSzen()
 	switch->SetSwitchStates(states);
 	
 	
-	var multiswitch = CreateObject(_DRD, 0, 0, NO_OWNER);
+	var multiswitch = CreateObject(_SW2, 0, 0, NO_OWNER);
 	multiswitch->SetPosition(125,181);
 	
 	var multistates = [
@@ -45,6 +45,24 @@ func DoStartSzen()
 	multiswitch->SetSuccessfulCalls(false);
 	multiswitch->SetSwitchStates(multistates);
 	multiswitch->StartInactive();
+	
+	var lock = CreateObject(LOCK, 0, 0, NO_OWNER);
+	lock->SetPosition(145, 178);
+	lock->SetLocked("Mouse", true);
+	
+	var key = CreateObject(_KEY, 0, 0, NO_OWNER);
+	key->SetPosition(145, 178);
+	key->BecomeKey("Mouse", RGBa(255, 200, 0));
+	
+	var gate = CreateObject(_FGT);
+	gate->SetPosition(230, 195);
+	
+	var lock_switch = [
+		SwitchDef(0)->TargetCall(gate, "ControlLeft", lock),
+		SwitchDef(1)->TargetCall(gate, "ControlRight", lock)
+	];
+	
+	lock->SetSwitchStates(lock_switch);
 }
 
 protected func InitializePlayer(int player, int tx, int ty, object pBase, int iTeam)
