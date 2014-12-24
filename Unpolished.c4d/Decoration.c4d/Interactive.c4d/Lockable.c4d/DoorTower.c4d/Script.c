@@ -4,23 +4,24 @@
 --*/
 
 #strict 2
+#include LF_L // lockable
 
-local iRefID;
-local unLocked;
+local unlocked;
 
-public func SetLocked(int iID)
+public func OnSetLocked()
 {
-	iRefID = iID;
-	SetAction("DoorLocked");
+	SetAction("Locked");
 }
 
-/* Torsteuerung */
+/* Control */
 
-protected func DoClose(pClonk, fKi)
+protected func DoClose(object controller, bool is_AI)
 {
 	if (GetAction() == "DoorOpen")
+	{
 		SetAction("CloseDoor");
-	if (GetAction() == "OpenDoor")
+	}
+	else if (GetAction() == "OpenDoor")
 	{
 		var phase = GetPhase();
 		SetAction("CloseDoor");
@@ -28,35 +29,31 @@ protected func DoClose(pClonk, fKi)
 	}
 }
 
-protected func DoOpen(pClonk, fKi)
+protected func DoOpen(object controller, bool is_AI)
 {
-	if (pClonk && GetAction() == "DoorLocked")
+	if (controller && GetAction() == "Locked")
 	{
-		if (fKi)
+		if (is_AI)
 		{
-			unLocked = 1;
+			var temp = unlocked;
+		
+			unlocked = true;
 			SetAction("DoorClosed");
-			unLocked = 0;
+			unlocked = temp;
 		}
 		else
 		{
-			var pQuest = pClonk->~GetQuestStorage();
-			var find = Find_Container(pClonk);
-			if (pQuest)
-				find = Find_Container(pQuest);
-			for (var pObj in FindObjects(find, Find_Func("IsKey"))) 
-				if (LocalN("iRefID", pObj) == iRefID)
-				{
-					unLocked = 1;
-					SetAction("DoorClosed");
-				}
-			if (GetAction() == "DoorLocked")
-				Message("Tür ist abgesperrt!", pClonk);
+			var key = Contents(0, controller);
+			
+			if (key) UnlockWithKey(key);
 		}
 	}
+	
 	if (GetAction() == "DoorClosed")
+	{
 		SetAction("OpenDoor");
-	if (GetAction() == "CloseDoor")
+	}
+	else if (GetAction() == "CloseDoor")
 	{
 		var phase = GetPhase();
 		SetAction("OpenDoor");
@@ -64,50 +61,52 @@ protected func DoOpen(pClonk, fKi)
 	}
 }
 
-protected func ControlLeft(pClonk)
+protected func ControlLeft(object controller)
 {
-	[Tür schließen|Image=GATL]
+	[$MessageCloseDoor$|Image=GATL]
+	
 	if (GetDir() == 1)
-		DoOpen(pClonk);
+		DoOpen(controller);
 	else
-		DoClose(pClonk);
+		DoClose(controller);
+}
+ 
+protected func ControlRight(object controller)
+{
+	[$MessageOpenDoor$|Image=GATR]
+	
+	if (GetDir() == 1)
+		DoClose(controller);
+	else
+		DoOpen(controller);
+}
+ 
+/* Kontext */ 
+ 
+public func ContextDoorClose(object controller)
+{
+	[$MessageCloseDoor$|Image=GATL|Condition=IsOpen]
+	SetCommand(controller, "Grab", this);
+	AppendCommand(controller, "Call", this, 0, 0, 0, 0, "DoClose");
+	return true;
+}
+ 
+public func ContextDoorOpen(object controller)
+{
+	[$MessageOpenDoor$|Image=GATR|Condition=IsClosed]
+	SetCommand(controller, "Grab", this);
+	AppendCommand(controller, "Call", this, 0, 0, 0, 0, "DoOpen");
+	return true;
 }
 
 public func IsOpen()
 {
 	return GetAction() == "DoorOpen" || GetAction() == "OpenDoor";
 }
- 
-protected func ControlRight(pClonk)
-{
-	[Tür öffnen|Image=GATR]
-	if (GetDir() == 1)
-		DoClose(pClonk);
-	else
-		DoOpen(pClonk);
-}
 
 public func IsClosed()
 {
 	return GetAction() == "DoorClosed" || GetAction() == "CloseDoor";
-}
- 
-/* Kontext */ 
- 
-public func ContextDoorClose(object pClonk)
-{
-	[Tür schließen|Image=GATL|Condition=IsOpen]
-	SetCommand(pClonk, "Grab", this);
-	AppendCommand(pClonk, "Call", this, 0, 0, 0, 0, "DoClose");
-	return 1;
-}
- 
-public func ContextDoorOpen(object pClonk)
-{
-	[Tür öffnen|Image=GATR|Condition=IsClosed]
-	SetCommand(pClonk, "Grab", this);
-	AppendCommand(pClonk, "Call", this, 0, 0, 0, 0, "DoOpen");
-	return 1;
 }
   
 /* Initialisierung */
@@ -115,13 +114,11 @@ public func ContextDoorOpen(object pClonk)
 protected func Initialize()
 {
 	SetAction("DoorClosed");
-	// Fertig
-	return 1;
 }
 
-public func SetDir(int iDir)
+public func SetDir(int dir)
 {
-	_inherited(iDir, ...);
+	_inherited(dir, ...);
 	CloseEntrance();
 }
 
@@ -132,8 +129,8 @@ private func OpenEntrance()
 
 private func CloseEntrance()
 {
-	if (iRefID && !unLocked && GetAction() == "DoorClosed")
-		SetAction("DoorLocked");
+	if (key_id && !unlocked && GetAction() == "DoorClosed")
+		SetAction("Locked");
 	SetSolidMask(40, 0 + 74 * GetDir(), 14, 74, 5 * GetDir());
 }
 
@@ -146,4 +143,13 @@ private func SoundOpenDoor()
 private func SoundCloseDoor()
 {
 	Sound("DoorClose");
+}
+
+private func OnUnlockWithKey(object key)
+{
+	if (key && swallow_key) RemoveObject(key);
+	
+	unlocked = true;
+	
+	SetAction("DoorClosed");
 }

@@ -1,0 +1,18 @@
+[DefCore]
+id=LSCS
+Version=4,9,10,7
+Name=Lockable Staircase
+Category=2
+Width=21
+Height=24
+Offset=-10,-12
+Value=20
+Mass=100
+Components=ROCK=2;
+Vertices=2
+VertexX=-9,9
+VertexY=11,11
+VertexFriction=100,100
+Exclusive=1
+Entrance=-8,-11,16,23
+ContainBlast=1 

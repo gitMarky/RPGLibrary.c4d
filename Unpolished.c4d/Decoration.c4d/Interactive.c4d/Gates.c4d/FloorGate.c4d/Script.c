@@ -13,7 +13,7 @@ local manual_use_reset_timer;
 protected func Initialize()
 {
 	SetAction("Gate");
-	SetComDir(com_dir_by_switch = COMD_Down);
+	SetComDir(com_dir_by_switch = COMD_Stop);
 	manual_use_reset_timer = 30;
 }
 

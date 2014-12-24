@@ -1,2 +1,5 @@
 CtrlRead=Read
-
+Inscription0=In this grave rests in piece:|%s
+Inscription1=This is the %s's last place of rest.
+Inscription2=%s|Rest in piece!
+GraveEmpty=This grave is empty.

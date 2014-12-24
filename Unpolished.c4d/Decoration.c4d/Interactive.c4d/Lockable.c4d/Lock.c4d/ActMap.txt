@@ -5,7 +5,7 @@ Directions=1
 FacetBase=0
 Length=1
 Delay=0
-Facet=0,0,6,11
+Facet=0,0,6,11,4
 NextAction=Hold
 
 [Action]
@@ -15,5 +15,5 @@ Directions=2
 FacetBase=0
 Length=1
 Delay=0
-Facet=0,11,6,11
+Facet=0,11,6,11,4
 NextAction=Hold

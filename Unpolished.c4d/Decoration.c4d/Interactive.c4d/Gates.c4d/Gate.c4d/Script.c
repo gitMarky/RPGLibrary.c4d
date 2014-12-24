@@ -11,6 +11,7 @@ local com_dir_by_switch;
 
 protected func Initialize()
 {
+	SetAction("Gate");
 	SetComDir(com_dir_by_switch = COMD_Down);
 }
 

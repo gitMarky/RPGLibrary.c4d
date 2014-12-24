@@ -1,0 +1,2 @@
+MessageOpenDoor=Open
+MessageCloseDoor=Close

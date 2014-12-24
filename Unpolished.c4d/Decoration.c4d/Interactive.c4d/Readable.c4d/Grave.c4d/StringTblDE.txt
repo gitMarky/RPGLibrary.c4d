@@ -1,1 +1,5 @@
 CtrlRead=Lesen
+Inscription0=Hier ruht in Frieden:|%s
+Inscription1=Dies ist die letzte Ruhestätte von %s
+Inscription2=%s|Ruhe in Frieden!
+GraveEmpty=Dieses Grab ist leer.

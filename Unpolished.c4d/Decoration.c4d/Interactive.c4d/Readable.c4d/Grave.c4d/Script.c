@@ -6,31 +6,45 @@
 
 #strict 2
 
-protected func ControlUp(object pPlayer)
+#include LF_R
+
+protected func ControlUp(object controller)
 {
 	[$CtrlRead$]
-	var ghost = Contents();
-	
-	// Spieler vorbereiten (Action halten, weil Push)
-	var sText = Format("Hier ruht in Frieden %s", GetName(ghost));
-	if (!ghost)
-		sText = "Das Grab ist leer.";
-	var szPortrait = Format("Portrait:%i::%x::%s", GetID(), GetColorDw(), "1");
-	CreateMenu
-	(
-		GetID(),
-		pPlayer,
-		this,
-		0,
-		Format("<c %x>%s:</c>", GetColorDw(), GetName()),
-		0,
-		C4MN_Style_Dialog
-	);
-	AddMenuItem(szPortrait, 0, NONE, pPlayer, 0, 0, 0, 5);
-	AddMenuItem(sText, 0, NONE, pPlayer);
-	AddMenuItem("Abbrechen", "Stop", MCMX, pPlayer, 0, pPlayer);
-	return 1;
+	StartDialogue(controller);
+	return true;
 }
+
+protected func Initialize()
+{
+	var text_contents = [
+		DlgOption(0, -1)->Text("$GraveEmpty$"),
+		DlgOptionCancelAlways()
+	];
+
+	SetDialogue(text_contents);
+}
+
+public func Collection2(object corpse)
+{
+	var inscription;
+	
+	var i = Random(3);
+	
+	     if (i == 0) inscription = "$Inscription0$";
+	else if (i == 1) inscription = "$Inscription1$";
+	else if (i == 2) inscription = "$Inscription2$";
+	
+	inscription = Format(inscription, corpse->GetName());
+
+	var text_contents = [
+		DlgOption(0, -1)->Text(inscription),
+		DlgOptionCancelAlways()
+	];
+
+	SetDialogue(text_contents);
+}
+
 
 public func GetDlgMsgColor()
 {

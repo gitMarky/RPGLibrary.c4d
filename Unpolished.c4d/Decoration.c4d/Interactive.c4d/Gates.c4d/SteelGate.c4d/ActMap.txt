@@ -1,7 +1,7 @@
 [Action]
 Name=Gate
 Procedure=FLOAT
-Delay=10
+Delay=0
 FacetBase=1
-NextAction=Gate
+NextAction=Hold
  

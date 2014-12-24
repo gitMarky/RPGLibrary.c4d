@@ -42,7 +42,7 @@ private func Sawing()
 	if (GetID(FindCrewContents()) == _LBJ)
 	{
 		SetGraphics("Lumberjack");
-		FindCrewContents()->PutLogDown();
+		//FindCrewContents()->PutLogDown();
 	}
 	else
 		SetGraphics();

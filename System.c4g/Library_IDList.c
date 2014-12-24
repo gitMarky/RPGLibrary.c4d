@@ -46,8 +46,15 @@ static const ID_Object_Furframe = _FUR;
 static const ID_Object_Skinframe = SKN_;
 static const ID_Object_BigCage = _CAG;
 
+static const ID_Object_Lock = LOCK;
+static const ID_Object_Key = _KEY;
+
 static const ID_Passage_Staircase = _SCS;
 static const ID_Passage_Cave = CAVE;
+
+static const ID_Passage_StoneGate = _GAT;
+static const ID_Passage_SteelGate = CPSG;
+static const ID_Passage_FloorGate = _FGT;
 
 // Menu Decos
 
@@ -72,6 +79,7 @@ static const ID_QuestHandler = LF_Q;
 
 static const ID_Library_DayNightCycle = LF_C;
 static const ID_Library_Decoration = LF_D;
+static const ID_Library_Lockable = LF_L;
 static const ID_Library_Readable = LF_R;
 static const ID_Library_Switch = LF_S;
 

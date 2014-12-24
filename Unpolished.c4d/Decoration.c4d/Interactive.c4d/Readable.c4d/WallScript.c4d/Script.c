@@ -20,11 +20,15 @@ protected func Initialize()
  *
  * @par pPlayer The object that activated the book. The dialogue is displayed to this object.
  */ 
-protected func ControlUp(object pPlayer)
+protected func ControlUp(object controller)
 {
 	[$CtrlRead$]
+	StartDialogue(controller);
+	return true;
+}
 
-
+public func TesWallplate()
+{
 	SetDialogue([
 		[0,-1,0,"Dies ist die Erste Seite des Buches",0,MCMC],
 		[1,0,"Zu S.2","Dies ist die zweite Seite des Buches",0,MCM2],
@@ -37,9 +41,6 @@ protected func ControlUp(object pPlayer)
 		[19,-1,"Hier hast Du den Flint zurück","Danke",0,[FLNT],0,"FindContents(FLNT,pTarget)","!FindContents(FLNT,pTarget) || RemoveObject(FindContents(FLNT,pTarget));"],
 		[7,-1,"Schließen","",0,[MCMX,0,0,0,0,-1],-1,0,"CloseMenu(pTarget)"]
 	]);
-
-	StartDialogue( pPlayer );
-	return 1;
 }
 
 /**

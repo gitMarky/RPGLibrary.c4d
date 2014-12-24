@@ -62,7 +62,7 @@ protected func GetOrPutKey(object controller)
 		}
 		else
 		{
-			Message("$MessageKeyStuck$");
+			Message("$MessageKeyStuck$", controller);
 		}
 	}
 	else
@@ -127,5 +127,7 @@ public func UpdateAction()
 	else
 	{
 		if (GetAction() != "Empty") SetAction("Empty");
+		
+		SetDir(0);
 	}
 }

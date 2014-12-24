@@ -1,0 +1,2 @@
+MessageOpenDoor=÷ffnen
+MessageCloseDoor=Schlieﬂen
