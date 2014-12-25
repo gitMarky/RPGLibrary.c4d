@@ -49,6 +49,11 @@ static const ID_Object_BigCage = _CAG;
 static const ID_Object_Lock = LOCK;
 static const ID_Object_Key = _KEY;
 
+static const ID_Object_Stalactite = _STA;
+static const ID_Object_FireTrap = _FT1;
+static const ID_Object_SpearTrap = _ST1;
+static const ID_Object_PitTrap = _PTM;
+
 static const ID_Passage_Staircase = _SCS;
 static const ID_Passage_Cave = CAVE;
 

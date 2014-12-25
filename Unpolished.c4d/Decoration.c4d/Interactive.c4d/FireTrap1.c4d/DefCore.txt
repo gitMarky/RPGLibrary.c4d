@@ -1,0 +1,13 @@
+[DefCore]
+id=_FT1
+Version=4,9,10,7
+Name=FireTrap
+Category=1
+Width=7
+Height=7
+Offset=-4,-4
+Components=WOOD=1
+Picture=0,0,7,7
+Vertices=1
+VertexFriction=100
+Rotate=1

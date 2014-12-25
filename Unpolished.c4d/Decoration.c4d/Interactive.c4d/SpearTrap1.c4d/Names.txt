@@ -1,0 +1,2 @@
+DE:Speerfalle 1
+US:Spear trap 1

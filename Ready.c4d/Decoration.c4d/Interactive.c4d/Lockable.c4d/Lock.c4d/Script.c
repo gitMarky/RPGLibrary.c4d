@@ -52,37 +52,13 @@ protected func TurnKey(object controller)
 	}
 }
 
-protected func GetOrPutKey(object controller)
+protected func OnPutKey(object controller)
 {
-	if (Contents())
-	{
-		if (!swallow_key)
-		{
-			Exit(Contents());
-		}
-		else
-		{
-			Message("$MessageKeyStuck$", controller);
-		}
-	}
-	else
-	{
-		// Try taking contents from the clonk
-		var key;
-		if (key = Contents(0, controller))
-		{
-			if (!RejectCollect(GetID(key), key))
-			{
-				Enter(this, key);
-				
-				if (!GetClrModulation(key))
-					SetColorDw(RGB(255, 255, 255));
-				else
-					SetColorDw(GetClrModulation(key));
-			}
-		}
-	}
-	
+	UpdateAction();
+}
+
+protected func OnGetKey(object controller)
+{
 	UpdateAction();
 }
 

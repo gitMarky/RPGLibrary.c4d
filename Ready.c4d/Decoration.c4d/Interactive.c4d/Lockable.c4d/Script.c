@@ -64,4 +64,39 @@ private func LockWithKey(object key)
 	ChangeAction("Locked");
 	this->~OnLockWithKey(key);
 }
+
+protected func GetOrPutKey(object controller)
+{
+	if (Contents())
+	{
+		if (!swallow_key)
+		{
+			Exit(Contents());
+			this->~OnGetKey(controller);
+		}
+		else
+		{
+			Message("$MessageKeyStuck$", controller);
+		}
+	}
+	else
+	{
+		// Try taking contents from the clonk
+		var key;
+		if (key = Contents(0, controller))
+		{
+			if (!RejectCollect(GetID(key), key))
+			{
+				Enter(this, key);
+				
+				if (!GetClrModulation(key))
+					SetColorDw(RGB(255, 255, 255));
+				else
+					SetColorDw(GetClrModulation(key));
+					
+				this->~OnPutKey(controller, key);
+			}
+		}
+	}
+}
   

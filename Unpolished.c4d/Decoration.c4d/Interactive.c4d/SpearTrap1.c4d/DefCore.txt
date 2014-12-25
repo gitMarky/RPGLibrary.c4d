@@ -1,0 +1,15 @@
+[DefCore]
+id=_ST1
+Version=4,9,10,7
+Name=SpearTrap1
+Category=2
+Width=4
+Height=20
+Offset=-2,-10
+Components=WOOD=2
+Picture=0,0,4,20
+Vertices=1
+VertexX=2
+VertexY=7
+VertexCNAT=4
+VertexFriction=100

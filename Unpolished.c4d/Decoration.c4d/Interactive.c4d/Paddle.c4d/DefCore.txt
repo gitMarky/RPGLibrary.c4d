@@ -1,0 +1,15 @@
+[DefCore]
+id=_PTM
+Version=4,9,10,7
+Name=Falltür
+Category=1
+MaxUserSelect=1
+Components=WOOD=2;
+Width=40
+Height=20
+Offset=-20,-10
+Value=20
+Mass=150
+Picture=0,0,40,6
+TimerCall=CheckHero
+Timer=1

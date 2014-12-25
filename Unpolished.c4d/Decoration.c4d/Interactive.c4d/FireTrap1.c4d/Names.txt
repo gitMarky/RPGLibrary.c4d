@@ -1,0 +1,2 @@
+DE:Feuerfalle 1
+US:Fire trap 1

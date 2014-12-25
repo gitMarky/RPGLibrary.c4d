@@ -31,5 +31,4 @@ Length=1
 Delay=150
 Facet=80,0,40,37,0,0
 NextAction=OccupiedSilent
-EndCall=RefillEnergy
 StartCall=UpdateState
