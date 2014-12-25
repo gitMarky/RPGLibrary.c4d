@@ -1,6 +1,6 @@
 Release Notes:
 
-v0.2.0
+v0.1.5
 - Changed the way quests definitions are loaded:
   DscQuest<identifier>(bool) split into DscQuestInfo<identifier>() and DscQuestStages<identifier>()
 
