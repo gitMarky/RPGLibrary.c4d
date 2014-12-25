@@ -2,7 +2,7 @@
 A grabbable object that looks like a signpost. It can have a dialogue that is displayed upon pressing ControlUp.
 
 @title Signpost
-@author Sven2 (Graphics), Marky (SCript)
+@author Sven2 (Graphics), Marky (SCript), uhu (additional graphics from InExantros)
 @version 0.1.0
 --*/
 

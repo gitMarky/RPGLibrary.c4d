@@ -1,7 +1,7 @@
 /*--
 A gate that moves up or down.
 @title Stone gate
-@author Sven2
+@author Sven2, uhu (additional graphics from InExantros)
 @version 0.1.0
 --*/
 
