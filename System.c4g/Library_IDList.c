@@ -94,6 +94,8 @@ static const ID_Helper_Story = _STY;
 static const ID_Helper_DialogueBuilder = _DLB;
 static const ID_Helper_QuestBuilder = __QB;
 static const ID_Helper_SwitchBuilder = LF_S; // yes, it is the same
+static const ID_Helper_DayNightCycleBuilder = LF_C; // this is also the same
+static const ID_Helper_BehaviourBuilder = _BHB;
 
 static const ID_Helper_ScreenFader = _SCF;
 

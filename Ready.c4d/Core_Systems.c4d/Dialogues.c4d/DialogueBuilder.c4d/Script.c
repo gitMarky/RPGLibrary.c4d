@@ -56,7 +56,7 @@ public func Init(int index, string option)
 
 public func Parent(parent)
 {
-	dialogue[gDialogue_ARRAYPOS_Parent] = ExpandDialogueArray(dialogue[gDialogue_ARRAYPOS_Parent], parent, C4V_Int);
+	dialogue[gDialogue_ARRAYPOS_Parent] = PushBack(parent, dialogue[gDialogue_ARRAYPOS_Parent], C4V_Int);
 
 	return this;
 }
@@ -70,21 +70,21 @@ public func Parent(parent)
  */
 public func Text(text)
 {
-	dialogue[gDialogue_ARRAYPOS_Text] = ExpandDialogueArray(dialogue[gDialogue_ARRAYPOS_Text], text, C4V_String);
+	dialogue[gDialogue_ARRAYPOS_Text] = PushBack(text, dialogue[gDialogue_ARRAYPOS_Text], C4V_String);
 
 	return this;
 }
 
 /**
  Specifies the conditions that have to be fulfilled for the option to be displayed in the dialogue.
- @par event The events. See TODO.
+ @par condition The conditions. See TODO.
  @return object Returns the helper object, such that the dialogue option can be further modified.
  */
-public func Conditions(event)
+public func Conditions(condition)
 {
 	var currentConditions = dialogue[gDialogue_ARRAYPOS_Conditions];
 
-	dialogue[gDialogue_ARRAYPOS_Conditions] = ExpandDialogueArray(currentConditions, event, C4V_String);
+	dialogue[gDialogue_ARRAYPOS_Conditions] = PushBack(condition, currentConditions, C4V_String);
 
 	return this;
 }
@@ -98,7 +98,7 @@ public func Events(event)
 {
 	var currentEvent = dialogue[gDialogue_ARRAYPOS_Events];
 
-	dialogue[gDialogue_ARRAYPOS_Events] = ExpandDialogueArray(currentEvent, event, C4V_String);
+	dialogue[gDialogue_ARRAYPOS_Events] = PushBack(event, currentEvent, C4V_String);
 
 	return this;
 }
@@ -206,7 +206,7 @@ public func LogQuest(quest)
 	SafeInitArray(gDialogue_ARRAYPOS_TextStyle);
 
 	var currentQuests = dialogue[gDialogue_ARRAYPOS_TextStyle][gTextStyle_ARRAYPOS_Quest];
-	dialogue[gDialogue_ARRAYPOS_TextStyle][gTextStyle_ARRAYPOS_Quest] = ExpandDialogueArray(currentQuests, quest, C4V_String);
+	dialogue[gDialogue_ARRAYPOS_TextStyle][gTextStyle_ARRAYPOS_Quest] = PushBack(quest, currentQuests, C4V_String);
 	
 	return this;
 }
@@ -347,25 +347,4 @@ protected func SafeInitArray(int index)
 	{
 		dialogue[index] = [];
 	}
-}
-
-protected func ExpandDialogueArray(currentArray, content, type)
-{
-	var newArray;
-	if (GetType(currentArray) == C4V_Array)
-		newArray = currentArray;
-	else
-		newArray = [];
-
-	if (GetType(content) == type)
-		PushBack(content, newArray);
-	else if (GetType(content) == C4V_Array)
-	{
-		for (var item in content)
-			PushBack(item, newArray);
-	}
-	else
-		ErrorLog(Format("The parameter is of invalid type: %v - only %v and array allowed", content, type));
-
-	return newArray;
 }

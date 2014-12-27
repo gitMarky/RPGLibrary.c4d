@@ -1,5 +1,10 @@
 Release Notes:
 
+v0.2.0:
+- Changed the way BehaviourWanderArea() and BehaviourWanderPoint() work:
+  Previously these functions should return the data array for AddBehaviour().
+  Now, with the addendum ->Add() or ->Remove() they create an AddBehaviour() or RemoveBehaviour() call. 
+
 v0.1.5
 - Changed the way quests definitions are loaded:
   DscQuest<identifier>(bool) split into DscQuestInfo<identifier>() and DscQuestStages<identifier>()

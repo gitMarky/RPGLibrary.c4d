@@ -168,56 +168,6 @@ global func GetBehaviours(object target, int priority, int operator)
 }
 
 
-
-
-
-/*******************************************************************************************************************
- *
- * Behaviour definitions
- *
- *******************************************************************************************************************/
-
-/**
- Data array for {@c gBehaviour_Wander_Area}. The object moves between a left and right boundary:
- @par x_left The left boundary of the area, in absolute coordinates.
- @par x_right The right boundary of the area, in absolute coordinates.
- @par min_pause The object waits a random amount of time after walking a 
-      short distance. It waits at least this many frames.
- @par max_pause The object waits a random amount of time after walking a 
-      short distance. It waits at most this many frames.
- @par speed_percent The object walks at this many percent of its maximum speed. 100 is full speed.
- */
-global func BehaviourWanderArea(int x_left, int x_right, int min_pause, int max_pause, int speed_percent)
-{
-	var data = [];
-	data[gBehaviour_Wander_Index_xLeft] = x_left;
-	data[gBehaviour_Wander_Index_xRight] = x_right;
-	data[gBehaviour_Wander_Index_minPause] = min_pause;
-	data[gBehaviour_Wander_Index_maxPause] = max_pause;
-	data[gBehaviour_Wander_Index_Speed] = speed_percent;
-}
-
-/**
- Data array for {@c gBehaviour_Wander_Point}. The object moves in a circle area around a point:
- @par x The x coordinate of the circle center, in absolute coordinates.
- @par y The y coordinate of the circle center, in absolute coordinates.
- @par radius The radius of the circle.
- @par min_pause The object waits a random amount of time after walking a 
-      short distance. It waits at least this many frames.
- @par max_pause The object waits a random amount of time after walking a 
-      short distance. It waits at most this many frames.
- @par speed_percent The object walks at this many percent of its maximum speed. 100 is full speed.
- */
-global func BehaviourWanderPoint(int x, int y, int radius, int min_pause, int max_pause, int speed_percent)
-{
-	var data = [];
-	data[gBehaviour_Wander_Index_Point] = [x, y];
-	data[gBehaviour_Wander_Index_Radius] = radius;
-	data[gBehaviour_Wander_Index_minPause] = min_pause;
-	data[gBehaviour_Wander_Index_maxPause] = max_pause;
-	data[gBehaviour_Wander_Index_Speed] = speed_percent;
-}
-
 /*******************************************************************************************************************
  *
  * The actual scripted behaviours

@@ -10,6 +10,7 @@ Provides functionality for cyclic behavior per day.
 
 local cycle_target_object;
 local cycle_definition_array;
+local is_builder;
 
 static const gDayNightCycle_ARRAYPOS_Index 		= 0;
 static const gDayNightCycle_ARRAYPOS_Conditions = 1;
@@ -143,4 +144,45 @@ public func GetTarget()
 public func GetTargetString()
 {
 	return "pTarget";
+}
+
+global func DncPhase(int hour)
+{
+	var builder = CreateObject(ID_Helper_DayNightCycleBuilder);
+	
+	var def = [];
+	def[gDayNightCycle_ARRAYPOS_Index] = hour;
+	
+	builder->LocalN("is_builder") = true;
+	builder->LocalN("cycle_definition_array") = def;
+
+	return builder;
+}
+
+/**
+ Specifies the conditions that have to be fulfilled for the option to be displayed in the dialogue.
+ @par condition The conditions.
+ @return object Returns the helper object, such that the phase can be further modified.
+ */
+public func Conditions(condition)
+{
+	if (!is_builder) return 0;
+	
+    PushBack(condition, cycle_definition_array[gDayNightCycle_ARRAYPOS_Conditions], C4V_String);
+    
+	return this;
+}
+
+/**
+ Specifies the events that fire after selecting an option.
+ @par event The events. See TODO.
+ @return object Returns the helper object, such that the dialogue option can be further modified.
+ */
+public func Events(event)
+{
+	if (!is_builder) return 0;
+
+	PushBack(event, cycle_definition_array[gDayNightCycle_ARRAYPOS_Events], C4V_String);
+
+	return this;
 }

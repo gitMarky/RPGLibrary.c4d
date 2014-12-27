@@ -21,7 +21,8 @@ public func MsgDialogueArthur() {
 
 func DayNightCycleArthur()
 {
-	return [[6,0,"AddBehaviour(pTarget, gBehaviour_Wander_Area, 20, [284,336,1,15,75], gBehaviour_Priority_Idle)"],
-	        [18,0,"RemoveBehaviour(pTarget, gBehaviour_Wander_Area, gBehaviour_Priority_Idle)"]];
-
+//	return [[6,0,"AddBehaviour(pTarget, gBehaviour_Wander_Area, 20, [284,336,1,15,75], gBehaviour_Priority_Idle)"],
+//	        [18,0,"RemoveBehaviour(pTarget, gBehaviour_Wander_Area, gBehaviour_Priority_Idle)"]];
+	return [[ 6, 0, BehaviourWanderArea(284, 336, 1, 15, 75)->Add()],
+			[18, 0, BehaviourWanderArea()->Remove()]];
 }
