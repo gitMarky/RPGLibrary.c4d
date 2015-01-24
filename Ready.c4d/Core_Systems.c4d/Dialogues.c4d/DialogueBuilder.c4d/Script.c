@@ -348,3 +348,5 @@ protected func SafeInitArray(int index)
 		dialogue[index] = [];
 	}
 }
+
+public func IconContinue(){ Icon(LMM2); MenuExtra(2, 4); return this; }
